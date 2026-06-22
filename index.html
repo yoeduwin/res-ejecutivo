@@ -1819,31 +1819,63 @@ function generarPDFNom(datos, nom, razon, fecha) {
       format:      'letter'
     });
 
-    const opciones = {
-      x:           10,
-      y:           10,
-      width:       190,      // ancho en mm dentro de la página carta
-      windowWidth: 900,      // ancho del viewport de referencia
-      html2canvas: { scale: 2 }  // mayor resolución para evitar texto borroso
-    };
+    const opcionesCanvas = { scale: 2, backgroundColor: '#ffffff', windowWidth: 900 };
+    let primeraPagina = true;
 
-    // Cada sección se renderiza con su propia llamada a doc.html() y se separan
-    // con addPage(), en lugar de depender de autoPaging:'css' (poco confiable
-    // en jsPDF y causaba decenas de páginas en blanco).
-    doc.html(contenedorCarta, Object.assign({}, opciones, {
-      callback: function () {
+    // Se renderiza cada sección a un canvas con html2canvas y se recorta
+    // manualmente en franjas del alto de una página carta, en lugar de usar
+    // doc.html()/autoPaging (paginación interna de jsPDF poco confiable que
+    // generaba páginas en blanco de más).
+    html2canvas(contenedorCarta, opcionesCanvas)
+      .then(function (canvas) {
         document.body.removeChild(contenedorCarta);
-        doc.addPage();
-        doc.html(contenedorResumen, Object.assign({}, opciones, {
-          callback: function (pdfDoc) {
-            document.body.removeChild(contenedorResumen);
-            pdfDoc.save(nombre);
-            resolve();
-          }
-        }));
-      }
-    }));
+        primeraPagina = agregarCanvasComoPaginas(doc, canvas, primeraPagina);
+        return html2canvas(contenedorResumen, opcionesCanvas);
+      })
+      .then(function (canvas) {
+        document.body.removeChild(contenedorResumen);
+        agregarCanvasComoPaginas(doc, canvas, primeraPagina);
+        doc.save(nombre);
+        resolve();
+      });
   });
+}
+
+/**
+ * Recorta un canvas (posiblemente más alto que una página) en franjas del
+ * alto disponible de una página carta y las añade al PDF como imágenes.
+ * @param {jsPDF} doc
+ * @param {HTMLCanvasElement} canvas
+ * @param {boolean} primeraPagina - true si aún no se ha añadido ninguna página al PDF
+ * @returns {boolean} false (para encadenar el control de "primera página" entre secciones)
+ */
+function agregarCanvasComoPaginas(doc, canvas, primeraPagina) {
+  const margen     = 10; // mm
+  const anchoUtil  = 190; // mm
+  const altoUtil   = doc.internal.pageSize.getHeight() - margen * 2; // mm
+  const pxPorMM    = canvas.width / anchoUtil;
+  const altoPaginaPx = Math.floor(altoUtil * pxPorMM);
+
+  let y = 0;
+  while (y < canvas.height) {
+    const altoFranjaPx = Math.min(altoPaginaPx, canvas.height - y);
+    const lienzo = document.createElement('canvas');
+    lienzo.width  = canvas.width;
+    lienzo.height = altoFranjaPx;
+    lienzo.getContext('2d').drawImage(
+      canvas, 0, y, canvas.width, altoFranjaPx, 0, 0, canvas.width, altoFranjaPx
+    );
+
+    if (!primeraPagina) doc.addPage();
+    doc.addImage(
+      lienzo.toDataURL('image/jpeg', 0.95), 'JPEG',
+      margen, margen, anchoUtil, altoFranjaPx / pxPorMM
+    );
+
+    primeraPagina = false;
+    y += altoFranjaPx;
+  }
+  return primeraPagina;
 }
 
 /**
