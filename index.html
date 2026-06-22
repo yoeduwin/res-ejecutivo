@@ -392,6 +392,10 @@ select:focus {
   padding: 0;
   overflow: hidden;
 }
+/* Usado solo por el contenedor offscreen para generar el PDF: mismo fondo,
+   sin borde/esquinas redondeadas/recorte (eso es chrome de UI, no debe
+   aparecer rasterizado dentro del documento). */
+.contenedor-render-pdf { background: var(--blanco); }
 
 /* --- Estilos del documento generado (dentro de #vista-previa) --- */
 .doc-pagina {
@@ -2265,7 +2269,7 @@ function agregarCanvasComoPaginas(doc, canvas, primeraPagina, canvasPie, cortesP
  */
 function crearContenedorOffscreen(html) {
   const contenedor = document.createElement('div');
-  contenedor.className = 'vista-previa-doc';
+  contenedor.className = 'contenedor-render-pdf';
   contenedor.style.position = 'fixed';
   contenedor.style.left     = '-10000px';
   contenedor.style.top      = '0';
