@@ -636,15 +636,9 @@ select:focus {
         </div>
 
         <div class="campo-grupo">
-          <label for="direccionCalle">Calle, número y colonia</label>
-          <input type="text" id="direccionCalle" name="direccionCalle"
-                 placeholder="Ej. Av. Reforma 100, Col. Centro">
-        </div>
-
-        <div class="campo-grupo">
-          <label for="direccionCP">C.P., Municipio y Estado</label>
-          <input type="text" id="direccionCP" name="direccionCP"
-                 placeholder="Ej. C.P. 72000, Puebla, Pue.">
+          <label for="direccion">Dirección completa</label>
+          <input type="text" id="direccion" name="direccion"
+                 placeholder="Ej. Av. Reforma 100, Col. Centro, C.P. 72000, Puebla, Pue.">
         </div>
 
         <div class="campo-fila">
@@ -1003,6 +997,9 @@ select:focus {
           ⬇ Descargar PDF
         </button>
       </div>
+      <p class="campo-ayuda" style="margin-top:-8px">
+        Se descargará un PDF independiente por cada NOM seleccionada.
+      </p>
       <div id="vista-previa" class="vista-previa-doc">
         <!-- Contenido renderizado dinámicamente por JavaScript.html -->
       </div>
@@ -1274,8 +1271,7 @@ function recolectarDatos() {
 
   const datos = {
     razonSocial:    document.getElementById('razonSocial').value.trim(),
-    direccionCalle: document.getElementById('direccionCalle').value.trim(),
-    direccionCP:    document.getElementById('direccionCP').value.trim(),
+    direccion:      document.getElementById('direccion').value.trim(),
     fecha:          document.getElementById('fecha').value,
     dirigidoA:      document.getElementById('dirigidoA').value.trim(),
     puesto:         document.getElementById('puesto').value.trim(),
@@ -1310,6 +1306,10 @@ function recolectarDatos() {
 // ============================================================
 // GENERACIÓN DEL RESUMEN EJECUTIVO
 // ============================================================
+// Datos recolectados en la última llamada a generarResumen(); descargarPDF()
+// los reutiliza para construir los PDFs independientes por NOM.
+let datosActuales = null;
+
 /**
  * Punto de entrada principal: valida, genera el documento y registra el log.
  */
@@ -1323,11 +1323,12 @@ function generarResumen() {
   }
 
   const datos = recolectarDatos();
+  datosActuales = datos;
 
   // Renderizar la vista previa
   const contenedor = document.getElementById('vista-previa');
   contenedor.innerHTML = renderizarDocumentoCompleto(datos);
-  generarQRGenerico();
+  generarQRsEnContenedor(contenedor, datos.noms);
 
   // Mostrar la sección de vista previa y hacer scroll
   const seccionPreview = document.getElementById('seccion-preview');
@@ -1383,12 +1384,13 @@ function htmlHeaderDoc() {
 
 /**
  * Genera el HTML de la carta de presentación para una NOM específica.
+ * Cada carta es la primera página de un PDF independiente, por lo que
+ * siempre incluye su propio QR (con id único por NOM).
  * @param {Object} datos
  * @param {string} nom  - '011' | '022' | '024' | '025'
- * @param {boolean} [incluirQR] - true para insertar el QR genérico (solo primera página del documento)
  * @returns {string}
  */
-function renderizarCartaPresentacion(datos, nom, incluirQR) {
+function renderizarCartaPresentacion(datos, nom) {
   const fechaTexto = formatearFechaEspanol(datos.fecha);
   const parrafo    = PARRAFOS_NOM[nom] || '';
 
@@ -1403,8 +1405,7 @@ function renderizarCartaPresentacion(datos, nom, incluirQR) {
 
       <div class="doc-destinatario">
         <div><span class="doc-destinatario-label">Cliente:</span> ${datos.razonSocial}</div>
-        ${datos.direccionCalle ? `<div><span class="doc-destinatario-label">Dirección:</span> ${datos.direccionCalle}</div>` : ''}
-        ${datos.direccionCP    ? `<div><span class="doc-destinatario-label"></span> ${datos.direccionCP}</div>` : ''}
+        ${datos.direccion ? `<div><span class="doc-destinatario-label">Dirección:</span> ${datos.direccion}</div>` : ''}
         <div style="margin-top:8px">
           <span class="doc-destinatario-label">Dirigido a:</span> ${datos.dirigidoA}
         </div>
@@ -1413,7 +1414,7 @@ function renderizarCartaPresentacion(datos, nom, incluirQR) {
         </div>
       </div>
 
-      <div class="doc-fecha">📅 ${fechaTexto}</div>
+      <div class="doc-fecha">Fecha de elaboración: ${fechaTexto}</div>
 
       <div class="doc-cuerpo">
         <p>Estimado(a) cliente,</p>
@@ -1426,7 +1427,7 @@ function renderizarCartaPresentacion(datos, nom, incluirQR) {
         <div class="doc-firma-cargo" style="margin-top:4px">${EMPRESA.correo}</div>
       </div>
 
-      ${incluirQR ? '<div id="doc-qr-generico" class="doc-qr"></div>' : ''}
+      <div id="doc-qr-${nom}" class="doc-qr"></div>
     </div>`;
 }
 
@@ -1620,59 +1621,78 @@ function renderizarTablaResumen(datos, nom) {
   return contenido;
 }
 
+const TITULOS_NOM = {
+  '011': 'NOM-011-STPS-2001 — Ruido Laboral',
+  '022': 'NOM-022-STPS-2015 — Electricidad Estática',
+  '025': 'NOM-025-STPS-2008 — Iluminación',
+  '024': 'NOM-024-STPS-2001 — Vibraciones'
+};
+
 /**
- * Genera el HTML del resumen ejecutivo completo (todas las NOMs activas).
- * Una página de carta + una página de resumen por NOM.
+ * Genera el HTML de la página de resumen ejecutivo (con tablas) de una NOM.
+ * @param {Object} datos
+ * @param {string} nom
+ * @returns {string}
+ */
+function renderizarPaginaResumen(datos, nom) {
+  return `
+    <div class="doc-pagina">
+      ${htmlHeaderDoc()}
+      <div class="doc-seccion-titulo">Resumen Ejecutivo — ${TITULOS_NOM[nom]}</div>
+      <div class="doc-intro">
+        A continuación se presentan los resultados obtenidos durante la evaluación
+        realizada en las instalaciones de <strong>${datos.razonSocial}</strong>,
+        conforme a los criterios establecidos en la normatividad aplicable.
+      </div>
+      ${renderizarTablaResumen(datos, nom)}
+    </div>`;
+}
+
+/**
+ * Genera el HTML completo (carta + resumen) de una NOM. Este es el contenido
+ * de un único PDF independiente.
+ * @param {Object} datos
+ * @param {string} nom
+ * @returns {string}
+ */
+function renderizarDocumentoNom(datos, nom) {
+  return renderizarCartaPresentacion(datos, nom) + renderizarPaginaResumen(datos, nom);
+}
+
+/**
+ * Genera el HTML de la vista previa completa (todas las NOMs activas), para
+ * mostrar en pantalla. Cada NOM conserva su propia carta + resumen, ya que
+ * al descargar se generan como PDFs independientes.
  * @param {Object} datos
  * @returns {string}
  */
 function renderizarDocumentoCompleto(datos) {
-  let html = '';
-
-  datos.noms.forEach(function (nom, idx) {
-    // Página 1: Carta de presentación (el QR genérico solo se incluye una vez, en la primera carta)
-    html += renderizarCartaPresentacion(datos, nom, idx === 0);
-
-    // Página 2: Resumen ejecutivo con tablas
-    const titulos = {
-      '011': 'NOM-011-STPS-2001 — Ruido Laboral',
-      '022': 'NOM-022-STPS-2015 — Electricidad Estática',
-      '025': 'NOM-025-STPS-2008 — Iluminación',
-      '024': 'NOM-024-STPS-2001 — Vibraciones'
-    };
-    html += `
-      <div class="doc-pagina">
-        ${htmlHeaderDoc()}
-        <div class="doc-seccion-titulo">Resumen Ejecutivo — ${titulos[nom]}</div>
-        <div class="doc-intro">
-          A continuación se presentan los resultados obtenidos durante la evaluación
-          realizada en las instalaciones de <strong>${datos.razonSocial}</strong>,
-          conforme a los criterios establecidos en la normatividad aplicable.
-        </div>
-        ${renderizarTablaResumen(datos, nom)}
-      </div>`;
-  });
-
-  return html;
+  return datos.noms.map(function (nom) {
+    return renderizarDocumentoNom(datos, nom);
+  }).join('');
 }
 
 // ============================================================
 // CÓDIGO QR GENÉRICO
 // ============================================================
 /**
- * Genera el QR genérico (sitio web de la empresa) dentro del contenedor
- * #doc-qr-generico, insertado por renderizarCartaPresentacion() en la
- * primera página del documento. Se genera localmente con qrcode.js,
- * sin depender de ninguna API externa.
+ * Genera el QR genérico (sitio web de la empresa) dentro de los contenedores
+ * #doc-qr-{nom}, insertados por renderizarCartaPresentacion() en cada carta.
+ * Se genera localmente con qrcode.js, sin depender de ninguna API externa.
+ * @param {ParentNode} contenedor - Elemento raíz donde buscar los contenedores de QR
+ * @param {string[]} noms - Códigos de NOM cuyos QR deben generarse
  */
-function generarQRGenerico() {
-  const contenedorQr = document.getElementById('doc-qr-generico');
-  if (!contenedorQr || typeof QRCode === 'undefined') return;
-  contenedorQr.innerHTML = '';
-  new QRCode(contenedorQr, {
-    text:   'https://' + EMPRESA.sitio,
-    width:  80,
-    height: 80
+function generarQRsEnContenedor(contenedor, noms) {
+  if (typeof QRCode === 'undefined') return;
+  noms.forEach(function (nom) {
+    const contenedorQr = contenedor.querySelector('#doc-qr-' + nom);
+    if (!contenedorQr) return;
+    contenedorQr.innerHTML = '';
+    new QRCode(contenedorQr, {
+      text:   'https://' + EMPRESA.sitio,
+      width:  80,
+      height: 80
+    });
   });
 }
 
@@ -1680,38 +1700,71 @@ function generarQRGenerico() {
 // EXPORTACIÓN PDF con jsPDF
 // ============================================================
 /**
- * Genera y descarga el PDF de la vista previa usando jsPDF + html2canvas.
+ * Descarga un PDF independiente (carta + resumen) por cada NOM seleccionada,
+ * usando jsPDF + html2canvas. Se generan de forma secuencial para no saturar
+ * el renderizado de html2canvas.
  */
 function descargarPDF() {
-  const elemento = document.getElementById('vista-previa');
-  if (!elemento || !elemento.innerHTML.trim()) {
+  if (!datosActuales || !datosActuales.noms || datosActuales.noms.length === 0) {
     mostrarError('Primero genere el Resumen Ejecutivo antes de descargar el PDF.');
     return;
   }
 
-  // Construir nombre del archivo
-  const razon  = document.getElementById('razonSocial').value.trim()
-                          .replace(/[^a-zA-Z0-9\u00C0-\u024F\s]/g, '')
-                          .replace(/\s+/g, '_');
-  const fecha  = document.getElementById('fecha').value.replace(/-/g, '');
-  const nombre = 'ResumenEjecutivo_' + razon + '_' + fecha + '.pdf';
+  const razon = datosActuales.razonSocial
+                  .replace(/[^a-zA-Z0-9\u00C0-\u024F\s]/g, '')
+                  .replace(/\s+/g, '_');
+  const fecha = datosActuales.fecha.replace(/-/g, '');
 
-  // Configuración de jsPDF
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({
-    orientation: 'portrait',
-    unit:        'mm',
-    format:      'letter'
-  });
+  datosActuales.noms.reduce(function (promesa, nom) {
+    return promesa.then(function () {
+      return generarPDFNom(datosActuales, nom, razon, fecha);
+    });
+  }, Promise.resolve());
+}
 
-  doc.html(elemento, {
-    callback: function (pdfDoc) {
-      pdfDoc.save(nombre);
-    },
-    x:          10,
-    y:          10,
-    width:       190,      // ancho en mm dentro de la página carta
-    windowWidth: 900       // ancho del viewport de referencia
+/**
+ * Genera y descarga el PDF independiente (carta + resumen) de una sola NOM,
+ * renderizándolo en un contenedor temporal fuera de pantalla.
+ * @param {Object} datos
+ * @param {string} nom
+ * @param {string} razon - Razón social saneada para el nombre de archivo
+ * @param {string} fecha - Fecha (YYYYMMDD) para el nombre de archivo
+ * @returns {Promise<void>}
+ */
+function generarPDFNom(datos, nom, razon, fecha) {
+  return new Promise(function (resolve) {
+    const contenedor = document.createElement('div');
+    contenedor.className = 'vista-previa-doc';
+    contenedor.style.position = 'fixed';
+    contenedor.style.left     = '-10000px';
+    contenedor.style.top      = '0';
+    contenedor.style.width    = '900px';
+    contenedor.innerHTML = renderizarDocumentoNom(datos, nom);
+    document.body.appendChild(contenedor);
+    generarQRsEnContenedor(contenedor, [nom]);
+
+    const nombre = 'ResumenEjecutivo_' + razon + '_NOM' + nom + '_' + fecha + '.pdf';
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({
+      orientation: 'portrait',
+      unit:        'mm',
+      format:      'letter'
+    });
+
+    doc.html(contenedor, {
+      callback: function (pdfDoc) {
+        pdfDoc.save(nombre);
+        document.body.removeChild(contenedor);
+        resolve();
+      },
+      x:           10,
+      y:           10,
+      width:       190,      // ancho en mm dentro de la página carta
+      windowWidth: 900,      // ancho del viewport de referencia
+      autoPaging:  'css',    // respeta page-break-after de .doc-pagina
+      html2canvas: { scale: 3 }  // mayor resolución para evitar texto borroso
+    });
   });
 }
 
@@ -1786,7 +1839,7 @@ function cargarPerfilExcel(event) {
       const hoja  = libro.Sheets[libro.SheetNames[0]];
 
       document.getElementById('razonSocial').value    = getCellValue(hoja, PERFIL_CELL_MAP.companyName);
-      document.getElementById('direccionCalle').value  = getCellValue(hoja, PERFIL_CELL_MAP.evaluationAddress);
+      document.getElementById('direccion').value       = getCellValue(hoja, PERFIL_CELL_MAP.evaluationAddress);
       document.getElementById('dirigidoA').value       = getCellValue(hoja, PERFIL_CELL_MAP.reportRecipientName);
       document.getElementById('puesto').value          = getCellValue(hoja, PERFIL_CELL_MAP.reportRecipientPosition);
 
@@ -1834,7 +1887,7 @@ function restaurarFormulario(datos) {
   ocultarError();
 
   // Campos generales
-  ['razonSocial','direccionCalle','direccionCP','fecha','dirigidoA','puesto']
+  ['razonSocial','direccion','fecha','dirigidoA','puesto']
     .forEach(function (id) {
       const el = document.getElementById(id);
       if (el && datos[id] !== undefined) el.value = datos[id];
