@@ -7,6 +7,24 @@ Web App de Google Apps Script para generar resúmenes ejecutivos de mediciones N
 
 ---
 
+## Demo estática (`docs/index.html`)
+
+`docs/index.html` es una copia plana de `Index.html` + `Stylesheet.html` + `JavaScript.html`,
+sin las etiquetas `<?!= include(...) ?>` de GAS, pensada para:
+
+- Previsualizar el formulario en cualquier hosting estático (ej. GitHub Pages, sirviendo desde `/docs`).
+- Embeberse (vía `<iframe>`) en otro sitio que ya maneje su propio login con Google.
+
+**No tiene autenticación ni registra nada en Google Sheets** — `generarResumen()` ya
+detecta que `google.script.run` no existe fuera de GAS y simplemente omite el log
+(ver el `if (typeof google !== 'undefined' ...)` en `JavaScript.html`). El PDF, las
+tablas, el QR y la vista previa funcionan igual que en la app real.
+
+Si cambias `Index.html`, `Stylesheet.html` o `JavaScript.html`, regenera `docs/index.html`
+inlineando esos tres archivos en los mismos puntos donde estaban los `include(...)`.
+
+---
+
 ## Arquitectura
 
 | Capa | Tecnología |
