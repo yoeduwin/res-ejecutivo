@@ -1156,8 +1156,7 @@ select:focus {
                 <th class="col-num">N°</th>
                 <th>Fuente</th>
                 <th>Nombre del trabajador</th>
-                <th class="col-conclusion">Extremidades superiores</th>
-                <th class="col-conclusion">Cuerpo entero</th>
+                <th class="col-conclusion">Extremidades superiores / Cuerpo entero</th>
                 <th class="col-conclusion">Conclusión</th>
                 <th class="col-accion"></th>
               </tr>
@@ -1169,14 +1168,8 @@ select:focus {
                 <td><input type="text" class="campo-tabla" placeholder="Nombre completo"></td>
                 <td>
                   <select class="campo-tabla campo-select">
-                    <option value="Dentro">✓ Dentro</option>
-                    <option value="Fuera">✖ Fuera</option>
-                  </select>
-                </td>
-                <td>
-                  <select class="campo-tabla campo-select">
-                    <option value="Dentro">✓ Dentro</option>
-                    <option value="Fuera">✖ Fuera</option>
+                    <option value="Extremidades superiores">Extremidades superiores</option>
+                    <option value="Cuerpo entero">Cuerpo entero</option>
                   </select>
                 </td>
                 <td>
@@ -2006,16 +1999,16 @@ function renderizarTablaResumen(datos, nom) {
 
   if (nom === '024') {
     const t = datos.tablas['024'] || [];
-    const denExtSup = t.filter(function (r) { return r[2] === 'Dentro'; }).length;
-    const denCuerpo = t.filter(function (r) { return r[3] === 'Dentro'; }).length;
+    const denVib = t.filter(function (r) { return r[3] === 'Dentro'; }).length;
 
     contenido += `
-      <div class="doc-nom-subtitulo">Tabla — Evaluación de vibraciones</div>
+      <p style="font-weight:700;color:var(--texto);margin-bottom:4px">Evaluación de la exposición a vibraciones.</p>
+      <p class="doc-intro" style="margin-bottom:14px">En la siguiente tabla se presentan las conclusiones para cada uno de los miembros de su personal expuestos a vibraciones.</p>
+      <div class="doc-nom-subtitulo">Tabla 1. Resultados y conclusiones de la evaluación de la exposición a vibraciones</div>
       <table class="doc-tabla-resumen">
         <thead><tr>
           <th style="width:40px">N°</th><th>Fuente</th><th>Nombre del trabajador</th>
-          <th style="width:110px">Extremidades superiores</th>
-          <th style="width:110px">Cuerpo entero</th>
+          <th style="width:140px">Extremidades superiores / Cuerpo entero</th>
           <th style="width:110px">Conclusión</th>
         </tr></thead>
         <tbody>
@@ -2025,15 +2018,18 @@ function renderizarTablaResumen(datos, nom) {
               <td>${r[0]||''}</td><td>${r[1]||''}</td>
               <td style="text-align:center">${r[2]||''}</td>
               <td style="text-align:center">${r[3]||''}</td>
-              <td style="text-align:center">${r[4]||''}</td>
             </tr>`;
           }).join('')}
         </tbody>
       </table>
+      <div class="doc-leyenda-bloque">Nomenclatura utilizada = Dentro | Fuera = ✓ | ✖</div>
       <div class="doc-conteos">
         <span class="doc-conteo-linea"><span class="doc-conteo-num">${t.length}</span> …… puntos en total evaluados</span>
-        <span class="doc-conteo-linea"><span class="doc-conteo-num">${denExtSup}</span> …… se encuentran dentro de norma en extremidades superiores</span>
-        <span class="doc-conteo-linea"><span class="doc-conteo-num">${denCuerpo}</span> …… se encuentran dentro de norma en cuerpo entero</span>
+        <span class="doc-conteo-linea"><span class="doc-conteo-num">${denVib}</span> …… se encuentran dentro</span>
+      </div>
+      <p class="doc-nota-anexo">*Para información detallada, consultar los anexos del informe de resultados.</p>
+      <div class="doc-graficas-fila">
+        ${dibujarGraficaDoble('Vibraciones', denVib, 'Dentro de norma', t.length - denVib, 'Fuera de norma', t.length)}
       </div>`;
   }
 
