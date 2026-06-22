@@ -1733,18 +1733,11 @@ function descargarPDF() {
  */
 function generarPDFNom(datos, nom, razon, fecha) {
   return new Promise(function (resolve) {
-    const contenedor = document.createElement('div');
-    contenedor.className = 'vista-previa-doc';
-    contenedor.style.position = 'fixed';
-    contenedor.style.left     = '-10000px';
-    contenedor.style.top      = '0';
-    contenedor.style.width    = '900px';
-    contenedor.innerHTML = renderizarDocumentoNom(datos, nom);
-    document.body.appendChild(contenedor);
-    generarQRsEnContenedor(contenedor, [nom]);
+    const contenedorCarta = crearContenedorOffscreen(renderizarCartaPresentacion(datos, nom));
+    generarQRsEnContenedor(contenedorCarta, [nom]);
+    const contenedorResumen = crearContenedorOffscreen(renderizarPaginaResumen(datos, nom));
 
     const nombre = 'ResumenEjecutivo_' + razon + '_NOM' + nom + '_' + fecha + '.pdf';
-
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({
       orientation: 'portrait',
@@ -1752,20 +1745,49 @@ function generarPDFNom(datos, nom, razon, fecha) {
       format:      'letter'
     });
 
-    doc.html(contenedor, {
-      callback: function (pdfDoc) {
-        pdfDoc.save(nombre);
-        document.body.removeChild(contenedor);
-        resolve();
-      },
+    const opciones = {
       x:           10,
       y:           10,
       width:       190,      // ancho en mm dentro de la página carta
       windowWidth: 900,      // ancho del viewport de referencia
-      autoPaging:  'css',    // respeta page-break-after de .doc-pagina
-      html2canvas: { scale: 3 }  // mayor resolución para evitar texto borroso
-    });
+      html2canvas: { scale: 2 }  // mayor resolución para evitar texto borroso
+    };
+
+    // Cada sección se renderiza con su propia llamada a doc.html() y se separan
+    // con addPage(), en lugar de depender de autoPaging:'css' (poco confiable
+    // en jsPDF y causaba decenas de páginas en blanco).
+    doc.html(contenedorCarta, Object.assign({}, opciones, {
+      callback: function () {
+        document.body.removeChild(contenedorCarta);
+        doc.addPage();
+        doc.html(contenedorResumen, Object.assign({}, opciones, {
+          callback: function (pdfDoc) {
+            document.body.removeChild(contenedorResumen);
+            pdfDoc.save(nombre);
+            resolve();
+          }
+        }));
+      }
+    }));
   });
+}
+
+/**
+ * Crea un contenedor fuera de pantalla con el HTML dado, listo para que
+ * html2canvas/jsPDF lo rendericen sin afectar el layout visible.
+ * @param {string} html
+ * @returns {HTMLDivElement}
+ */
+function crearContenedorOffscreen(html) {
+  const contenedor = document.createElement('div');
+  contenedor.className = 'vista-previa-doc';
+  contenedor.style.position = 'fixed';
+  contenedor.style.left     = '-10000px';
+  contenedor.style.top      = '0';
+  contenedor.style.width    = '900px';
+  contenedor.innerHTML = html;
+  document.body.appendChild(contenedor);
+  return contenedor;
 }
 
 // ============================================================
