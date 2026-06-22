@@ -431,7 +431,7 @@ select:focus {
   letter-spacing: 0.02em;
   line-height: 1.1;
 }
-.doc-marca-wordmark .doc-marca-ejecutiva { color: var(--verde); }
+.doc-marca-wordmark .doc-marca-ejecutiva { color: var(--texto); }
 .doc-marca-wordmark .doc-marca-ambiental { color: var(--verde2); }
 .doc-marca-tagline {
   font-size: 0.72rem;
@@ -532,23 +532,26 @@ select:focus {
 }
 
 .doc-footer-bar {
+  margin-top: 0;
+  padding: 8px 0 4px;
+  border-top: 2px solid var(--verde);
+  border-bottom: 1px solid var(--verde2);
+}
+.doc-footer-fila {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 28px;
-  margin-top: 32px;
-  padding: 10px 16px;
-  background: var(--verde);
-  border-radius: 4px;
+  gap: 26px;
+  padding: 2px 0;
 }
 .doc-footer-item {
   display: flex;
   align-items: center;
   gap: 6px;
-  color: var(--blanco);
-  font-size: 0.74rem;
+  color: var(--texto);
+  font-size: 0.68rem;
 }
-.doc-footer-item svg { width: 13px; height: 13px; flex-shrink: 0; }
+.doc-footer-item svg { width: 11px; height: 11px; flex-shrink: 0; color: var(--verde); }
 
 /* Resumen ejecutivo — dentro del documento */
 .doc-seccion-titulo {
@@ -614,6 +617,40 @@ select:focus {
   width: 28px;
   text-align: right;
   margin-right: 8px;
+}
+.doc-leyenda {
+  display: flex;
+  gap: 22px;
+  font-size: 0.78rem;
+  color: var(--subtexto);
+  margin: 6px 0 14px;
+  padding: 6px 12px;
+  background: #F4F4F4;
+  border-radius: 4px;
+}
+.doc-leyenda-item { font-weight: 600; }
+.doc-graficas-fila {
+  display: flex;
+  justify-content: space-around;
+  gap: 16px;
+  margin: 14px 0 24px;
+}
+.doc-grafica-cilindro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.doc-grafica-svg { display: block; }
+.doc-grafica-pct {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--verde);
+}
+.doc-grafica-etiqueta {
+  font-size: 0.74rem;
+  color: var(--subtexto);
+  text-align: center;
 }
 
 /* --- Pie de página --- */
@@ -925,6 +962,8 @@ select:focus {
       <section id="seccion-025" class="seccion-nom" style="display:none">
         <h2 class="seccion-titulo nom-titulo">NOM-025-STPS-2008 — Iluminación</h2>
 
+        <!-- Tabla 1: Niveles mínimos de iluminación -->
+        <h3 class="tabla-titulo">Tabla 1 — Niveles mínimos de iluminación</h3>
         <div class="tabla-contenedor">
           <table class="tabla-datos">
             <thead>
@@ -938,7 +977,7 @@ select:focus {
                 <th class="col-accion"></th>
               </tr>
             </thead>
-            <tbody id="tbody-025">
+            <tbody id="tbody-025-1">
               <tr class="fila-template" style="display:none">
                 <td class="col-num num-fila">—</td>
                 <td><input type="text" class="campo-tabla" placeholder="Departamento"></td>
@@ -973,7 +1012,59 @@ select:focus {
             </tbody>
           </table>
         </div>
-        <button type="button" class="btn-agregar" onclick="agregarFila('tbody-025')">+ Agregar fila</button>
+        <button type="button" class="btn-agregar" onclick="agregarFila('tbody-025-1')">+ Agregar fila</button>
+
+        <!-- Tabla 2: Niveles máximos de reflexión -->
+        <h3 class="tabla-titulo" style="margin-top:24px">Tabla 2 — Niveles máximos de reflexión</h3>
+        <div class="tabla-contenedor">
+          <table class="tabla-datos">
+            <thead>
+              <tr>
+                <th class="col-num">N°</th>
+                <th>Departamento</th>
+                <th>Área</th>
+                <th class="col-medicion">1ra medición</th>
+                <th class="col-medicion">2da medición</th>
+                <th class="col-medicion">3ra medición</th>
+                <th class="col-accion"></th>
+              </tr>
+            </thead>
+            <tbody id="tbody-025-2">
+              <tr class="fila-template" style="display:none">
+                <td class="col-num num-fila">—</td>
+                <td><input type="text" class="campo-tabla" placeholder="Departamento"></td>
+                <td><input type="text" class="campo-tabla" placeholder="Área"></td>
+                <td>
+                  <select class="campo-tabla campo-select med-1"
+                          onchange="aplicarReglaNa(this)">
+                    <option value="✓">✓</option>
+                    <option value="✖">✖</option>
+                    <option value="NA">NA</option>
+                  </select>
+                </td>
+                <td>
+                  <select class="campo-tabla campo-select med-2">
+                    <option value="✓">✓</option>
+                    <option value="✖">✖</option>
+                    <option value="NA">NA</option>
+                  </select>
+                </td>
+                <td>
+                  <select class="campo-tabla campo-select med-3">
+                    <option value="✓">✓</option>
+                    <option value="✖">✖</option>
+                    <option value="NA">NA</option>
+                  </select>
+                </td>
+                <td>
+                  <button type="button" class="btn-eliminar"
+                          onclick="eliminarFila(this)" title="Eliminar fila">✕</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <button type="button" class="btn-agregar" onclick="agregarFila('tbody-025-2')">+ Agregar fila</button>
       </section>
 
       <!-- ── Sección NOM-024 ── -->
@@ -1083,13 +1174,17 @@ select:focus {
 
 // ── Datos fijos de la empresa emisora ──────────────────────
 const EMPRESA = {
-  nombre:       'Solución en Ingeniería Ejecutiva Ambiental S.A. de C.V.',
-  sitio:        'ejecutivambiental.com',
-  direccion:    'Chipilo 714, La Paz, Puebla, C.P. 72160',
-  representante:'EDUWIN IVÁN HERNÁNDEZ ZÁRATE',
-  cargo:        'Representante Legal',
-  correo:       'informes@ejecutivambiental.com',
-  acreditacion: 'AL-1973-207/25'
+  nombre:        'Solución en Ingeniería Ejecutiva Ambiental S.A. de C.V.',
+  sitio:         'ejecutivambiental.com',
+  direccion:     'Chipilo 714, La Paz, Puebla, C.P. 72160',
+  representante: 'EDUWIN IVÁN HERNÁNDEZ ZÁRATE',
+  cargo:         'Representante Legal',
+  correo:        'informes@ejecutivambiental.com',
+  correoGeneral: 'direccion.general@ejecutivambiental.com',
+  correoVentas:  'ventas@ejecutivambiental.com',
+  telCelular:    '279 111 35 33',
+  telFijo:       '222 941 7295',
+  acreditacion:  'AL-1973-207/25'
 };
 
 // ── Párrafos de carta por NOM ──────────────────────────────
@@ -1272,7 +1367,7 @@ function validarFormulario() {
   const tablasPorNom = {
     '011': ['tbody-011-1', 'tbody-011-2'],
     '022': ['tbody-022-1', 'tbody-022-2'],
-    '025': ['tbody-025'],
+    '025': ['tbody-025-1', 'tbody-025-2'],
     '024': ['tbody-024']
   };
   nomsActivas.forEach(function (nom) {
@@ -1349,7 +1444,8 @@ function recolectarDatos() {
     datos.tablas['022-2'] = leerFilasTabla('tbody-022-2');
   }
   if (nomsActivas.includes('025')) {
-    datos.tablas['025']   = leerFilasTabla('tbody-025');
+    datos.tablas['025-1'] = leerFilasTabla('tbody-025-1');
+    datos.tablas['025-2'] = leerFilasTabla('tbody-025-2');
   }
   if (nomsActivas.includes('024')) {
     datos.tablas['024']   = leerFilasTabla('tbody-024');
@@ -1491,17 +1587,142 @@ function renderizarCartaPresentacion(datos, nom) {
         <div class="doc-firma-cargo">${EMPRESA.cargo}</div>
         <div class="doc-firma-cargo" style="margin-top:4px">${EMPRESA.correo}</div>
       </div>
+    </div>`;
+}
 
-      <div class="doc-footer-bar">
+/**
+ * Genera el HTML del pie de página que se estampa en cada página física
+ * del PDF (no fluye con el contenido recortado por agregarCanvasComoPaginas).
+ * @returns {string}
+ */
+function htmlPiePagina() {
+  return `
+    <div class="doc-footer-bar">
+      <div class="doc-footer-fila">
         <div class="doc-footer-item">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h18v14H3z"/><path d="M3 5l9 7 9-7"/></svg>
-          <span>${EMPRESA.correo}</span>
+          <span>${EMPRESA.correoGeneral}</span>
         </div>
         <div class="doc-footer-item">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a13 13 0 0 1 0 18M12 3a13 13 0 0 0 0 18"/></svg>
-          <span>${EMPRESA.sitio}</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h18v14H3z"/><path d="M3 5l9 7 9-7"/></svg>
+          <span>${EMPRESA.correoVentas}</span>
         </div>
       </div>
+      <div class="doc-footer-fila">
+        <div class="doc-footer-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.34 1.9.62 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.28 1.85.49 2.81.62A2 2 0 0 1 22 16.92z"/></svg>
+          <span>${EMPRESA.telCelular} (celular)</span>
+        </div>
+        <div class="doc-footer-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.34 1.9.62 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.28 1.85.49 2.81.62A2 2 0 0 1 22 16.92z"/></svg>
+          <span>${EMPRESA.telFijo} (fijo)</span>
+        </div>
+      </div>
+    </div>`;
+}
+
+/**
+ * Renderiza el pie de página fuera de pantalla y lo captura como canvas,
+ * listo para estamparse en cada página del PDF.
+ * @returns {Promise<HTMLCanvasElement>}
+ */
+function crearCanvasPiePagina() {
+  const contenedor = crearContenedorOffscreen(htmlPiePagina());
+  return html2canvas(contenedor, { scale: 2, backgroundColor: null, windowWidth: 900 })
+    .then(function (canvas) {
+      document.body.removeChild(contenedor);
+      return canvas;
+    });
+}
+
+/**
+ * Construye el HTML de una tabla de resultados de NOM-025 (iluminación o
+ * reflexión) junto con su leyenda, conclusión por medición y 3 gráficas.
+ * @param {Array} t - filas de la tabla [departamento, área, med1, med2, med3]
+ * @param {string} etiquetaTabla - título de la tabla, p.ej. "Tabla 1 — Niveles mínimos de iluminación"
+ * @returns {string}
+ */
+function construirTablaYResumen025(t, etiquetaTabla) {
+  function dentroEnMedicion(col) {
+    return t.filter(function (r) { return r[col] === '✓'; }).length;
+  }
+  const dentro1 = dentroEnMedicion(2);
+  const dentro2 = dentroEnMedicion(3);
+  const dentro3 = dentroEnMedicion(4);
+
+  return `
+    <div class="doc-nom-subtitulo">${etiquetaTabla}</div>
+    <table class="doc-tabla-resumen">
+      <thead><tr>
+        <th style="width:40px">N°</th><th>Departamento</th><th>Área</th>
+        <th style="width:90px">1ra medición</th>
+        <th style="width:90px">2da medición</th>
+        <th style="width:90px">3ra medición</th>
+      </tr></thead>
+      <tbody>
+        ${t.map(function (r, i) {
+          return `<tr>
+            <td style="text-align:center">${i+1}</td>
+            <td>${r[0]||''}</td><td>${r[1]||''}</td>
+            <td style="text-align:center">${r[2]||''}</td>
+            <td style="text-align:center">${r[3]||''}</td>
+            <td style="text-align:center">${r[4]||''}</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+    <div class="doc-leyenda">
+      <span class="doc-leyenda-item">✓ Dentro de norma</span>
+      <span class="doc-leyenda-item">✖ Fuera de norma</span>
+      <span class="doc-leyenda-item">NA No aplica</span>
+    </div>
+    <div class="doc-conteos">
+      <span class="doc-conteo-linea"><span class="doc-conteo-num">${t.length}</span> …… puntos en total evaluados</span>
+      <span class="doc-conteo-linea"><span class="doc-conteo-num">${dentro1}</span> …… dentro de norma en la 1ra medición</span>
+      <span class="doc-conteo-linea"><span class="doc-conteo-num">${dentro2}</span> …… dentro de norma en la 2da medición</span>
+      <span class="doc-conteo-linea"><span class="doc-conteo-num">${dentro3}</span> …… dentro de norma en la 3ra medición</span>
+    </div>
+    <div class="doc-graficas-fila">
+      ${dibujarGraficaCilindro(dentro1, t.length, '1ra medición')}
+      ${dibujarGraficaCilindro(dentro2, t.length, '2da medición')}
+      ${dibujarGraficaCilindro(dentro3, t.length, '3ra medición')}
+    </div>`;
+}
+
+/**
+ * Genera el HTML de una gráfica de dona/cilindro (SVG) con el porcentaje
+ * de puntos dentro de norma para una medición de NOM-025.
+ * @param {number} dentro - cantidad de puntos dentro de norma
+ * @param {number} total - total de puntos evaluados
+ * @param {string} etiquetaMedicion - p.ej. "1ra medición"
+ * @returns {string}
+ */
+function dibujarGraficaCilindro(dentro, total, etiquetaMedicion) {
+  const pct = total > 0 ? Math.round((dentro / total) * 100) : 0;
+  const r = 32, cx = 40, cy = 40, ry = 12;
+  const circunferencia = 2 * Math.PI * r;
+  const arco = (pct / 100) * circunferencia;
+  return `
+    <div class="doc-grafica-cilindro">
+      <svg class="doc-grafica-svg" width="80" height="80" viewBox="0 0 80 80">
+        <defs>
+          <linearGradient id="gradCilindro${cx}${cy}${pct}" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#CFCFCF"/>
+            <stop offset="100%" stop-color="#9A9A9A"/>
+          </linearGradient>
+        </defs>
+        <ellipse cx="${cx}" cy="${cy}" rx="${r}" ry="${ry}" fill="url(#gradCilindro${cx}${cy}${pct})"/>
+        <circle cx="${cx}" cy="${cy}" r="${r - 9}" fill="#FFFFFF"/>
+        <circle
+          cx="${cx}" cy="${cy}" r="${r - 4.5}" fill="none"
+          stroke="#005600" stroke-width="9"
+          stroke-dasharray="${arco} ${circunferencia - arco}"
+          stroke-dashoffset="${circunferencia / 4}"
+          transform="rotate(180 ${cx} ${cy})"
+        />
+      </svg>
+      <span class="doc-grafica-pct">${pct}%</span>
+      <span class="doc-grafica-etiqueta">${etiquetaMedicion}</span>
     </div>`;
 }
 
@@ -1627,36 +1848,12 @@ function renderizarTablaResumen(datos, nom) {
   }
 
   if (nom === '025') {
-    const t = datos.tablas['025'] || [];
-    const cumplen   = t.filter(function (r) { return r[2] === '✓'; }).length;
-    const noCumplen = t.filter(function (r) { return r[2] === '✖'; }).length;
-
-    contenido += `
-      <div class="doc-nom-subtitulo">Tabla — Condiciones de iluminación</div>
-      <table class="doc-tabla-resumen">
-        <thead><tr>
-          <th style="width:40px">N°</th><th>Departamento</th><th>Área</th>
-          <th style="width:90px">1ra medición</th>
-          <th style="width:90px">2da medición</th>
-          <th style="width:90px">3ra medición</th>
-        </tr></thead>
-        <tbody>
-          ${t.map(function (r, i) {
-            return `<tr>
-              <td style="text-align:center">${i+1}</td>
-              <td>${r[0]||''}</td><td>${r[1]||''}</td>
-              <td style="text-align:center">${r[2]||''}</td>
-              <td style="text-align:center">${r[3]||''}</td>
-              <td style="text-align:center">${r[4]||''}</td>
-            </tr>`;
-          }).join('')}
-        </tbody>
-      </table>
-      <div class="doc-conteos">
-        <span class="doc-conteo-linea"><span class="doc-conteo-num">${t.length}</span> …… puntos en total evaluados</span>
-        <span class="doc-conteo-linea"><span class="doc-conteo-num">${cumplen}</span> …… cumplen en la primera medición</span>
-        <span class="doc-conteo-linea"><span class="doc-conteo-num">${noCumplen}</span> …… no cumplen (requieren acciones correctivas)</span>
-      </div>`;
+    contenido += construirTablaYResumen025(
+      datos.tablas['025-1'] || [], 'Tabla 1 — Niveles mínimos de iluminación'
+    );
+    contenido += construirTablaYResumen025(
+      datos.tablas['025-2'] || [], 'Tabla 2 — Niveles máximos de reflexión'
+    );
   }
 
   if (nom === '024') {
@@ -1730,7 +1927,10 @@ function renderizarPaginaResumen(datos, nom) {
  * @returns {string}
  */
 function renderizarDocumentoNom(datos, nom) {
-  return renderizarCartaPresentacion(datos, nom) + renderizarPaginaResumen(datos, nom);
+  // El pie de página real se estampa por página dentro de generarPDFNom()
+  // (ver agregarCanvasComoPaginas); aquí solo se muestra una vez, como
+  // referencia visual de su contenido en la vista previa en pantalla.
+  return renderizarCartaPresentacion(datos, nom) + renderizarPaginaResumen(datos, nom) + htmlPiePagina();
 }
 
 /**
@@ -1821,20 +2021,27 @@ function generarPDFNom(datos, nom, razon, fecha) {
 
     const opcionesCanvas = { scale: 2, backgroundColor: '#ffffff', windowWidth: 900 };
     let primeraPagina = true;
+    let canvasPie;
 
     // Se renderiza cada sección a un canvas con html2canvas y se recorta
     // manualmente en franjas del alto de una página carta, en lugar de usar
     // doc.html()/autoPaging (paginación interna de jsPDF poco confiable que
-    // generaba páginas en blanco de más).
-    html2canvas(contenedorCarta, opcionesCanvas)
+    // generaba páginas en blanco de más). El pie de página se renderiza una
+    // sola vez y se estampa en cada franja/página dentro de
+    // agregarCanvasComoPaginas, en vez de fluir junto con el contenido.
+    crearCanvasPiePagina()
+      .then(function (canvas) {
+        canvasPie = canvas;
+        return html2canvas(contenedorCarta, opcionesCanvas);
+      })
       .then(function (canvas) {
         document.body.removeChild(contenedorCarta);
-        primeraPagina = agregarCanvasComoPaginas(doc, canvas, primeraPagina);
+        primeraPagina = agregarCanvasComoPaginas(doc, canvas, primeraPagina, canvasPie);
         return html2canvas(contenedorResumen, opcionesCanvas);
       })
       .then(function (canvas) {
         document.body.removeChild(contenedorResumen);
-        agregarCanvasComoPaginas(doc, canvas, primeraPagina);
+        agregarCanvasComoPaginas(doc, canvas, primeraPagina, canvasPie);
         doc.save(nombre);
         resolve();
       });
@@ -1844,17 +2051,21 @@ function generarPDFNom(datos, nom, razon, fecha) {
 /**
  * Recorta un canvas (posiblemente más alto que una página) en franjas del
  * alto disponible de una página carta y las añade al PDF como imágenes.
+ * Si se proporciona canvasPie, lo estampa al fondo de cada página generada.
  * @param {jsPDF} doc
  * @param {HTMLCanvasElement} canvas
  * @param {boolean} primeraPagina - true si aún no se ha añadido ninguna página al PDF
+ * @param {HTMLCanvasElement} [canvasPie] - canvas del pie de página, pre-renderizado una sola vez
  * @returns {boolean} false (para encadenar el control de "primera página" entre secciones)
  */
-function agregarCanvasComoPaginas(doc, canvas, primeraPagina) {
-  const margen     = 10; // mm
-  const anchoUtil  = 190; // mm
-  const altoUtil   = doc.internal.pageSize.getHeight() - margen * 2; // mm
-  const pxPorMM    = canvas.width / anchoUtil;
+function agregarCanvasComoPaginas(doc, canvas, primeraPagina, canvasPie) {
+  const margen      = 10; // mm
+  const anchoUtil   = 190; // mm
+  const altoFooterMM = canvasPie ? (canvasPie.height / canvasPie.width) * anchoUtil : 0;
+  const altoUtil    = doc.internal.pageSize.getHeight() - margen * 2 - (altoFooterMM ? altoFooterMM + 4 : 0); // mm
+  const pxPorMM     = canvas.width / anchoUtil;
   const altoPaginaPx = Math.floor(altoUtil * pxPorMM);
+  const alturaPagina = doc.internal.pageSize.getHeight();
 
   let y = 0;
   while (y < canvas.height) {
@@ -1871,6 +2082,13 @@ function agregarCanvasComoPaginas(doc, canvas, primeraPagina) {
       lienzo.toDataURL('image/jpeg', 0.95), 'JPEG',
       margen, margen, anchoUtil, altoFranjaPx / pxPorMM
     );
+
+    if (canvasPie) {
+      doc.addImage(
+        canvasPie.toDataURL('image/png'), 'PNG',
+        margen, alturaPagina - margen - altoFooterMM, anchoUtil, altoFooterMM
+      );
+    }
 
     primeraPagina = false;
     y += altoFranjaPx;
@@ -2038,7 +2256,8 @@ function restaurarFormulario(datos) {
       { tbodyId: 'tbody-022-2', claves: ['022-2'] }
     ],
     '025': [
-      { tbodyId: 'tbody-025', claves: ['025'] }
+      { tbodyId: 'tbody-025-1', claves: ['025-1'] },
+      { tbodyId: 'tbody-025-2', claves: ['025-2'] }
     ],
     '024': [
       { tbodyId: 'tbody-024', claves: ['024'] }
