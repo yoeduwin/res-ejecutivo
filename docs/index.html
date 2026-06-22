@@ -6,7 +6,7 @@
   <title>Resúmenes Ejecutivos — Ejecutiva Ambiental</title>
 
   <!-- Hoja de estilos (inline — demo estática, sin GAS) -->
-  <style>
+<style>
 /* ============================================================
    Stylesheet.html — Resúmenes Ejecutivos · Ejecutiva Ambiental
    Estética corporativa sobria. Sin gradientes ni sombras exageradas.
@@ -141,6 +141,16 @@ header {
 /* --- Campos del formulario --- */
 .campo-grupo {
   margin-bottom: 16px;
+}
+.perfil-status {
+  font-size: 0.82rem;
+  color: var(--verde2);
+  margin-left: 10px;
+}
+.campo-ayuda {
+  font-size: 0.8rem;
+  color: #666;
+  margin-top: 6px;
 }
 .campo-fila {
   display: grid;
@@ -581,12 +591,15 @@ select:focus {
 }
 </style>
 
+
   <!-- jsPDF para exportación PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <!-- html2canvas requerido por jsPDF.html() -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <!-- QRCode.js — genera el QR genérico localmente, sin API externa -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <!-- SheetJS — lee el Excel "Perfil de datos" para autocompletar Datos del cliente -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
   <div style="background:#FFF8E1;border-bottom:2px solid #F2C200;color:#5C4500;
@@ -623,6 +636,16 @@ select:focus {
       <!-- Sección 1: Datos del cliente -->
       <section class="seccion-form">
         <h2 class="seccion-titulo">Datos del cliente</h2>
+
+        <div class="campo-grupo campo-perfil-upload">
+          <label class="btn-secundario" style="cursor:pointer; display:inline-flex; align-items:center; gap:6px; user-select:none">
+            📄 Cargar Perfil de datos (Excel)
+            <input type="file" id="input-perfil" accept=".xlsx,.xls" style="display:none"
+                   onchange="cargarPerfilExcel(event)">
+          </label>
+          <span id="perfil-status" class="perfil-status"></span>
+          <p class="campo-ayuda">Sube el Excel "Perfil de datos" para completar Razón Social, Dirección, Dirigido a y Puesto automáticamente, o llénalos a mano abajo.</p>
+        </div>
 
         <div class="campo-grupo">
           <label for="razonSocial">Razón Social / Sucursal *</label>
@@ -1013,7 +1036,7 @@ select:focus {
   </footer>
 
   <!-- JavaScript del cliente (inline — demo estática, sin GAS) -->
-  <script>
+<script>
 // ============================================================
 // JavaScript.html — Resúmenes Ejecutivos · Ejecutiva Ambiental
 // Lógica del cliente — Vanilla ES6+ — Comentado en español
@@ -1735,6 +1758,68 @@ function guardarBorrador() {
 }
 
 // ============================================================
+// PERFIL DE DATOS — Carga desde Excel
+// ============================================================
+// Mapeo de celdas del Excel "Perfil de datos" (mismo documento que usan
+// otras herramientas internas) hacia los 4 campos de "Datos del cliente".
+const PERFIL_CELL_MAP = {
+  companyName:            'D5',
+  evaluationAddress:      'D11',
+  reportRecipientName:    'D26',
+  reportRecipientPosition:'D28'
+};
+
+/**
+ * Lee el valor de una celda de una hoja de SheetJS, o '' si no existe.
+ * @param {Object} ws - Hoja de SheetJS (worksheet)
+ * @param {string} cellRef - Referencia de celda, ej. 'D5'
+ * @returns {string}
+ */
+function getCellValue(ws, cellRef) {
+  const celda = ws[cellRef];
+  return (celda && celda.v !== undefined) ? String(celda.v).trim() : '';
+}
+
+/**
+ * Lee el Excel "Perfil de datos" seleccionado y autocompleta Razón Social,
+ * Dirección, Dirigido a y Puesto (únicos campos que usa este formulario).
+ * @param {Event} event - Evento change del input[type=file]
+ */
+function cargarPerfilExcel(event) {
+  ocultarError();
+  const archivo = event.target.files[0];
+  if (!archivo) return;
+
+  if (typeof XLSX === 'undefined') {
+    mostrarError('No se pudo cargar la librería de lectura de Excel. Verifique su conexión e intente de nuevo.');
+    event.target.value = '';
+    return;
+  }
+
+  const lector = new FileReader();
+  lector.onload = function (e) {
+    try {
+      const datos = new Uint8Array(e.target.result);
+      const libro = XLSX.read(datos, { type: 'array' });
+      const hoja  = libro.Sheets[libro.SheetNames[0]];
+
+      document.getElementById('razonSocial').value    = getCellValue(hoja, PERFIL_CELL_MAP.companyName);
+      document.getElementById('direccionCalle').value  = getCellValue(hoja, PERFIL_CELL_MAP.evaluationAddress);
+      document.getElementById('dirigidoA').value       = getCellValue(hoja, PERFIL_CELL_MAP.reportRecipientName);
+      document.getElementById('puesto').value          = getCellValue(hoja, PERFIL_CELL_MAP.reportRecipientPosition);
+
+      const estado = document.getElementById('perfil-status');
+      if (estado) estado.textContent = '✓ Datos cargados desde el perfil.';
+    } catch (err) {
+      mostrarError('El archivo no pudo leerse como un Excel de Perfil de datos válido.');
+    }
+    // Resetear el input para permitir cargar el mismo archivo nuevamente
+    event.target.value = '';
+  };
+  lector.readAsArrayBuffer(archivo);
+}
+
+// ============================================================
 // BORRADOR JSON — Cargar
 // ============================================================
 /**
@@ -1867,6 +1952,7 @@ function logError(error) {
   console.error('Error al registrar el log:', error);
 }
 </script>
+
 
 </body>
 </html>

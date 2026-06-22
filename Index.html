@@ -14,6 +14,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <!-- QRCode.js — genera el QR genérico localmente, sin API externa -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <!-- SheetJS — lee el Excel "Perfil de datos" para autocompletar Datos del cliente -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 
@@ -45,6 +47,16 @@
       <!-- Sección 1: Datos del cliente -->
       <section class="seccion-form">
         <h2 class="seccion-titulo">Datos del cliente</h2>
+
+        <div class="campo-grupo campo-perfil-upload">
+          <label class="btn-secundario" style="cursor:pointer; display:inline-flex; align-items:center; gap:6px; user-select:none">
+            📄 Cargar Perfil de datos (Excel)
+            <input type="file" id="input-perfil" accept=".xlsx,.xls" style="display:none"
+                   onchange="cargarPerfilExcel(event)">
+          </label>
+          <span id="perfil-status" class="perfil-status"></span>
+          <p class="campo-ayuda">Sube el Excel "Perfil de datos" para completar Razón Social, Dirección, Dirigido a y Puesto automáticamente, o llénalos a mano abajo.</p>
+        </div>
 
         <div class="campo-grupo">
           <label for="razonSocial">Razón Social / Sucursal *</label>

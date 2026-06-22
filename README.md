@@ -7,6 +7,19 @@ Web App de Google Apps Script para generar resúmenes ejecutivos de mediciones N
 
 ---
 
+## Cargar datos del cliente desde Excel
+
+En "Datos del cliente" se puede subir el Excel "Perfil de datos" (mismo
+documento que usan otras herramientas internas) con el botón **📄 Cargar
+Perfil de datos (Excel)**. La app lee localmente (sin enviar el archivo a
+ningún servidor) las celdas `D5`, `D11`, `D26` y `D28` y autocompleta
+Razón Social, Dirección, Dirigido a y Puesto — los demás campos del
+formulario se llenan a mano como antes. El parseo usa SheetJS
+(`xlsx.full.min.js` vía CDN) y vive enteramente en `JavaScript.html`
+(función `cargarPerfilExcel()`), sin cambios en `Code.gs`.
+
+---
+
 ## Demo estática (`docs/index.html`)
 
 `docs/index.html` es una copia plana de `Index.html` + `Stylesheet.html` + `JavaScript.html`,

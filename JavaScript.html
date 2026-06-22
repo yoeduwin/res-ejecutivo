@@ -720,6 +720,68 @@ function guardarBorrador() {
 }
 
 // ============================================================
+// PERFIL DE DATOS — Carga desde Excel
+// ============================================================
+// Mapeo de celdas del Excel "Perfil de datos" (mismo documento que usan
+// otras herramientas internas) hacia los 4 campos de "Datos del cliente".
+const PERFIL_CELL_MAP = {
+  companyName:            'D5',
+  evaluationAddress:      'D11',
+  reportRecipientName:    'D26',
+  reportRecipientPosition:'D28'
+};
+
+/**
+ * Lee el valor de una celda de una hoja de SheetJS, o '' si no existe.
+ * @param {Object} ws - Hoja de SheetJS (worksheet)
+ * @param {string} cellRef - Referencia de celda, ej. 'D5'
+ * @returns {string}
+ */
+function getCellValue(ws, cellRef) {
+  const celda = ws[cellRef];
+  return (celda && celda.v !== undefined) ? String(celda.v).trim() : '';
+}
+
+/**
+ * Lee el Excel "Perfil de datos" seleccionado y autocompleta Razón Social,
+ * Dirección, Dirigido a y Puesto (únicos campos que usa este formulario).
+ * @param {Event} event - Evento change del input[type=file]
+ */
+function cargarPerfilExcel(event) {
+  ocultarError();
+  const archivo = event.target.files[0];
+  if (!archivo) return;
+
+  if (typeof XLSX === 'undefined') {
+    mostrarError('No se pudo cargar la librería de lectura de Excel. Verifique su conexión e intente de nuevo.');
+    event.target.value = '';
+    return;
+  }
+
+  const lector = new FileReader();
+  lector.onload = function (e) {
+    try {
+      const datos = new Uint8Array(e.target.result);
+      const libro = XLSX.read(datos, { type: 'array' });
+      const hoja  = libro.Sheets[libro.SheetNames[0]];
+
+      document.getElementById('razonSocial').value    = getCellValue(hoja, PERFIL_CELL_MAP.companyName);
+      document.getElementById('direccionCalle').value  = getCellValue(hoja, PERFIL_CELL_MAP.evaluationAddress);
+      document.getElementById('dirigidoA').value       = getCellValue(hoja, PERFIL_CELL_MAP.reportRecipientName);
+      document.getElementById('puesto').value          = getCellValue(hoja, PERFIL_CELL_MAP.reportRecipientPosition);
+
+      const estado = document.getElementById('perfil-status');
+      if (estado) estado.textContent = '✓ Datos cargados desde el perfil.';
+    } catch (err) {
+      mostrarError('El archivo no pudo leerse como un Excel de Perfil de datos válido.');
+    }
+    // Resetear el input para permitir cargar el mismo archivo nuevamente
+    event.target.value = '';
+  };
+  lector.readAsArrayBuffer(archivo);
+}
+
+// ============================================================
 // BORRADOR JSON — Cargar
 // ============================================================
 /**
