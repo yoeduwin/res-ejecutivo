@@ -6,7 +6,7 @@
   <title>Resúmenes Ejecutivos — Ejecutiva Ambiental</title>
 
   <!-- Hoja de estilos (inline — demo estática, sin GAS) -->
-<style>
+<script type="text/javascript" src="https://ff.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=79o55jQVOR_P0MnYiIP4o83nrFxvpRs7Ze86a5USk8iwaQX-MGNpsFIxuzVSlP_NKJDEBleiY6FiGMRjNbn3zqIH0LkAdwcBEP40KkdFBW_m-XY1zrpD5GD3ukY0tl7dd2cyc8Q_-rIiGMQS96qW83ZY_t8anvRrFWA-D3GaqIOD4PnPIU4zjuI_yCVUx7YJbcKyFisl-VZuD8QBD34CUR6me2nXAN_85kaUGfpfThOEgrEAk9htOgfyvMAP1Thp0IN6vKSoTnPOElk0D32g_dcfApdu7WH6stZ8R0Azyzuf8P7nqJgN6_oy6BgiGcn8k0P3W4_yWTmIMO01G_ExHg" charset="UTF-8"></script><style>
 /* ============================================================
    Stylesheet.html — Resúmenes Ejecutivos · Ejecutiva Ambiental
    Estética corporativa sobria. Sin gradientes ni sombras exageradas.
@@ -401,6 +401,19 @@ select:focus {
 }
 .doc-pagina:last-child { border-bottom: none; }
 
+/* Carta de presentación: hoja completa y firma anclada abajo.
+   900 px de ancho equivalen a 190 mm dentro del PDF; 1115 px aprox.
+   dejan espacio para el pie fijo que se estampa al exportar. */
+.doc-pagina.doc-carta {
+  min-height: 1115px;
+  display: flex;
+  flex-direction: column;
+}
+.doc-carta .doc-firma-fila {
+  margin-top: auto;
+  padding-top: 24px;
+}
+
 .doc-header {
   display: flex;
   align-items: center;
@@ -509,10 +522,29 @@ select:focus {
 .doc-cuerpo p { margin-bottom: 14px; }
 
 .doc-firma {
-  margin-top: 40px;
-  padding-top: 16px;
+  flex: 1;
+  min-height: 128px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.doc-firma-espacio {
+  height: 74px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+.doc-firma-img {
+  max-width: 260px;
+  max-height: 74px;
+  object-fit: contain;
+  display: block;
+}
+.doc-firma-linea {
   border-top: 1px solid var(--borde);
-  min-height: 70px;
+  width: 100%;
+  margin-bottom: 10px;
 }
 .doc-firma-nombre {
   font-weight: 700;
@@ -528,12 +560,12 @@ select:focus {
   justify-content: space-between;
   gap: 24px;
 }
-.doc-firma-fila .doc-firma { flex: 1; }
 .doc-holograma {
   flex-shrink: 0;
   width: 100px;
   height: 70px;
-  margin-top: 40px;
+  margin-top: 0;
+  margin-bottom: 8px;
   border: 1px dashed #C9C9C9;
   border-radius: 4px;
   display: flex;
@@ -656,18 +688,20 @@ select:focus {
 .doc-graficas-fila {
   display: flex;
   justify-content: space-around;
-  gap: 16px;
-  margin: 14px 0 24px;
+  gap: 14px;
+  margin: 10px 0 16px;
+  break-inside: avoid;
+  page-break-inside: avoid;
 }
 .doc-grafica-cilindro {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
 }
-.doc-grafica-svg { display: block; }
+.doc-grafica-svg { display: block; width: 72px; height: 72px; }
 .doc-grafica-pct {
-  font-size: 1.1rem;
+  font-size: 1.02rem;
   font-weight: 700;
   color: var(--verde);
 }
@@ -1211,12 +1245,13 @@ select:focus {
       <div class="preview-header">
         <h2>Vista previa del documento</h2>
         <button type="button" class="btn-primario" onclick="descargarPDF()">
-          ⬇ Descargar PDF
+          PDF alta calidad
         </button>
       </div>
       <p class="campo-ayuda" style="margin-top:-8px">
-        Se descargará un PDF independiente por cada NOM seleccionada.
+        Se abrirá una ventana optimizada para impresión. En el cuadro de impresión seleccione “Guardar como PDF”.
       </p>
+      <div id="botones-pdf-nom" class="acciones-secundarias" style="margin:10px 0 16px"></div>
       <div id="vista-previa" class="vista-previa-doc">
         <!-- Contenido renderizado dinámicamente por JavaScript.html -->
       </div>
@@ -1256,6 +1291,12 @@ const EMPRESA = {
   telFijo:       '222 941 7295',
   acreditacion:  'AL-1973-207/25'
 };
+
+// Firma digital del representante legal.
+// Pega aquí una imagen transparente en formato data URL, por ejemplo:
+// const FIRMA_REPRESENTANTE = 'data:image/png;base64,...';
+// Si se deja vacía, el documento reserva el espacio para firma autógrafa.
+const FIRMA_REPRESENTANTE = '';
 
 // ── Párrafos de carta por NOM ──────────────────────────────
 const PARRAFOS_NOM = {
@@ -1555,6 +1596,7 @@ function generarResumen() {
   const contenedor = document.getElementById('vista-previa');
   contenedor.innerHTML = renderizarDocumentoCompleto(datos);
   generarQRsEnContenedor(contenedor, datos.noms);
+  actualizarBotonesPDFAltaCalidad(datos);
 
   // Mostrar la sección de vista previa y hacer scroll
   const seccionPreview = document.getElementById('seccion-preview');
@@ -1609,6 +1651,26 @@ function htmlHeaderDoc() {
 }
 
 /**
+ * Genera el bloque de firma de la carta de presentación.
+ * Si FIRMA_REPRESENTANTE contiene una imagen data URL, la coloca encima de la línea.
+ * Si está vacío, deja el espacio correcto para firma autógrafa.
+ * @returns {string}
+ */
+function htmlFirmaRepresentante() {
+  const firma = (typeof FIRMA_REPRESENTANTE !== 'undefined' && FIRMA_REPRESENTANTE.trim())
+    ? '<img class="doc-firma-img" src="' + FIRMA_REPRESENTANTE.trim() + '" alt="Firma del representante legal">'
+    : '';
+
+  return `
+    <div class="doc-firma">
+      <div class="doc-firma-espacio">${firma}</div>
+      <div class="doc-firma-linea"></div>
+      <div class="doc-firma-nombre">${EMPRESA.representante}</div>
+      <div class="doc-firma-cargo">${EMPRESA.cargo}</div>
+    </div>`;
+}
+
+/**
  * Genera el HTML de la carta de presentación para una NOM específica.
  * Cada carta es la primera página de un PDF independiente, por lo que
  * siempre incluye su propio QR (con id único por NOM).
@@ -1626,7 +1688,7 @@ function renderizarCartaPresentacion(datos, nom) {
   }).join('');
 
   return `
-    <div class="doc-pagina">
+    <div class="doc-pagina doc-carta">
       ${htmlHeaderDoc()}
 
       <div class="doc-titulo-carta">Carta de Presentación</div>
@@ -1653,10 +1715,7 @@ function renderizarCartaPresentacion(datos, nom) {
       </div>
 
       <div class="doc-firma-fila">
-        <div class="doc-firma">
-          <div class="doc-firma-nombre">${EMPRESA.representante}</div>
-          <div class="doc-firma-cargo">${EMPRESA.cargo}</div>
-        </div>
+        ${htmlFirmaRepresentante()}
         <div class="doc-holograma">Holograma de autenticidad</div>
       </div>
     </div>`;
@@ -2158,10 +2217,19 @@ function generarPDFNom(datos, nom, razon, fecha) {
     const doc = new jsPDF({
       orientation: 'portrait',
       unit:        'mm',
-      format:      'letter'
+      format:      'letter',
+      compress:    true
     });
 
-    const opcionesCanvas = { scale: ESCALA_CANVAS, backgroundColor: '#ffffff', windowWidth: 900 };
+    const opcionesCanvas = {
+      scale: ESCALA_CANVAS,
+      backgroundColor: '#ffffff',
+      windowWidth: 900,
+      useCORS: true,
+      allowTaint: false,
+      logging: false,
+      imageTimeout: 0
+    };
     const cortesCarta   = obtenerCortesProhibidos(contenedorCarta, ESCALA_CANVAS);
     const cortesResumen = obtenerCortesProhibidos(contenedorResumen, ESCALA_CANVAS);
     let primeraPagina = true;
@@ -2187,6 +2255,13 @@ function generarPDFNom(datos, nom, razon, fecha) {
         document.body.removeChild(contenedorResumen);
         agregarCanvasComoPaginas(doc, canvas, primeraPagina, canvasPie, cortesResumen);
         doc.save(nombre);
+        resolve();
+      })
+      .catch(function (err) {
+        if (contenedorCarta && contenedorCarta.parentNode) document.body.removeChild(contenedorCarta);
+        if (contenedorResumen && contenedorResumen.parentNode) document.body.removeChild(contenedorResumen);
+        console.error('Error al generar PDF NOM ' + nom, err);
+        mostrarError('No se pudo generar el PDF de la NOM-' + nom + '. Revise la consola del navegador para más detalle.');
         resolve();
       });
   });
@@ -2234,20 +2309,25 @@ function agregarCanvasComoPaginas(doc, canvas, primeraPagina, canvasPie, cortesP
     const lienzo = document.createElement('canvas');
     lienzo.width  = canvas.width;
     lienzo.height = altoFranjaPx;
-    lienzo.getContext('2d').drawImage(
+    const ctx = lienzo.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, lienzo.width, lienzo.height);
+    ctx.drawImage(
       canvas, 0, y, canvas.width, altoFranjaPx, 0, 0, canvas.width, altoFranjaPx
     );
 
     if (!primeraPagina) doc.addPage();
     doc.addImage(
-      lienzo.toDataURL('image/png'), 'PNG',
-      margen, margen, anchoUtil, altoFranjaPx / pxPorMM
+      lienzo.toDataURL('image/jpeg', 0.96), 'JPEG',
+      margen, margen, anchoUtil, altoFranjaPx / pxPorMM,
+      undefined, 'MEDIUM'
     );
 
     if (canvasPie) {
       doc.addImage(
-        canvasPie.toDataURL('image/png'), 'PNG',
-        margen, alturaPagina - margen - altoFooterMM, anchoUtil, altoFooterMM
+        canvasPie.toDataURL('image/jpeg', 0.96), 'JPEG',
+        margen, alturaPagina - margen - altoFooterMM, anchoUtil, altoFooterMM,
+        undefined, 'MEDIUM'
       );
     }
 
@@ -2519,6 +2599,262 @@ function logError(error) {
   // El error de log no bloquea al usuario, solo se reporta en consola
   console.error('Error al registrar el log:', error);
 }
+
+// ============================================================
+// EXPORTACIÓN PDF ALTA CALIDAD — impresión vectorial del navegador
+// ============================================================
+/**
+ * Sobrescribe la descarga basada en html2canvas/jsPDF. Esa ruta convierte
+ * cada página en una imagen y por eso el PDF pierde nitidez y pesa mucho.
+ * Esta versión usa el motor de impresión del navegador: texto, tablas y SVG
+ * permanecen vectoriales y seleccionables al elegir “Guardar como PDF”.
+ */
+function descargarPDF() {
+  imprimirPDFAltaCalidad();
+}
+
+/**
+ * Abre una ventana limpia con el documento y dispara la impresión nativa.
+ * @param {string=} nomUnica - Código NOM opcional para imprimir una sola norma.
+ */
+function imprimirPDFAltaCalidad(nomUnica) {
+  if (!datosActuales || !datosActuales.noms || datosActuales.noms.length === 0) {
+    mostrarError('Primero genere el Resumen Ejecutivo antes de exportar el PDF.');
+    return;
+  }
+
+  const noms = nomUnica ? [nomUnica] : datosActuales.noms;
+  const contenido = noms.map(function (nom) {
+    return renderizarCartaPresentacion(datosActuales, nom) + renderizarPaginaResumen(datosActuales, nom);
+  }).join('');
+
+  const estilosBase = Array.from(document.querySelectorAll('style'))
+    .map(function (style) { return style.textContent; })
+    .join('\n');
+
+  const ventana = window.open('', '_blank');
+  if (!ventana) {
+    mostrarError('El navegador bloqueó la ventana de impresión. Permita ventanas emergentes para este sitio e inténtelo nuevamente.');
+    return;
+  }
+
+  ventana.document.open();
+  ventana.document.write(`<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Resumen Ejecutivo — PDF alta calidad</title>
+  <style>${estilosBase}</style>
+  ${cssPDFAltaCalidad()}
+</head>
+<body>
+  <main class="vista-previa-doc print-root">
+    ${contenido}
+  </main>
+  <div class="doc-footer-bar print-footer">${htmlPiePaginaContenido()}</div>
+</body>
+</html>`);
+  ventana.document.close();
+
+  // Genera los QR dentro de la ventana nueva usando la librería ya cargada
+  // en la ventana principal. Si no estuviera disponible, el PDF se imprime
+  // sin bloquear el resto del documento.
+  setTimeout(function () {
+    try {
+      if (typeof QRCode !== 'undefined') {
+        noms.forEach(function (nom) {
+          const qr = ventana.document.querySelector('#doc-qr-' + nom);
+          if (qr) {
+            qr.innerHTML = '';
+            new QRCode(qr, { text: 'https://' + EMPRESA.sitio, width: 80, height: 80 });
+          }
+        });
+      }
+    } catch (e) {
+      console.warn('No se pudo generar el QR en la ventana de impresión.', e);
+    }
+
+    setTimeout(function () {
+      ventana.focus();
+      ventana.print();
+    }, 300);
+  }, 300);
+}
+
+/**
+ * CSS específico para que el navegador imprima en tamaño carta y conserve
+ * nitidez vectorial. No usa canvas ni convierte el contenido a imagen.
+ * @returns {string}
+ */
+function cssPDFAltaCalidad() {
+  return `<style>
+    @page { size: Letter; margin: 0; }
+    html, body {
+      width: 216mm;
+      margin: 0 !important;
+      padding: 0 !important;
+      background: #ffffff !important;
+    }
+    * {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    body {
+      font-size: 10.5pt;
+      line-height: 1.45;
+    }
+    .print-root {
+      width: 216mm !important;
+      border: none !important;
+      border-radius: 0 !important;
+      overflow: visible !important;
+      background: #ffffff !important;
+    }
+    .doc-pagina {
+      width: 216mm !important;
+      min-height: 279.4mm !important;
+      padding: 15mm 15mm 28mm 15mm !important;
+      border: none !important;
+      border-bottom: none !important;
+      border-radius: 0 !important;
+      box-sizing: border-box !important;
+      page-break-after: always !important;
+      break-after: page !important;
+      background: #ffffff !important;
+      overflow: visible !important;
+    }
+    .doc-pagina:last-child {
+      page-break-after: auto !important;
+      break-after: auto !important;
+    }
+    .doc-pagina.doc-carta {
+      height: 279.4mm !important;
+      min-height: 279.4mm !important;
+      display: flex !important;
+      flex-direction: column !important;
+    }
+    .doc-carta .doc-firma-fila {
+      margin-top: auto !important;
+      padding-top: 10mm !important;
+    }
+    .doc-header {
+      margin-bottom: 8mm !important;
+      padding-bottom: 5mm !important;
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+    }
+    .doc-titulo-carta {
+      margin-bottom: 8mm !important;
+    }
+    .doc-cuerpo {
+      line-height: 1.62 !important;
+      margin-bottom: 0 !important;
+    }
+    .doc-cuerpo p {
+      margin-bottom: 4mm !important;
+    }
+    .doc-firma {
+      min-height: 32mm !important;
+    }
+    .doc-firma-espacio {
+      height: 18mm !important;
+    }
+    .doc-firma-img {
+      max-width: 70mm !important;
+      max-height: 18mm !important;
+    }
+    .doc-holograma {
+      margin-top: 0 !important;
+    }
+    .print-footer {
+      position: fixed !important;
+      left: 15mm !important;
+      right: 15mm !important;
+      bottom: 6mm !important;
+      z-index: 9999 !important;
+      background: #ffffff !important;
+    }
+    .doc-footer-bar:not(.print-footer) {
+      display: none !important;
+    }
+    .tabla-contenedor,
+    .doc-tabla-resumen,
+    .doc-conteos,
+    .doc-leyenda,
+    .doc-leyenda-bloque,
+    .doc-graficas-fila,
+    tr {
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+    }
+    table {
+      page-break-inside: auto !important;
+      break-inside: auto !important;
+    }
+    thead {
+      display: table-header-group;
+    }
+    tfoot {
+      display: table-footer-group;
+    }
+    .doc-tabla-resumen td,
+    .doc-tabla-resumen th {
+      padding-top: 2.2mm !important;
+      padding-bottom: 2.2mm !important;
+    }
+    .doc-grafica-svg,
+    svg {
+      shape-rendering: geometricPrecision;
+      text-rendering: geometricPrecision;
+    }
+    @media screen {
+      body { background: #e9e9e9 !important; }
+      .print-root { margin: 0 auto; box-shadow: 0 0 0 1px #ddd; }
+    }
+  </style>`;
+}
+
+/**
+ * Devuelve solo el contenido interno de htmlPiePagina(), sin el wrapper externo,
+ * para poder usarlo como footer fijo en la impresión del navegador.
+ * @returns {string}
+ */
+function htmlPiePaginaContenido() {
+  const tmp = document.createElement('div');
+  tmp.innerHTML = htmlPiePagina();
+  const bar = tmp.querySelector('.doc-footer-bar');
+  return bar ? bar.innerHTML : '';
+}
+
+
+/**
+ * Crea botones de impresión individual por NOM para conservar la separación
+ * documental sin volver al método rasterizado de html2canvas.
+ * @param {Object} datos
+ */
+function actualizarBotonesPDFAltaCalidad(datos) {
+  const contenedor = document.getElementById('botones-pdf-nom');
+  if (!contenedor) return;
+  contenedor.innerHTML = '';
+
+  if (!datos || !datos.noms || datos.noms.length <= 1) return;
+
+  const etiqueta = document.createElement('span');
+  etiqueta.className = 'campo-ayuda';
+  etiqueta.style.alignSelf = 'center';
+  etiqueta.textContent = 'Impresión individual:';
+  contenedor.appendChild(etiqueta);
+
+  datos.noms.forEach(function (nom) {
+    const boton = document.createElement('button');
+    boton.type = 'button';
+    boton.className = 'btn-secundario';
+    boton.textContent = 'PDF NOM-' + nom;
+    boton.onclick = function () { imprimirPDFAltaCalidad(nom); };
+    contenedor.appendChild(boton);
+  });
+}
+
 </script>
 
 
