@@ -12,6 +12,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <!-- html2canvas requerido por jsPDF.html() -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <!-- QRCode.js — genera el QR genérico localmente, sin API externa -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
 
@@ -112,6 +114,15 @@
             <span class="nom-check-texto">
               <strong>NOM-025-STPS-2008</strong>
               <em>Iluminación</em>
+            </span>
+          </label>
+
+          <label class="nom-check-label">
+            <input type="checkbox" id="check-024" value="024"
+                   onchange="toggleSeccionNom('024', this.checked)">
+            <span class="nom-check-texto">
+              <strong>NOM-024-STPS-2001</strong>
+              <em>Vibraciones</em>
             </span>
           </label>
         </div>
@@ -326,6 +337,57 @@
           </table>
         </div>
         <button type="button" class="btn-agregar" onclick="agregarFila('tbody-025')">+ Agregar fila</button>
+      </section>
+
+      <!-- ── Sección NOM-024 ── -->
+      <section id="seccion-024" class="seccion-nom" style="display:none">
+        <h2 class="seccion-titulo nom-titulo">NOM-024-STPS-2001 — Vibraciones</h2>
+
+        <div class="tabla-contenedor">
+          <table class="tabla-datos">
+            <thead>
+              <tr>
+                <th class="col-num">N°</th>
+                <th>Fuente</th>
+                <th>Nombre del trabajador</th>
+                <th class="col-conclusion">Extremidades superiores</th>
+                <th class="col-conclusion">Cuerpo entero</th>
+                <th class="col-conclusion">Conclusión</th>
+                <th class="col-accion"></th>
+              </tr>
+            </thead>
+            <tbody id="tbody-024">
+              <tr class="fila-template" style="display:none">
+                <td class="col-num num-fila">—</td>
+                <td><input type="text" class="campo-tabla" placeholder="Fuente"></td>
+                <td><input type="text" class="campo-tabla" placeholder="Nombre completo"></td>
+                <td>
+                  <select class="campo-tabla campo-select">
+                    <option value="Dentro">✓ Dentro</option>
+                    <option value="Fuera">✖ Fuera</option>
+                  </select>
+                </td>
+                <td>
+                  <select class="campo-tabla campo-select">
+                    <option value="Dentro">✓ Dentro</option>
+                    <option value="Fuera">✖ Fuera</option>
+                  </select>
+                </td>
+                <td>
+                  <select class="campo-tabla campo-select">
+                    <option value="Dentro">✓ Dentro</option>
+                    <option value="Fuera">✖ Fuera</option>
+                  </select>
+                </td>
+                <td>
+                  <button type="button" class="btn-eliminar"
+                          onclick="eliminarFila(this)" title="Eliminar fila">✕</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <button type="button" class="btn-agregar" onclick="agregarFila('tbody-024')">+ Agregar fila</button>
       </section>
 
       <!-- Acciones del formulario -->

@@ -39,7 +39,15 @@ El presente informe de resultados únicamente presenta los resultados del centro
 
 Confiamos en que este documento cumplirá con sus expectativas y será una herramienta valiosa para fortalecer la seguridad y el bienestar en su empresa. Agradecemos la confianza depositada en nuestros servicios y quedamos a su disposición para aclarar cualquier duda o brindarle asistencia en la interpretación de los resultados.
 
-Finalmente, le recordamos que la vigencia del informe será de dos años, siempre que se mantengan las condiciones que dieron origen a los resultados, tal como lo establece el numeral 13.3 de la norma de referencia.`
+Finalmente, le recordamos que la vigencia del informe será de dos años, siempre que se mantengan las condiciones que dieron origen a los resultados, tal como lo establece el numeral 13.3 de la norma de referencia.`,
+
+  '024': `Es un placer para nosotros entregarle el informe de resultados correspondiente a la evaluación de vibraciones en su centro de trabajo, realizado conforme a lo establecido en la normativa vigente, específicamente la NOM-024-STPS-2001.
+
+El presente informe de resultados únicamente presenta los resultados del centro de trabajo evaluado, en las condiciones al momento de realizar las mediciones. Hemos trabajado con el mayor rigor para garantizar la precisión y utilidad de los datos recopilados, con el objetivo de apoyarle en la gestión y mejora de las condiciones laborales en su organización.
+
+Confiamos en que este documento cumplirá con sus expectativas y será una herramienta valiosa para fortalecer la seguridad y el bienestar en su empresa. Agradecemos la confianza depositada en nuestros servicios y quedamos a su disposición para aclarar cualquier duda o brindarle asistencia en la interpretación de los resultados.
+
+Finalmente, le recordamos que la vigencia del informe será de dos años, siempre que se mantengan las condiciones que dieron origen a los resultados, tal como lo establece el numeral 9.2 de la norma de referencia.`
 };
 
 // ── Meses en español para formatear fechas ─────────────────
@@ -187,7 +195,8 @@ function validarFormulario() {
   const tablasPorNom = {
     '011': ['tbody-011-1', 'tbody-011-2'],
     '022': ['tbody-022-1', 'tbody-022-2'],
-    '025': ['tbody-025']
+    '025': ['tbody-025'],
+    '024': ['tbody-024']
   };
   nomsActivas.forEach(function (nom) {
     const tablas = tablasPorNom[nom] || [];
@@ -214,7 +223,7 @@ function validarFormulario() {
  * @returns {string[]}
  */
 function obtenerNomsActivas() {
-  return ['011', '022', '025'].filter(function (nom) {
+  return ['011', '022', '025', '024'].filter(function (nom) {
     const chk = document.getElementById('check-' + nom);
     return chk && chk.checked;
   });
@@ -266,6 +275,9 @@ function recolectarDatos() {
   if (nomsActivas.includes('025')) {
     datos.tablas['025']   = leerFilasTabla('tbody-025');
   }
+  if (nomsActivas.includes('024')) {
+    datos.tablas['024']   = leerFilasTabla('tbody-024');
+  }
 
   // Total de puntos evaluados (suma de todas las filas de todas las tablas)
   datos.totalPuntos = Object.values(datos.tablas).reduce(function (acc, t) {
@@ -295,6 +307,7 @@ function generarResumen() {
   // Renderizar la vista previa
   const contenedor = document.getElementById('vista-previa');
   contenedor.innerHTML = renderizarDocumentoCompleto(datos);
+  generarQRGenerico();
 
   // Mostrar la sección de vista previa y hacer scroll
   const seccionPreview = document.getElementById('seccion-preview');
@@ -351,10 +364,11 @@ function htmlHeaderDoc() {
 /**
  * Genera el HTML de la carta de presentación para una NOM específica.
  * @param {Object} datos
- * @param {string} nom  - '011' | '022' | '025'
+ * @param {string} nom  - '011' | '022' | '024' | '025'
+ * @param {boolean} [incluirQR] - true para insertar el QR genérico (solo primera página del documento)
  * @returns {string}
  */
-function renderizarCartaPresentacion(datos, nom) {
+function renderizarCartaPresentacion(datos, nom, incluirQR) {
   const fechaTexto = formatearFechaEspanol(datos.fecha);
   const parrafo    = PARRAFOS_NOM[nom] || '';
 
@@ -391,6 +405,8 @@ function renderizarCartaPresentacion(datos, nom) {
         <div class="doc-firma-cargo">${EMPRESA.cargo}</div>
         <div class="doc-firma-cargo" style="margin-top:4px">${EMPRESA.correo}</div>
       </div>
+
+      ${incluirQR ? '<div id="doc-qr-generico" class="doc-qr"></div>' : ''}
     </div>`;
 }
 
@@ -548,6 +564,39 @@ function renderizarTablaResumen(datos, nom) {
       </div>`;
   }
 
+  if (nom === '024') {
+    const t = datos.tablas['024'] || [];
+    const denExtSup = t.filter(function (r) { return r[2] === 'Dentro'; }).length;
+    const denCuerpo = t.filter(function (r) { return r[3] === 'Dentro'; }).length;
+
+    contenido += `
+      <div class="doc-nom-subtitulo">Tabla — Evaluación de vibraciones</div>
+      <table class="doc-tabla-resumen">
+        <thead><tr>
+          <th style="width:40px">N°</th><th>Fuente</th><th>Nombre del trabajador</th>
+          <th style="width:110px">Extremidades superiores</th>
+          <th style="width:110px">Cuerpo entero</th>
+          <th style="width:110px">Conclusión</th>
+        </tr></thead>
+        <tbody>
+          ${t.map(function (r, i) {
+            return `<tr>
+              <td style="text-align:center">${i+1}</td>
+              <td>${r[0]||''}</td><td>${r[1]||''}</td>
+              <td style="text-align:center">${r[2]||''}</td>
+              <td style="text-align:center">${r[3]||''}</td>
+              <td style="text-align:center">${r[4]||''}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+      <div class="doc-conteos">
+        <span class="doc-conteo-linea"><span class="doc-conteo-num">${t.length}</span> …… puntos en total evaluados</span>
+        <span class="doc-conteo-linea"><span class="doc-conteo-num">${denExtSup}</span> …… se encuentran dentro de norma en extremidades superiores</span>
+        <span class="doc-conteo-linea"><span class="doc-conteo-num">${denCuerpo}</span> …… se encuentran dentro de norma en cuerpo entero</span>
+      </div>`;
+  }
+
   return contenido;
 }
 
@@ -560,15 +609,16 @@ function renderizarTablaResumen(datos, nom) {
 function renderizarDocumentoCompleto(datos) {
   let html = '';
 
-  datos.noms.forEach(function (nom) {
-    // Página 1: Carta de presentación
-    html += renderizarCartaPresentacion(datos, nom);
+  datos.noms.forEach(function (nom, idx) {
+    // Página 1: Carta de presentación (el QR genérico solo se incluye una vez, en la primera carta)
+    html += renderizarCartaPresentacion(datos, nom, idx === 0);
 
     // Página 2: Resumen ejecutivo con tablas
     const titulos = {
       '011': 'NOM-011-STPS-2001 — Ruido Laboral',
       '022': 'NOM-022-STPS-2015 — Electricidad Estática',
-      '025': 'NOM-025-STPS-2008 — Iluminación'
+      '025': 'NOM-025-STPS-2008 — Iluminación',
+      '024': 'NOM-024-STPS-2001 — Vibraciones'
     };
     html += `
       <div class="doc-pagina">
@@ -584,6 +634,26 @@ function renderizarDocumentoCompleto(datos) {
   });
 
   return html;
+}
+
+// ============================================================
+// CÓDIGO QR GENÉRICO
+// ============================================================
+/**
+ * Genera el QR genérico (sitio web de la empresa) dentro del contenedor
+ * #doc-qr-generico, insertado por renderizarCartaPresentacion() en la
+ * primera página del documento. Se genera localmente con qrcode.js,
+ * sin depender de ninguna API externa.
+ */
+function generarQRGenerico() {
+  const contenedorQr = document.getElementById('doc-qr-generico');
+  if (!contenedorQr || typeof QRCode === 'undefined') return;
+  contenedorQr.innerHTML = '';
+  new QRCode(contenedorQr, {
+    text:   'https://' + EMPRESA.sitio,
+    width:  80,
+    height: 80
+  });
 }
 
 // ============================================================
@@ -689,7 +759,7 @@ function restaurarFormulario(datos) {
     });
 
   // Desactivar todas las NOMs primero
-  ['011','022','025'].forEach(function (nom) {
+  ['011','022','025','024'].forEach(function (nom) {
     const chk = document.getElementById('check-' + nom);
     if (chk) { chk.checked = false; toggleSeccionNom(nom, false); }
   });
@@ -706,6 +776,9 @@ function restaurarFormulario(datos) {
     ],
     '025': [
       { tbodyId: 'tbody-025', claves: ['025'] }
+    ],
+    '024': [
+      { tbodyId: 'tbody-024', claves: ['024'] }
     ]
   };
 
