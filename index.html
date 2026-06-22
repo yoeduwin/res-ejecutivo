@@ -522,6 +522,30 @@ select:focus {
 }
 .doc-firma-cargo { font-size: 0.85rem; color: var(--subtexto); }
 
+.doc-firma-fila {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+}
+.doc-firma-fila .doc-firma { flex: 1; }
+.doc-holograma {
+  flex-shrink: 0;
+  width: 100px;
+  height: 70px;
+  margin-top: 40px;
+  border: 1px dashed #C9C9C9;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 0.62rem;
+  line-height: 1.3;
+  color: #B5B5B5;
+  padding: 4px;
+}
+
 .doc-qr {
   display: inline-block;
   flex-shrink: 0;
@@ -651,6 +675,60 @@ select:focus {
   font-size: 0.74rem;
   color: var(--subtexto);
   text-align: center;
+}
+
+.doc-leyenda-bloque {
+  font-size: 0.78rem;
+  color: var(--subtexto);
+  margin: 6px 0 14px;
+  padding: 8px 12px;
+  background: #F4F4F4;
+  border-radius: 4px;
+  line-height: 1.7;
+}
+.doc-leyenda-bloque strong { color: var(--texto); }
+.doc-nota-anexo {
+  font-size: 0.78rem;
+  font-style: italic;
+  color: var(--subtexto);
+  margin: 4px 0 16px;
+}
+
+.doc-grafica-doble {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+.doc-grafica-titulo {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--subtexto);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.doc-grafica-svg-wrap { position: relative; }
+.doc-grafica-etiqueta-pos,
+.doc-grafica-etiqueta-neg {
+  position: absolute;
+  font-size: 0.74rem;
+  font-weight: 700;
+  white-space: nowrap;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+.doc-grafica-etiqueta-pos {
+  color: var(--verde);
+  background: rgba(0, 150, 80, 0.1);
+  bottom: 2px;
+  left: -8px;
+}
+.doc-grafica-etiqueta-neg {
+  color: #C0392B;
+  background: rgba(192, 57, 43, 0.1);
+  top: 2px;
+  right: -8px;
 }
 
 /* --- Pie de página --- */
@@ -1582,10 +1660,13 @@ function renderizarCartaPresentacion(datos, nom) {
         ${parrafosHtml}
       </div>
 
-      <div class="doc-firma">
-        <div class="doc-firma-nombre">${EMPRESA.representante}</div>
-        <div class="doc-firma-cargo">${EMPRESA.cargo}</div>
-        <div class="doc-firma-cargo" style="margin-top:4px">${EMPRESA.correo}</div>
+      <div class="doc-firma-fila">
+        <div class="doc-firma">
+          <div class="doc-firma-nombre">${EMPRESA.representante}</div>
+          <div class="doc-firma-cargo">${EMPRESA.cargo}</div>
+          <div class="doc-firma-cargo" style="margin-top:4px">${EMPRESA.correo}</div>
+        </div>
+        <div class="doc-holograma">Holograma de autenticidad</div>
       </div>
     </div>`;
 }
@@ -1726,6 +1807,53 @@ function dibujarGraficaCilindro(dentro, total, etiquetaMedicion) {
     </div>`;
 }
 
+let contadorGraficaDoble = 0;
+
+/**
+ * Genera el HTML de una gráfica de dona/cilindro con dos etiquetas de porcentaje
+ * (positiva y negativa) alrededor, para métricas binarias tipo SI/NO o Dentro/Fuera.
+ * @param {string} titulo
+ * @param {number} valorPositivo
+ * @param {string} etiquetaPositivo
+ * @param {number} valorNegativo
+ * @param {string} etiquetaNegativo
+ * @param {number} total
+ * @returns {string}
+ */
+function dibujarGraficaDoble(titulo, valorPositivo, etiquetaPositivo, valorNegativo, etiquetaNegativo, total) {
+  const pctPos = total > 0 ? Math.round((valorPositivo / total) * 100) : 0;
+  const pctNeg = total > 0 ? Math.round((valorNegativo / total) * 100) : 0;
+  const r = 32, cx = 40, cy = 40, ry = 12;
+  const circunferencia = 2 * Math.PI * r;
+  const arco = (pctPos / 100) * circunferencia;
+  const idGrad = 'gradDoble' + (contadorGraficaDoble++);
+  return `
+    <div class="doc-grafica-doble">
+      <span class="doc-grafica-titulo">${titulo}</span>
+      <div class="doc-grafica-svg-wrap">
+        <svg class="doc-grafica-svg" width="80" height="80" viewBox="0 0 80 80">
+          <defs>
+            <linearGradient id="${idGrad}" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#CFCFCF"/>
+              <stop offset="100%" stop-color="#9A9A9A"/>
+            </linearGradient>
+          </defs>
+          <ellipse cx="${cx}" cy="${cy}" rx="${r}" ry="${ry}" fill="url(#${idGrad})"/>
+          <circle cx="${cx}" cy="${cy}" r="${r - 9}" fill="#FFFFFF"/>
+          <circle
+            cx="${cx}" cy="${cy}" r="${r - 4.5}" fill="none"
+            stroke="#005600" stroke-width="9"
+            stroke-dasharray="${arco} ${circunferencia - arco}"
+            stroke-dashoffset="${circunferencia / 4}"
+            transform="rotate(180 ${cx} ${cy})"
+          />
+        </svg>
+        <span class="doc-grafica-etiqueta-neg">${etiquetaNegativo} ${pctNeg}%</span>
+        <span class="doc-grafica-etiqueta-pos">${etiquetaPositivo} ${pctPos}%</span>
+      </div>
+    </div>`;
+}
+
 /**
  * Genera el HTML del resumen ejecutivo con las tablas de resultados de una NOM.
  * @param {Object} datos
@@ -1796,7 +1924,7 @@ function renderizarTablaResumen(datos, nom) {
     const conCont022t1 = t1.filter(function (r) { return r[2] === '✓'; }).length;
     const denRes022t1  = t1.filter(function (r) { return r[3] === 'Dentro'; }).length;
     contenido += `
-      <div class="doc-nom-subtitulo">Tabla 1 — Resistencia eléctrica</div>
+      <div class="doc-nom-subtitulo">Tabla 1. Resultados y conclusiones de las mediciones de resistencia eléctrica</div>
       <table class="doc-tabla-resumen">
         <thead><tr>
           <th style="width:40px">N°</th><th>Departamento</th><th>Área</th>
@@ -1814,20 +1942,28 @@ function renderizarTablaResumen(datos, nom) {
           }).join('')}
         </tbody>
       </table>
+      <div class="doc-leyenda-bloque">
+        <div><strong>PARA EXISTE CONTINUIDAD:</strong> SI = ✓ &nbsp;&nbsp; NO = ✖</div>
+        <div><strong>PARA RESISTENCIA:</strong> DENTRO = ✓ &nbsp;&nbsp; FUERA = ✖</div>
+      </div>
       <div class="doc-conteos">
-        <span class="doc-conteo-linea"><span class="doc-conteo-num">${t1.length}</span> …… puntos en total evaluados</span>
         <span class="doc-conteo-linea"><span class="doc-conteo-num">${conCont022t1}</span> …… presentan continuidad</span>
         <span class="doc-conteo-linea"><span class="doc-conteo-num">${denRes022t1}</span> …… se encuentran dentro de la resistencia esperada de acuerdo a la norma</span>
+      </div>
+      <p class="doc-nota-anexo">*Para información detallada, consultar los anexos del informe de resultados.</p>
+      <div class="doc-graficas-fila">
+        ${dibujarGraficaDoble('Continuidad', conCont022t1, 'SI', t1.length - conCont022t1, 'NO', t1.length)}
+        ${dibujarGraficaDoble('Resistencia', denRes022t1, 'Dentro de norma', t1.length - denRes022t1, 'Fuera de norma', t1.length)}
       </div>`;
 
     // Tabla 2 — Continuidad eléctrica
     const conCont022t2 = t2.filter(function (r) { return r[3] === '✓'; }).length;
     contenido += `
-      <div class="doc-nom-subtitulo">Tabla 2 — Continuidad eléctrica (por electrodo)</div>
+      <div class="doc-nom-subtitulo">Tabla 2. Resumen de continuidad eléctrica</div>
       <table class="doc-tabla-resumen">
         <thead><tr>
           <th style="width:40px">N°</th><th>Electrodo</th>
-          <th>Equipo conectado</th><th>Lectura (Ω)</th>
+          <th>Equipo conectado</th><th>Lectura en (Ω)</th>
           <th style="width:110px">EXISTE CONTINUIDAD</th>
         </tr></thead>
         <tbody>
