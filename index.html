@@ -1870,7 +1870,9 @@ function renderizarTablaResumen(datos, nom) {
     // Tabla 1 — Fuentes de ruido
     const den011t1 = t1.filter(function (r) { return r[2] === 'Dentro'; }).length;
     contenido += `
-      <div class="doc-nom-subtitulo">Tabla 1 — Niveles máximos de exposición</div>
+      <p style="font-weight:700;color:var(--texto);margin-bottom:4px">Para niveles máximos de exposición al ruido</p>
+      <p class="doc-intro" style="margin-bottom:14px">En la siguiente tabla se presentan las conclusiones para cada uno de los puntos evaluados para los niveles máximos de exposición al ruido.</p>
+      <div class="doc-nom-subtitulo">Tabla 1. Resultados y conclusiones para los niveles máximos de exposición al ruido</div>
       <table class="doc-tabla-resumen">
         <thead><tr>
           <th style="width:40px">N°</th><th>Área</th>
@@ -1886,15 +1888,20 @@ function renderizarTablaResumen(datos, nom) {
           }).join('')}
         </tbody>
       </table>
+      <div class="doc-leyenda-bloque">Nomenclatura utilizada = Dentro | Fuera = ✓ | ✖</div>
       <div class="doc-conteos">
         <span class="doc-conteo-linea"><span class="doc-conteo-num">${t1.length}</span> …… puntos en total evaluados</span>
         <span class="doc-conteo-linea"><span class="doc-conteo-num">${den011t1}</span> …… se encuentran dentro, en la primera medición</span>
+      </div>
+      <p class="doc-nota-anexo">*Para información detallada, consultar los anexos del informe de resultados.</p>
+      <div class="doc-graficas-fila">
+        ${dibujarGraficaDoble('Niveles máximos de exposición a ruido', den011t1, 'Dentro de norma', t1.length - den011t1, 'Fuera de norma', t1.length)}
       </div>`;
 
     // Tabla 2 — Medición personal
     const den011t2 = t2.filter(function (r) { return r[2] === 'Dentro'; }).length;
     contenido += `
-      <div class="doc-nom-subtitulo">Tabla 2 — Medición personal (por trabajador)</div>
+      <div class="doc-nom-subtitulo">Tabla 2. Resultados y conclusiones de la medición personal (por trabajador)</div>
       <table class="doc-tabla-resumen">
         <thead><tr>
           <th style="width:40px">N°</th><th>Nombre del trabajador</th>
@@ -1910,9 +1917,14 @@ function renderizarTablaResumen(datos, nom) {
           }).join('')}
         </tbody>
       </table>
+      <div class="doc-leyenda-bloque">Nomenclatura utilizada = Dentro | Fuera = ✓ | ✖</div>
       <div class="doc-conteos">
         <span class="doc-conteo-linea"><span class="doc-conteo-num">${t2.length}</span> …… puntos en total evaluados</span>
         <span class="doc-conteo-linea"><span class="doc-conteo-num">${den011t2}</span> …… se encuentran dentro, en la primera medición</span>
+      </div>
+      <p class="doc-nota-anexo">*Para información detallada, consultar los anexos del informe de resultados.</p>
+      <div class="doc-graficas-fila">
+        ${dibujarGraficaDoble('Medición personal por trabajador', den011t2, 'Dentro de norma', t2.length - den011t2, 'Fuera de norma', t2.length)}
       </div>`;
   }
 
