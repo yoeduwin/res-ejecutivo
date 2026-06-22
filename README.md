@@ -1,6 +1,6 @@
 # Resúmenes Ejecutivos — Ejecutiva Ambiental
 
-Web App de Google Apps Script para generar resúmenes ejecutivos de mediciones NOM (NOM-011, NOM-022, NOM-025). Reemplaza el proceso de macros en Excel con una aplicación web con autenticación Google nativa, log automático en Google Sheets y exportación a PDF.
+Web App de Google Apps Script para generar resúmenes ejecutivos de mediciones NOM (NOM-011, NOM-022, NOM-024, NOM-025). Reemplaza el proceso de macros en Excel con una aplicación web con autenticación Google nativa, log automático en Google Sheets y exportación a PDF.
 
 **Empresa:** Solución en Ingeniería Ejecutiva Ambiental S.A. de C.V.
 **Acreditación EMA:** AL-1973-207/25
@@ -126,9 +126,14 @@ Y en GAS: **Implementar → Gestionar implementaciones → Nueva versión**.
 1. **`Index.html`** — Agregar un checkbox nuevo en la sección "NOMs aplicables" y una nueva `<section id="seccion-NXX">` con sus tablas y botones de fila.
 
 2. **`JavaScript.html`** — Agregar:
+   - El código de la NOM en el array de `obtenerNomsActivas()`
    - El párrafo de carta en el objeto `PARRAFOS_NOM['NXX']`
+   - La lectura de su(s) tabla(s) en `recolectarDatos()`
    - La lógica de conteos en la función `renderizarTablaResumen()` para el nuevo caso `nom === 'NXX'`
+   - El título en el mapa `titulos` dentro de `renderizarDocumentoCompleto()`
    - El array de tbodyIds en `tablasPorNom` dentro de `validarFormulario()` y `restaurarFormulario()`
+
+   > El QR genérico (`generarQRGenerico()`) se inserta una sola vez por documento (primera página), no requiere cambios al agregar una nueva NOM.
 
 3. **`Stylesheet.html`** — No suelen requerirse cambios; los estilos de tabla y NOM son genéricos.
 
