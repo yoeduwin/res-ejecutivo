@@ -438,6 +438,16 @@ select:focus {
   transition: color 0.12s, background 0.12s;
 }
 .btn-eliminar:hover { color: var(--error-borde); background: var(--error-bg); }
+.btn-eliminar .icono-btn { vertical-align: -2px; }
+
+/* Iconos SVG inline (sustituyen a los emojis: heredan el color del botón) */
+.icono-btn {
+  width: 14px;
+  height: 14px;
+  vertical-align: -2px;
+  margin-right: 5px;
+  flex-shrink: 0;
+}
 
 /* --- Sección de acciones del formulario --- */
 .seccion-acciones {
@@ -472,20 +482,27 @@ select:focus {
   color: var(--texto);
 }
 .vista-previa-doc {
-  background: var(--blanco);
-  border: 1px solid #D0D0D0;
-  border-radius: 6px;
-  padding: 0;
-  overflow: hidden;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 24px 0;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
 }
 
-/* --- Estilos del documento generado (dentro de #vista-previa) --- */
+/* --- Estilos del documento generado (dentro de #vista-previa) ---
+   Cada página se muestra como una hoja independiente con sombra suave,
+   simulando papel sobre la mesa; el espacio entre hojas lo da el gap
+   del contenedor padre (.vista-previa-doc) en vez de un separador punteado. */
 .doc-pagina {
+  background: var(--blanco);
   padding: 40px 48px;
-  border-bottom: 2px dashed #E0E0E0;
+  border-radius: 3px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 10px 28px rgba(0,0,0,0.10);
   page-break-after: always;
 }
-.doc-pagina:last-child { border-bottom: none; }
 
 /* Carta de presentación: hoja completa y firma anclada abajo.
    900 px de ancho equivalen a 190 mm dentro del PDF; 1115 px aprox.
@@ -551,7 +568,8 @@ select:focus {
   font-size: 0.7rem;
   color: var(--verde);
   border: 1.5px solid var(--verde);
-  border-radius: 8px;
+  background: rgba(0, 86, 0, 0.05);
+  border-radius: 10px;
   padding: 6px 12px;
   line-height: 1.4;
 }
@@ -750,7 +768,8 @@ select:focus {
   margin: 8px 0 20px;
   padding: 8px 12px;
   background: #F4F4F4;
-  border-radius: 4px;
+  border-left: 3px solid var(--verde2);
+  border-radius: 0 4px 4px 0;
   line-height: 1.9;
 }
 .doc-conteo-linea { display: block; }
@@ -770,7 +789,8 @@ select:focus {
   margin: 6px 0 14px;
   padding: 6px 12px;
   background: #F4F4F4;
-  border-radius: 4px;
+  border-left: 3px solid var(--verde2);
+  border-radius: 0 4px 4px 0;
 }
 .doc-leyenda-item { font-weight: 600; }
 .doc-graficas-fila {
@@ -805,7 +825,8 @@ select:focus {
   margin: 6px 0 14px;
   padding: 8px 12px;
   background: #F4F4F4;
-  border-radius: 4px;
+  border-left: 3px solid var(--verde2);
+  border-radius: 0 4px 4px 0;
   line-height: 1.7;
 }
 .doc-leyenda-bloque strong { color: var(--texto); }
@@ -895,7 +916,7 @@ select:focus {
       </div>
       <div class="header-derecha">
         <div class="app-titulo">Generador de Resúmenes Ejecutivos</div>
-        <button type="button" class="btn-guia-activar" onclick="activarGuia()">🧭 Activar guía</button>
+        <button type="button" class="btn-guia-activar" onclick="activarGuia()"><svg class="icono-btn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polygon points="14.5 9.5 13 13 9.5 14.5 11 11 14.5 9.5"></polygon></svg>Activar guía</button>
       </div>
     </div>
   </header>
@@ -917,7 +938,7 @@ select:focus {
 
         <div class="campo-grupo campo-perfil-upload" id="guia-cargar-perfil">
           <label class="btn-secundario" style="cursor:pointer; display:inline-flex; align-items:center; gap:6px; user-select:none">
-            📄 Cargar Perfil de datos (Excel)
+            <svg class="icono-btn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><polyline points="9 15 12 12 15 15"></polyline></svg>Cargar Perfil de datos (Excel)
             <input type="file" id="input-perfil" accept=".xlsx,.xls" style="display:none"
                    onchange="cargarPerfilExcel(event)">
           </label>
@@ -1032,7 +1053,7 @@ select:focus {
                 </td>
                 <td>
                   <button type="button" class="btn-eliminar"
-                          onclick="eliminarFila(this)" title="Eliminar fila">✕</button>
+                          onclick="eliminarFila(this)" title="Eliminar fila"><svg class="icono-btn" style="margin-right:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
                 </td>
               </tr>
             </tbody>
@@ -1066,7 +1087,7 @@ select:focus {
                 </td>
                 <td>
                   <button type="button" class="btn-eliminar"
-                          onclick="eliminarFila(this)" title="Eliminar fila">✕</button>
+                          onclick="eliminarFila(this)" title="Eliminar fila"><svg class="icono-btn" style="margin-right:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
                 </td>
               </tr>
             </tbody>
@@ -1112,7 +1133,7 @@ select:focus {
                 </td>
                 <td>
                   <button type="button" class="btn-eliminar"
-                          onclick="eliminarFila(this)" title="Eliminar fila">✕</button>
+                          onclick="eliminarFila(this)" title="Eliminar fila"><svg class="icono-btn" style="margin-right:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
                 </td>
               </tr>
             </tbody>
@@ -1148,7 +1169,7 @@ select:focus {
                 </td>
                 <td>
                   <button type="button" class="btn-eliminar"
-                          onclick="eliminarFila(this)" title="Eliminar fila">✕</button>
+                          onclick="eliminarFila(this)" title="Eliminar fila"><svg class="icono-btn" style="margin-right:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
                 </td>
               </tr>
             </tbody>
@@ -1205,7 +1226,7 @@ select:focus {
                 </td>
                 <td>
                   <button type="button" class="btn-eliminar"
-                          onclick="eliminarFila(this)" title="Eliminar fila">✕</button>
+                          onclick="eliminarFila(this)" title="Eliminar fila"><svg class="icono-btn" style="margin-right:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
                 </td>
               </tr>
             </tbody>
@@ -1257,7 +1278,7 @@ select:focus {
                 </td>
                 <td>
                   <button type="button" class="btn-eliminar"
-                          onclick="eliminarFila(this)" title="Eliminar fila">✕</button>
+                          onclick="eliminarFila(this)" title="Eliminar fila"><svg class="icono-btn" style="margin-right:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
                 </td>
               </tr>
             </tbody>
@@ -1301,7 +1322,7 @@ select:focus {
                 </td>
                 <td>
                   <button type="button" class="btn-eliminar"
-                          onclick="eliminarFila(this)" title="Eliminar fila">✕</button>
+                          onclick="eliminarFila(this)" title="Eliminar fila"><svg class="icono-btn" style="margin-right:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
                 </td>
               </tr>
             </tbody>
@@ -1319,10 +1340,10 @@ select:focus {
 
         <div class="acciones-secundarias">
           <button type="button" id="btn-guardar-borrador" class="btn-secundario" onclick="guardarBorrador()">
-            ↓ Guardar borrador (JSON)
+            <svg class="icono-btn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>Guardar borrador (JSON)
           </button>
           <label id="btn-cargar-borrador" class="btn-secundario" style="cursor:pointer; user-select:none">
-            ↑ Cargar borrador
+            <svg class="icono-btn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>Cargar borrador
             <input type="file" id="input-borrador" accept=".json" style="display:none"
                    onchange="cargarBorrador(event)">
           </label>
@@ -2824,6 +2845,9 @@ function cssPDFAltaCalidad() {
       border-radius: 0 !important;
       overflow: visible !important;
       background: #ffffff !important;
+      display: block !important;
+      padding: 0 !important;
+      gap: 0 !important;
     }
     .doc-pagina {
       width: 216mm !important;
@@ -2832,6 +2856,7 @@ function cssPDFAltaCalidad() {
       border: none !important;
       border-bottom: none !important;
       border-radius: 0 !important;
+      box-shadow: none !important;
       box-sizing: border-box !important;
       page-break-after: always !important;
       break-after: page !important;
