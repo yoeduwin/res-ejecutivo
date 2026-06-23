@@ -84,6 +84,92 @@ header {
   text-align: right;
   white-space: nowrap;
 }
+.header-derecha {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+.btn-guia-activar {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.6);
+  color: var(--blanco);
+  padding: 5px 12px;
+  border-radius: 4px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn-guia-activar:hover { background: rgba(255,255,255,0.15); }
+
+/* --- Guía interactiva paso a paso --- */
+.guia-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+}
+.guia-resaltado {
+  position: fixed;
+  z-index: 9998;
+  border-radius: 6px;
+  box-shadow: 0 0 0 4px var(--verde2), 0 0 0 9999px rgba(0,0,0,0.55);
+  transition: top .2s ease, left .2s ease, width .2s ease, height .2s ease;
+  pointer-events: none;
+}
+.guia-tooltip {
+  position: fixed;
+  z-index: 9999;
+  background: var(--blanco);
+  border-radius: 8px;
+  padding: 16px 18px;
+  width: 300px;
+  max-width: calc(100vw - 32px);
+  box-shadow: 0 6px 24px rgba(0,0,0,0.3);
+}
+.guia-tooltip.guia-centrado {
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+.guia-titulo {
+  font-weight: 700;
+  color: var(--verde);
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+.guia-texto {
+  color: var(--texto);
+  font-size: 0.88rem;
+  line-height: 1.55;
+  margin-bottom: 14px;
+}
+.guia-pie {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.guia-progreso { font-size: 0.78rem; color: var(--subtexto); }
+.guia-botones { display: flex; gap: 8px; }
+.guia-btn {
+  border: 1px solid var(--verde);
+  background: var(--blanco);
+  color: var(--verde);
+  padding: 5px 12px;
+  border-radius: 4px;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+.guia-btn.guia-btn-primario { background: var(--verde); color: var(--blanco); }
+.guia-saltar {
+  background: none;
+  border: none;
+  color: var(--subtexto);
+  font-size: 0.78rem;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
 
 /* --- Contenedor principal --- */
 .contenedor {
@@ -543,16 +629,18 @@ select:focus {
 }
 .doc-firma-linea {
   border-top: 1px solid var(--borde);
-  width: 100%;
-  margin-bottom: 10px;
+  width: 260px;
+  max-width: 100%;
+  margin: 0 auto 10px;
 }
 .doc-firma-nombre {
   font-weight: 700;
   font-size: 0.9rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
+  text-align: center;
 }
-.doc-firma-cargo { font-size: 0.85rem; color: var(--subtexto); }
+.doc-firma-cargo { font-size: 0.85rem; color: var(--subtexto); text-align: center; }
 
 .doc-firma-fila {
   display: flex;
@@ -774,6 +862,7 @@ select:focus {
 @media (max-width: 600px) {
   .header-inner { flex-direction: column; align-items: flex-start; }
   .app-titulo { text-align: left; }
+  .header-derecha { align-items: flex-start; }
   .campo-fila { grid-template-columns: 1fr; }
   .seccion-acciones { flex-direction: column; align-items: stretch; }
   .preview-header { flex-direction: column; }
@@ -804,7 +893,10 @@ select:focus {
           <span class="empresa-sub">ejecutivambiental.com &nbsp;·&nbsp; AL-1973-207/25</span>
         </div>
       </div>
-      <div class="app-titulo">Generador de Resúmenes Ejecutivos</div>
+      <div class="header-derecha">
+        <div class="app-titulo">Generador de Resúmenes Ejecutivos</div>
+        <button type="button" class="btn-guia-activar" onclick="activarGuia()">🧭 Activar guía</button>
+      </div>
     </div>
   </header>
 
@@ -823,7 +915,7 @@ select:focus {
       <section class="seccion-form">
         <h2 class="seccion-titulo">Datos del cliente</h2>
 
-        <div class="campo-grupo campo-perfil-upload">
+        <div class="campo-grupo campo-perfil-upload" id="guia-cargar-perfil">
           <label class="btn-secundario" style="cursor:pointer; display:inline-flex; align-items:center; gap:6px; user-select:none">
             📄 Cargar Perfil de datos (Excel)
             <input type="file" id="input-perfil" accept=".xlsx,.xls" style="display:none"
@@ -870,7 +962,7 @@ select:focus {
         <h2 class="seccion-titulo">NOMs aplicables</h2>
         <p class="seccion-desc">Seleccione las normas que aplican a este informe.</p>
 
-        <div class="noms-checks">
+        <div class="noms-checks" id="guia-noms-checks">
           <label class="nom-check-label">
             <input type="checkbox" id="check-011" value="011"
                    onchange="toggleSeccionNom('011', this.checked)">
@@ -921,7 +1013,7 @@ select:focus {
               <tr>
                 <th class="col-num">N°</th>
                 <th>Área</th>
-                <th>Identificación</th>
+                <th id="guia-identificacion-011">Identificación</th>
                 <th class="col-conclusion">Conclusión</th>
                 <th class="col-accion"></th>
               </tr>
@@ -1226,10 +1318,10 @@ select:focus {
         </button>
 
         <div class="acciones-secundarias">
-          <button type="button" class="btn-secundario" onclick="guardarBorrador()">
+          <button type="button" id="btn-guardar-borrador" class="btn-secundario" onclick="guardarBorrador()">
             ↓ Guardar borrador (JSON)
           </button>
-          <label class="btn-secundario" style="cursor:pointer; user-select:none">
+          <label id="btn-cargar-borrador" class="btn-secundario" style="cursor:pointer; user-select:none">
             ↑ Cargar borrador
             <input type="file" id="input-borrador" accept=".json" style="display:none"
                    onchange="cargarBorrador(event)">
@@ -1244,7 +1336,7 @@ select:focus {
     <div id="seccion-preview" style="display:none">
       <div class="preview-header">
         <h2>Vista previa del documento</h2>
-        <button type="button" class="btn-primario" onclick="descargarPDF()">
+        <button type="button" id="btn-pdf-calidad" class="btn-primario" onclick="descargarPDF()">
           PDF alta calidad
         </button>
       </div>
@@ -1707,7 +1799,7 @@ function renderizarCartaPresentacion(datos, nom) {
         <div id="doc-qr-${nom}" class="doc-qr"></div>
       </div>
 
-      <div class="doc-fecha">Fecha de elaboración: ${fechaTexto}</div>
+      <div class="doc-fecha">${fechaTexto}</div>
 
       <div class="doc-cuerpo">
         <p>Estimado(a) cliente,</p>
@@ -2162,13 +2254,39 @@ function generarQRsEnContenedor(contenedor, noms) {
   noms.forEach(function (nom) {
     const contenedorQr = contenedor.querySelector('#doc-qr-' + nom);
     if (!contenedorQr) return;
-    contenedorQr.innerHTML = '';
-    new QRCode(contenedorQr, {
-      text:   'https://' + EMPRESA.sitio,
-      width:  80,
-      height: 80
-    });
+    dibujarQRDegradado(contenedorQr, 'https://' + EMPRESA.sitio);
   });
+}
+
+/**
+ * Genera un código QR y tiñe sus módulos oscuros con un degradado vertical
+ * verde corporativo (de --verde a --verde2), conservando el fondo transparente
+ * (el contenedor .doc-qr ya aporta el fondo blanco vía CSS).
+ * @param {HTMLElement} contenedorQr - Elemento donde qrcode.js dibuja el QR
+ * @param {string} texto - Contenido a codificar
+ */
+function dibujarQRDegradado(contenedorQr, texto) {
+  contenedorQr.innerHTML = '';
+  new QRCode(contenedorQr, {
+    text:       texto,
+    width:      80,
+    height:     80,
+    colorDark:  '#000000',
+    colorLight: 'rgba(0,0,0,0)'
+  });
+
+  const canvas = contenedorQr.querySelector('canvas');
+  if (!canvas) return; // Fallback de tabla (sin soporte canvas): se deja el color sólido por defecto.
+
+  const ctx = canvas.getContext('2d');
+  const degradado = ctx.createLinearGradient(0, 0, 0, canvas.height);
+  degradado.addColorStop(0, '#005600');
+  degradado.addColorStop(1, '#007836');
+
+  ctx.globalCompositeOperation = 'source-atop';
+  ctx.fillStyle = degradado;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.globalCompositeOperation = 'source-over';
 }
 
 // ============================================================
@@ -2664,10 +2782,7 @@ function imprimirPDFAltaCalidad(nomUnica) {
       if (typeof QRCode !== 'undefined') {
         noms.forEach(function (nom) {
           const qr = ventana.document.querySelector('#doc-qr-' + nom);
-          if (qr) {
-            qr.innerHTML = '';
-            new QRCode(qr, { text: 'https://' + EMPRESA.sitio, width: 80, height: 80 });
-          }
+          if (qr) dibujarQRDegradado(qr, 'https://' + EMPRESA.sitio);
         });
       }
     } catch (e) {
@@ -2728,7 +2843,6 @@ function cssPDFAltaCalidad() {
       break-after: auto !important;
     }
     .doc-pagina.doc-carta {
-      height: 279.4mm !important;
       min-height: 279.4mm !important;
       display: flex !important;
       flex-direction: column !important;
@@ -2736,6 +2850,8 @@ function cssPDFAltaCalidad() {
     .doc-carta .doc-firma-fila {
       margin-top: auto !important;
       padding-top: 10mm !important;
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
     }
     .doc-header {
       margin-bottom: 8mm !important;
@@ -2762,6 +2878,10 @@ function cssPDFAltaCalidad() {
     .doc-firma-img {
       max-width: 70mm !important;
       max-height: 18mm !important;
+    }
+    .doc-firma-linea {
+      width: 70mm !important;
+      margin: 0 auto 3mm !important;
     }
     .doc-holograma {
       margin-top: 0 !important;
@@ -2853,6 +2973,202 @@ function actualizarBotonesPDFAltaCalidad(datos) {
     boton.onclick = function () { imprimirPDFAltaCalidad(nom); };
     contenedor.appendChild(boton);
   });
+}
+
+// ============================================================
+// GUÍA INTERACTIVA — recorrido paso a paso para usuarios nuevos
+// ============================================================
+
+/**
+ * Pasos del recorrido guiado. Cada paso resalta un elemento del formulario
+ * y muestra una explicación. `entrar`/`salir` permiten que un paso ajuste
+ * temporalmente el estado de la UI (p.ej. mostrar una sección oculta) y lo
+ * restaure al avanzar/retroceder/cerrar la guía.
+ */
+const PASOS_GUIA = [
+  {
+    selector: '#guia-cargar-perfil',
+    titulo:   'Cargar perfil de datos',
+    texto:    'Si ya tienes el Excel de "Perfil de datos" del cliente, cárgalo aquí: completa automáticamente Razón Social, Dirección, Dirigido a y Puesto. Si no lo tienes, llena estos campos a mano.'
+  },
+  {
+    selector: '#guia-noms-checks',
+    titulo:   'Normas aplicables',
+    texto:    'Selecciona las NOMs que aplican a este informe. Al marcar una, aparece abajo su tabla de captura correspondiente.'
+  },
+  {
+    selector: '#guia-identificacion-011',
+    titulo:   'Identificación en Ruido (NOM-011)',
+    texto:    'En la columna "Identificación" de la Tabla 1, indica el tipo de fuente o equipo evaluado, por ejemplo "Mesa de trabajo" o "Herramienta eléctrica".',
+    entrar: function () {
+      const chk = document.getElementById('check-011');
+      this._previo011 = chk.checked;
+      if (!chk.checked) {
+        chk.checked = true;
+        toggleSeccionNom('011', true);
+      }
+    },
+    salir: function () {
+      if (this._previo011 === false) {
+        document.getElementById('check-011').checked = false;
+        toggleSeccionNom('011', false);
+      }
+      this._previo011 = null;
+    }
+  },
+  {
+    selector: '#btn-guardar-borrador',
+    titulo:   'Guardar borrador (JSON)',
+    texto:    'Descarga un archivo JSON con todo lo capturado, igual que guardarías un Excel: te permite seguir editando el resumen más adelante sin perder lo capturado.'
+  },
+  {
+    selector: '#btn-cargar-borrador',
+    titulo:   'Cargar borrador',
+    texto:    'Usa esta opción para volver a abrir un archivo JSON guardado antes y continuar donde lo dejaste.'
+  },
+  {
+    selector: '#btn-generar',
+    titulo:   'Generar resumen',
+    texto:    'Cuando termines de capturar los datos, presiona aquí para generar el Resumen Ejecutivo y ver la vista previa del documento.'
+  },
+  {
+    selector: '#btn-pdf-calidad',
+    titulo:   'PDF alta calidad',
+    texto:    'Descarga el documento final. Se abrirá una ventana de impresión del navegador: si no se ve completo, abre "Más ajustes" y fija el Ancho/Escala al 100% (tamaño real) antes de elegir "Guardar como PDF".'
+  }
+];
+
+let pasoGuiaActual = -1;
+
+function activarGuia() {
+  pasoGuiaActual = 0;
+  construirOverlayGuia();
+  mostrarPasoGuia(0);
+}
+
+function construirOverlayGuia() {
+  if (document.getElementById('guia-overlay')) return;
+  const overlay = document.createElement('div');
+  overlay.id = 'guia-overlay';
+  overlay.className = 'guia-overlay';
+  document.body.appendChild(overlay);
+
+  const resaltado = document.createElement('div');
+  resaltado.id = 'guia-resaltado';
+  resaltado.className = 'guia-resaltado';
+  document.body.appendChild(resaltado);
+
+  const tooltip = document.createElement('div');
+  tooltip.id = 'guia-tooltip';
+  tooltip.className = 'guia-tooltip';
+  document.body.appendChild(tooltip);
+
+  window.addEventListener('resize', reposicionarGuia);
+}
+
+function destruirOverlayGuia() {
+  ['guia-overlay', 'guia-resaltado', 'guia-tooltip'].forEach(function (id) {
+    const el = document.getElementById(id);
+    if (el) el.remove();
+  });
+  window.removeEventListener('resize', reposicionarGuia);
+}
+
+function mostrarPasoGuia(indice) {
+  const pasoAnterior = PASOS_GUIA[pasoGuiaActual];
+  if (pasoAnterior && pasoAnterior.salir && pasoAnterior._activo) {
+    pasoAnterior.salir();
+    pasoAnterior._activo = false;
+  }
+
+  pasoGuiaActual = indice;
+  const paso = PASOS_GUIA[pasoGuiaActual];
+  if (paso.entrar) {
+    paso.entrar();
+    paso._activo = true;
+  }
+
+  // Deja que el DOM se actualice (p.ej. una sección recién mostrada) antes de medir.
+  requestAnimationFrame(function () {
+    pintarTooltipGuia();
+    reposicionarGuia();
+  });
+}
+
+function pintarTooltipGuia() {
+  const paso = PASOS_GUIA[pasoGuiaActual];
+  const tooltip = document.getElementById('guia-tooltip');
+  if (!tooltip) return;
+
+  const esPrimero = pasoGuiaActual === 0;
+  const esUltimo  = pasoGuiaActual === PASOS_GUIA.length - 1;
+
+  tooltip.innerHTML =
+    '<div class="guia-titulo">' + paso.titulo + '</div>' +
+    '<div class="guia-texto">' + paso.texto + '</div>' +
+    '<div class="guia-pie">' +
+      '<span class="guia-progreso">Paso ' + (pasoGuiaActual + 1) + ' de ' + PASOS_GUIA.length + '</span>' +
+      '<div class="guia-botones">' +
+        (esPrimero ? '' : '<button type="button" class="guia-btn" id="guia-btn-anterior">Anterior</button>') +
+        '<button type="button" class="guia-btn guia-btn-primario" id="guia-btn-siguiente">' + (esUltimo ? 'Entendido' : 'Siguiente') + '</button>' +
+      '</div>' +
+    '</div>' +
+    '<button type="button" class="guia-saltar" id="guia-btn-saltar" style="margin-top:10px">Saltar guía</button>';
+
+  const btnSiguiente = document.getElementById('guia-btn-siguiente');
+  btnSiguiente.onclick = function () {
+    if (esUltimo) cerrarGuia(); else mostrarPasoGuia(pasoGuiaActual + 1);
+  };
+  const btnAnterior = document.getElementById('guia-btn-anterior');
+  if (btnAnterior) btnAnterior.onclick = function () { mostrarPasoGuia(pasoGuiaActual - 1); };
+  document.getElementById('guia-btn-saltar').onclick = cerrarGuia;
+}
+
+function reposicionarGuia() {
+  const paso = PASOS_GUIA[pasoGuiaActual];
+  if (!paso) return;
+  const resaltado = document.getElementById('guia-resaltado');
+  const tooltip   = document.getElementById('guia-tooltip');
+  if (!resaltado || !tooltip) return;
+
+  const objetivo = paso.selector ? document.querySelector(paso.selector) : null;
+  const rect = objetivo ? objetivo.getBoundingClientRect() : null;
+  const visible = rect && rect.width > 0 && rect.height > 0;
+
+  if (!visible) {
+    resaltado.style.display = 'none';
+    tooltip.classList.add('guia-centrado');
+    tooltip.style.top = '';
+    tooltip.style.left = '';
+    return;
+  }
+
+  const margen = 6;
+  resaltado.style.display = 'block';
+  resaltado.style.top    = (rect.top - margen) + 'px';
+  resaltado.style.left   = (rect.left - margen) + 'px';
+  resaltado.style.width  = (rect.width + margen * 2) + 'px';
+  resaltado.style.height = (rect.height + margen * 2) + 'px';
+
+  objetivo.scrollIntoView({ block: 'center', behavior: 'smooth' });
+
+  tooltip.classList.remove('guia-centrado');
+  const anchoTooltip = tooltip.offsetWidth || 300;
+  let top  = rect.bottom + margen + 10;
+  if (top + 160 > window.innerHeight) top = Math.max(margen, rect.top - margen - 10 - tooltip.offsetHeight);
+  let left = Math.min(Math.max(margen, rect.left), window.innerWidth - anchoTooltip - margen);
+  tooltip.style.top  = top + 'px';
+  tooltip.style.left = left + 'px';
+}
+
+function cerrarGuia() {
+  const paso = PASOS_GUIA[pasoGuiaActual];
+  if (paso && paso.salir && paso._activo) {
+    paso.salir();
+    paso._activo = false;
+  }
+  destruirOverlayGuia();
+  pasoGuiaActual = -1;
 }
 
 </script>
