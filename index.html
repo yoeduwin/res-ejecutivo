@@ -2768,6 +2768,12 @@ function descargarPDF() {
 
 /**
  * Abre una ventana limpia con el documento y dispara la impresión nativa.
+ *
+ * En lugar de imprimir una tira continua con un footer flotante (que tapaba las
+ * tablas largas), se vuelca el HTML fuente en un contenedor de medición oculto
+ * y `paginarDocumento()` construye páginas carta reales (.doc-pagina) con header,
+ * contenido y footer propios dentro del flujo normal. La impresión sigue siendo
+ * vectorial (sin html2canvas).
  * @param {string=} nomUnica - Código NOM opcional para imprimir una sola norma.
  */
 function imprimirPDFAltaCalidad(nomUnica) {
@@ -2777,8 +2783,14 @@ function imprimirPDFAltaCalidad(nomUnica) {
   }
 
   const noms = nomUnica ? [nomUnica] : datosActuales.noms;
-  const contenido = noms.map(function (nom) {
-    return renderizarCartaPresentacion(datosActuales, nom) + renderizarPaginaResumen(datosActuales, nom);
+
+  // HTML fuente por NOM (carta + resumen), envuelto para que el paginador lo
+  // localice. Se mide oculto y luego se reparte en páginas reales.
+  const fuente = noms.map(function (nom) {
+    return '<div class="pdf-fuente-nom" data-nom="' + nom + '">' +
+             '<div class="pdf-fuente-carta">' + renderizarCartaPresentacion(datosActuales, nom) + '</div>' +
+             '<div class="pdf-fuente-resumen">' + renderizarPaginaResumen(datosActuales, nom) + '</div>' +
+           '</div>';
   }).join('');
 
   const estilosBase = Array.from(document.querySelectorAll('style'))
@@ -2801,10 +2813,8 @@ function imprimirPDFAltaCalidad(nomUnica) {
   ${cssPDFAltaCalidad()}
 </head>
 <body>
-  <main class="vista-previa-doc print-root">
-    ${contenido}
-  </main>
-  <div class="doc-footer-bar print-footer">${htmlPiePaginaContenido()}</div>
+  <div id="pdf-medicion" class="vista-previa-doc">${fuente}</div>
+  <main id="pdf-paginas" class="vista-previa-doc print-root"></main>
 </body>
 </html>`);
   ventana.document.close();
@@ -2812,23 +2822,294 @@ function imprimirPDFAltaCalidad(nomUnica) {
   // Genera los QR dentro de la ventana nueva usando la librería ya cargada
   // en la ventana principal. Si no estuviera disponible, el PDF se imprime
   // sin bloquear el resto del documento.
-  setTimeout(function () {
+  try {
+    if (typeof QRCode !== 'undefined') {
+      noms.forEach(function (nom) {
+        const qr = ventana.document.querySelector('#doc-qr-' + nom);
+        if (qr) dibujarQRDegradado(qr, 'https://' + EMPRESA.sitio);
+      });
+    }
+  } catch (e) {
+    console.warn('No se pudo generar el QR en la ventana de impresión.', e);
+  }
+
+  // Esperar fuentes/imágenes/QR antes de medir alturas; luego paginar e imprimir.
+  esperarRecursos(ventana).then(function () {
     try {
-      if (typeof QRCode !== 'undefined') {
-        noms.forEach(function (nom) {
-          const qr = ventana.document.querySelector('#doc-qr-' + nom);
-          if (qr) dibujarQRDegradado(qr, 'https://' + EMPRESA.sitio);
-        });
-      }
+      paginarDocumento(ventana, noms);
     } catch (e) {
-      console.warn('No se pudo generar el QR en la ventana de impresión.', e);
+      console.error('Error al paginar el documento para impresión:', e);
+    }
+    const medicion = ventana.document.getElementById('pdf-medicion');
+    if (medicion) medicion.remove();
+    ventana.focus();
+    ventana.print();
+  });
+}
+
+/**
+ * Espera a que estén listos los recursos que afectan a la altura del contenido
+ * (fuentes, imágenes y QR) antes de medir. Resuelve igualmente tras un timeout
+ * de seguridad para no bloquear la impresión si algún recurso nunca carga.
+ * @param {Window} ventana
+ * @returns {Promise<void>}
+ */
+function esperarRecursos(ventana) {
+  const doc = ventana.document;
+  const promesas = [];
+
+  // Fuentes
+  if (doc.fonts && doc.fonts.ready) {
+    promesas.push(doc.fonts.ready.catch(function () {}));
+  }
+
+  // Imágenes (logo del header, firma)
+  Array.from(doc.images).forEach(function (img) {
+    if (img.complete) return;
+    promesas.push(new Promise(function (resolve) {
+      img.addEventListener('load', resolve, { once: true });
+      img.addEventListener('error', resolve, { once: true });
+    }));
+  });
+
+  // QR: esperar a que cada .doc-qr tenga su canvas/img/table pintado
+  Array.from(doc.querySelectorAll('.doc-qr')).forEach(function (qr) {
+    promesas.push(new Promise(function (resolve) {
+      let intentos = 0;
+      (function revisar() {
+        if (qr.querySelector('canvas, img, table') || intentos > 40) { resolve(); return; }
+        intentos++;
+        ventana.setTimeout(revisar, 25);
+      })();
+    }));
+  });
+
+  const seguridad = new Promise(function (resolve) { ventana.setTimeout(resolve, 2500); });
+  return Promise.race([Promise.all(promesas), seguridad]).then(function () {});
+}
+
+/**
+ * Construye páginas carta reales a partir del HTML fuente medido en la ventana.
+ * Cada página tiene header, contenido y footer propios (sin footer flotante).
+ * Las tablas largas se dividen por filas repitiendo el thead; el grupo de cierre
+ * (leyenda, conteos, nota, gráficas) se pagina como un único bloque conjunto.
+ * @param {Window} ventana
+ * @param {string[]} noms
+ */
+function paginarDocumento(ventana, noms) {
+  const doc = ventana.document;
+  const root = doc.getElementById('pdf-paginas');
+  const medicion = doc.getElementById('pdf-medicion');
+  if (!root || !medicion) return;
+
+  // Margen de seguridad (~3mm) para evitar desbordes por redondeo de subpíxel.
+  const EPSILON = mmAPx(3);
+
+  function mmAPx(mm) {
+    const probe = doc.createElement('div');
+    probe.style.cssText = 'position:absolute;visibility:hidden;height:' + mm + 'mm';
+    doc.body.appendChild(probe);
+    const px = probe.getBoundingClientRect().height;
+    doc.body.removeChild(probe);
+    return px || (mm * 96 / 25.4);
+  }
+
+  function nuevaPagina(extraClase) {
+    const pagina = doc.createElement('div');
+    pagina.className = 'doc-pagina' + (extraClase ? ' ' + extraClase : '');
+
+    const tmp = doc.createElement('div');
+    tmp.innerHTML = htmlHeaderDoc();
+    const headerEl = tmp.firstElementChild;
+
+    const contenido = doc.createElement('div');
+    contenido.className = 'doc-contenido';
+
+    const footer = doc.createElement('div');
+    footer.className = 'doc-footer-bar';
+    footer.innerHTML = htmlPiePaginaContenido();
+
+    if (headerEl) pagina.appendChild(headerEl);
+    pagina.appendChild(contenido);
+    pagina.appendChild(footer);
+    root.appendChild(pagina);
+    return { pagina: pagina, contenido: contenido };
+  }
+
+  function limiteInferior(contenido) {
+    return contenido.getBoundingClientRect().top + contenido.clientHeight - EPSILON;
+  }
+  function cabe(el, contenido) {
+    return el.getBoundingClientRect().bottom <= limiteInferior(contenido);
+  }
+  function paginaVacia(pag) {
+    return pag.contenido.children.length === 0;
+  }
+  function esBloqueCierre(el) {
+    if (!el.classList) return false;
+    return el.classList.contains('doc-leyenda') ||
+           el.classList.contains('doc-leyenda-bloque') ||
+           el.classList.contains('doc-conteos') ||
+           el.classList.contains('doc-nota-anexo') ||
+           el.classList.contains('doc-graficas-fila');
+  }
+
+  // Coloca un bloque atómico; si no cabe (y la página no está vacía) lo pasa
+  // entero a una página nueva.
+  function colocarAtomico(pag, bloque) {
+    pag.contenido.appendChild(bloque);
+    if (!cabe(bloque, pag.contenido) && pag.contenido.children.length > 1) {
+      bloque.remove();
+      pag = nuevaPagina();
+      pag.contenido.appendChild(bloque);
+    }
+    return pag;
+  }
+
+  // Coloca el grupo de cierre como un bloque conjunto: si no cabe completo en la
+  // página actual, pasa entero a la siguiente. Solo si no cabe ni en una página
+  // vacía (caso raro) se reparten sus elementos en orden.
+  function colocarGrupoCierre(pag, cierre) {
+    const envoltura = doc.createElement('div');
+    envoltura.className = 'doc-grupo-cierre';
+    cierre.forEach(function (b) { envoltura.appendChild(b); });
+
+    const estabaVacia = paginaVacia(pag);
+    pag.contenido.appendChild(envoltura);
+    if (cabe(envoltura, pag.contenido)) return pag;
+
+    if (!estabaVacia) {
+      envoltura.remove();
+      pag = nuevaPagina();
+      pag.contenido.appendChild(envoltura);
+      if (cabe(envoltura, pag.contenido)) return pag;
     }
 
-    setTimeout(function () {
-      ventana.focus();
-      ventana.print();
-    }, 300);
-  }, 300);
+    // Fallback: el grupo no cabe ni en una página vacía → repartir en orden.
+    const hijos = Array.from(envoltura.children);
+    envoltura.remove();
+    hijos.forEach(function (h) { pag = colocarAtomico(pag, h); });
+    return pag;
+  }
+
+  // Coloca subtítulo + tabla, dividiendo por filas (thead repetido) y luego el
+  // grupo de cierre conjunto.
+  function colocarTabla(pag, subtitulo, tabla, cierre) {
+    const thead = tabla.querySelector('thead');
+    const filas = Array.from(tabla.querySelectorAll('tbody > tr'));
+
+    function nuevaShell() {
+      const shell = tabla.cloneNode(false);
+      if (thead) shell.appendChild(thead.cloneNode(true));
+      const tbody = doc.createElement('tbody');
+      shell.appendChild(tbody);
+      return { shell: shell, tbody: tbody };
+    }
+
+    // ¿Cabe el arranque (subtítulo + thead + 1ª fila) en la página actual?
+    function arranqueCabe(pag) {
+      const sub = subtitulo ? subtitulo.cloneNode(true) : null;
+      const t = nuevaShell();
+      if (filas[0]) t.tbody.appendChild(filas[0].cloneNode(true));
+      if (sub) pag.contenido.appendChild(sub);
+      pag.contenido.appendChild(t.shell);
+      const ref = filas[0] ? t.tbody.lastElementChild : t.shell;
+      const ok = cabe(ref, pag.contenido);
+      if (sub) sub.remove();
+      t.shell.remove();
+      return ok;
+    }
+
+    if (!paginaVacia(pag) && !arranqueCabe(pag)) pag = nuevaPagina();
+
+    if (subtitulo) pag.contenido.appendChild(subtitulo);
+    let t = nuevaShell();
+    pag.contenido.appendChild(t.shell);
+
+    for (let k = 0; k < filas.length; k++) {
+      const fila = filas[k];
+      t.tbody.appendChild(fila);
+      if (!cabe(fila, pag.contenido)) {
+        if (t.tbody.children.length === 1) continue; // no cabe ni sola: se deja (se marca desborde)
+        t.tbody.removeChild(fila);
+        pag = nuevaPagina();
+        t = nuevaShell();
+        pag.contenido.appendChild(t.shell);
+        t.tbody.appendChild(fila);
+      }
+    }
+
+    if (cierre.length > 0) pag = colocarGrupoCierre(pag, cierre);
+    return pag;
+  }
+
+  // Reparte los bloques de un resumen en páginas.
+  function flujoResumen(bloques) {
+    let pag = nuevaPagina();
+    let i = 0;
+    while (i < bloques.length) {
+      const bloque = bloques[i];
+      const esSubtitulo = bloque.classList && bloque.classList.contains('doc-nom-subtitulo');
+      const siguiente = bloques[i + 1];
+      const esTabla = bloque.tagName === 'TABLE';
+      const subDeTabla = esSubtitulo && siguiente && siguiente.tagName === 'TABLE';
+
+      if (subDeTabla || esTabla) {
+        const subtitulo = subDeTabla ? bloque : null;
+        const tabla = subDeTabla ? siguiente : bloque;
+        const idxTabla = subDeTabla ? i + 1 : i;
+
+        let j = idxTabla + 1;
+        const cierre = [];
+        while (j < bloques.length && esBloqueCierre(bloques[j])) {
+          cierre.push(bloques[j]);
+          j++;
+        }
+        pag = colocarTabla(pag, subtitulo, tabla, cierre);
+        i = j;
+      } else {
+        pag = colocarAtomico(pag, bloque);
+        i++;
+      }
+    }
+  }
+
+  // Marca (sin ocultar) las páginas cuyo contenido desborda el área disponible.
+  function marcarDesbordes() {
+    Array.from(root.querySelectorAll('.doc-pagina')).forEach(function (pag, idx) {
+      const contenido = pag.querySelector('.doc-contenido');
+      if (!contenido) return;
+      if (contenido.scrollHeight > contenido.clientHeight + 1) {
+        pag.classList.add('doc-pagina-desbordada');
+        console.warn('PDF: la página ' + (idx + 1) + ' desborda su área de contenido (' +
+                     contenido.scrollHeight + 'px > ' + contenido.clientHeight + 'px).', pag);
+      }
+    });
+  }
+
+  noms.forEach(function (nom) {
+    const grupo = medicion.querySelector('.pdf-fuente-nom[data-nom="' + nom + '"]');
+    if (!grupo) return;
+
+    // 1) Carta: una sola página (header de página + cuerpo de carta + footer).
+    const cartaSrc = grupo.querySelector('.pdf-fuente-carta .doc-pagina.doc-carta');
+    if (cartaSrc) {
+      const hdr = cartaSrc.querySelector('.doc-header');
+      if (hdr) hdr.remove();
+      const pag = nuevaPagina('doc-carta');
+      while (cartaSrc.firstChild) pag.contenido.appendChild(cartaSrc.firstChild);
+    }
+
+    // 2) Resumen: flujo paginado de sus bloques.
+    const resumenSrc = grupo.querySelector('.pdf-fuente-resumen .doc-pagina');
+    if (resumenSrc) {
+      const hdr = resumenSrc.querySelector('.doc-header');
+      if (hdr) hdr.remove();
+      flujoResumen(Array.from(resumenSrc.children));
+    }
+  });
+
+  marcarDesbordes();
 }
 
 /**
@@ -2838,7 +3119,10 @@ function imprimirPDFAltaCalidad(nomUnica) {
  */
 function cssPDFAltaCalidad() {
   return `<style>
-    @page { size: Letter; margin: 15mm 15mm 28mm 15mm; }
+    /* El paginador de JS construye páginas carta reales (.doc-pagina) de
+       tamaño físico exacto. Los márgenes se aplican como padding de la página,
+       por eso @page no lleva margen: cada .doc-pagina mapea 1:1 con una hoja. */
+    @page { size: Letter; margin: 0; }
     html, body {
       width: 100%;
       margin: 0 !important;
@@ -2853,6 +3137,16 @@ function cssPDFAltaCalidad() {
       font-size: 10.5pt;
       line-height: 1.45;
     }
+
+    /* Contenedor oculto donde se vuelca el HTML fuente para medir alturas. */
+    #pdf-medicion {
+      position: absolute !important;
+      left: -10000px !important;
+      top: 0 !important;
+      width: 186mm !important;          /* ancho de contenido = 215.9 - 2*15 */
+      visibility: hidden !important;
+    }
+
     .print-root {
       width: 100% !important;
       border: none !important;
@@ -2863,42 +3157,60 @@ function cssPDFAltaCalidad() {
       padding: 0 !important;
       gap: 0 !important;
     }
+
+    /* Página carta real: tamaño físico fijo, columna flex header/contenido/footer. */
     .doc-pagina {
-      width: 100% !important;
-      min-height: 236.4mm !important;
-      padding: 0 !important;
+      width: 215.9mm !important;
+      height: 279.4mm !important;
+      min-height: 0 !important;   /* anula el min-height de la vista en pantalla */
+      max-height: 279.4mm !important;
+      padding: 15mm !important;
+      margin: 0 !important;
       border: none !important;
-      border-bottom: none !important;
       border-radius: 0 !important;
       box-shadow: none !important;
       box-sizing: border-box !important;
+      display: flex !important;
+      flex-direction: column !important;
       page-break-after: always !important;
       break-after: page !important;
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
       background: #ffffff !important;
-      overflow: visible !important;
+      overflow: visible !important;          /* nunca ocultar desbordes en silencio */
     }
     .doc-pagina:last-child {
       page-break-after: auto !important;
       break-after: auto !important;
     }
-    .doc-pagina.doc-carta {
-      min-height: 236.4mm !important;
+
+    /* Header y footer: altura intrínseca fija dentro de la columna. */
+    .doc-pagina > .doc-header {
+      flex: 0 0 auto !important;
+      margin-bottom: 6mm !important;
+      padding-bottom: 4mm !important;
+    }
+    .doc-pagina > .doc-footer-bar {
+      flex: 0 0 auto !important;
+      margin-top: 4mm !important;
       display: block !important;
-      position: relative !important;
+    }
+
+    /* Área de contenido entre header y footer. */
+    .doc-contenido {
+      flex: 1 1 auto !important;
+      min-height: 0 !important;
+      overflow: visible !important;          /* no hidden: desborde debe ser detectable */
+    }
+
+    /* Carta: la firma se ancla al pie del área de contenido. */
+    .doc-pagina.doc-carta .doc-contenido {
+      display: flex !important;
+      flex-direction: column !important;
     }
     .doc-carta .doc-firma-fila {
-      position: absolute !important;
-      bottom: 0 !important;
-      left: 0 !important;
-      right: 0 !important;
-      margin-top: 0 !important;
+      margin-top: auto !important;
       padding-top: 0 !important;
-      page-break-inside: avoid !important;
-      break-inside: avoid !important;
-    }
-    .doc-header {
-      margin-bottom: 8mm !important;
-      padding-bottom: 5mm !important;
       page-break-inside: avoid !important;
       break-inside: avoid !important;
     }
@@ -2929,34 +3241,30 @@ function cssPDFAltaCalidad() {
     .doc-holograma {
       margin-top: 0 !important;
     }
-    .print-footer {
-      position: fixed !important;
-      left: 0 !important;
-      right: 0 !important;
-      bottom: 0 !important;
-      z-index: 9999 !important;
-      background: #ffffff !important;
-    }
-    .doc-footer-bar:not(.print-footer) {
-      display: none !important;
-    }
+
+    /* Bloques que nunca deben partirse (el paginador ya los reparte, esto
+       es solo refuerzo). El grupo de cierre se envuelve en .doc-grupo-cierre. */
     .doc-conteos,
     .doc-leyenda,
     .doc-leyenda-bloque,
     .doc-graficas-fila,
+    .doc-grupo-cierre,
     tr {
       page-break-inside: avoid !important;
       break-inside: avoid !important;
     }
-    table {
-      page-break-inside: auto !important;
-      break-inside: auto !important;
-    }
     thead {
       display: table-header-group;
     }
-    tfoot {
-      display: table-footer-group;
+    /* table-layout fijo: las tablas continuadas (mismo thead) conservan el mismo
+       ancho de columnas en todas las páginas. */
+    .doc-tabla-resumen {
+      table-layout: fixed !important;
+      width: 100% !important;
+    }
+    .doc-tabla-resumen td {
+      word-wrap: break-word !important;
+      overflow-wrap: break-word !important;
     }
     .doc-tabla-resumen td,
     .doc-tabla-resumen th {
@@ -2968,9 +3276,16 @@ function cssPDFAltaCalidad() {
       shape-rendering: geometricPrecision;
       text-rendering: geometricPrecision;
     }
+    /* Marca visible de desborde (solo pantalla, para depurar): nunca se oculta. */
     @media screen {
       body { background: #e9e9e9 !important; }
-      .print-root { margin: 0 auto; box-shadow: 0 0 0 1px #ddd; }
+      .doc-pagina {
+        margin: 0 auto 10mm !important;
+        box-shadow: 0 0 0 1px #ddd !important;
+      }
+      .doc-pagina.doc-pagina-desbordada {
+        outline: 3px solid #c00 !important;
+      }
     }
   </style>`;
 }
