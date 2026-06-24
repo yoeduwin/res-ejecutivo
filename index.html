@@ -1587,7 +1587,7 @@ function validarFormulario() {
     errores.push('Seleccione al menos una NOM aplicable.');
   }
 
-  // Cada NOM activa debe tener al menos 1 fila por tabla
+  // Cada NOM activa debe tener al menos 1 fila en alguna de sus tablas
   const tablasPorNom = {
     '011': ['tbody-011-1', 'tbody-011-2'],
     '022': ['tbody-022-1', 'tbody-022-2'],
@@ -1596,16 +1596,14 @@ function validarFormulario() {
   };
   nomsActivas.forEach(function (nom) {
     const tablas = tablasPorNom[nom] || [];
-    tablas.forEach(function (tbodyId) {
+    const tieneFilas = tablas.some(function (tbodyId) {
       const tbody = document.getElementById(tbodyId);
-      if (!tbody) return;
-      const filas = tbody.querySelectorAll('tr:not(.fila-template)');
-      if (filas.length === 0) {
-        errores.push(
-          'La NOM-' + nom + ' requiere al menos una fila en cada tabla (tbody: ' + tbodyId + ').'
-        );
-      }
+      if (!tbody) return false;
+      return tbody.querySelectorAll('tr:not(.fila-template)').length > 0;
     });
+    if (!tieneFilas) {
+      errores.push('La NOM-' + nom + ' requiere al menos una fila en alguna de sus tablas.');
+    }
   });
 
   return { valido: errores.length === 0, errores: errores };
@@ -1890,9 +1888,15 @@ function construirTablaYResumen025(t, etiquetaTabla) {
   function dentroEnMedicion(col) {
     return t.filter(function (r) { return r[col] === '✓'; }).length;
   }
+  function aplicaEnMedicion(col) {
+    return t.filter(function (r) { return r[col] !== 'NA'; }).length;
+  }
   const dentro1 = dentroEnMedicion(2);
   const dentro2 = dentroEnMedicion(3);
   const dentro3 = dentroEnMedicion(4);
+  const aplica1 = aplicaEnMedicion(2);
+  const aplica2 = aplicaEnMedicion(3);
+  const aplica3 = aplicaEnMedicion(4);
 
   return `
     <div class="doc-nom-subtitulo">${etiquetaTabla}</div>
@@ -1927,9 +1931,9 @@ function construirTablaYResumen025(t, etiquetaTabla) {
       <span class="doc-conteo-linea"><span class="doc-conteo-num">${dentro3}</span> …… dentro de norma en la 3ra medición</span>
     </div>
     <div class="doc-graficas-fila">
-      ${dibujarGraficaCilindro(dentro1, t.length, '1ra medición')}
-      ${dibujarGraficaCilindro(dentro2, t.length, '2da medición')}
-      ${dibujarGraficaCilindro(dentro3, t.length, '3ra medición')}
+      ${dibujarGraficaCilindro(dentro1, aplica1, '1ra medición')}
+      ${dibujarGraficaCilindro(dentro2, aplica2, '2da medición')}
+      ${dibujarGraficaCilindro(dentro3, aplica3, '3ra medición')}
     </div>`;
 }
 
@@ -2031,64 +2035,68 @@ function renderizarTablaResumen(datos, nom) {
     const t2 = datos.tablas['011-2'] || [];
 
     // Tabla 1 — Fuentes de ruido
-    const den011t1 = t1.filter(function (r) { return r[2] === 'Dentro'; }).length;
-    contenido += `
-      <p style="font-weight:700;color:var(--texto);margin-bottom:4px">Para niveles máximos de exposición al ruido</p>
-      <p class="doc-intro" style="margin-bottom:14px">En la siguiente tabla se presentan las conclusiones para cada uno de los puntos evaluados para los niveles máximos de exposición al ruido.</p>
-      <div class="doc-nom-subtitulo">Tabla 1. Resultados y conclusiones para los niveles máximos de exposición al ruido</div>
-      <table class="doc-tabla-resumen">
-        <thead><tr>
-          <th style="width:40px">N°</th><th>Área</th>
-          <th>Identificación</th><th style="width:110px">Conclusión</th>
-        </tr></thead>
-        <tbody>
-          ${t1.map(function (r, i) {
-            return `<tr>
-              <td style="text-align:center">${i+1}</td>
-              <td>${r[0]||''}</td><td>${r[1]||''}</td>
-              <td style="text-align:center">${r[2]||''}</td>
-            </tr>`;
-          }).join('')}
-        </tbody>
-      </table>
-      <div class="doc-leyenda-bloque">Nomenclatura utilizada = Dentro | Fuera = ✓ | ✖</div>
-      <div class="doc-conteos">
-        <span class="doc-conteo-linea"><span class="doc-conteo-num">${t1.length}</span> …… puntos en total evaluados</span>
-        <span class="doc-conteo-linea"><span class="doc-conteo-num">${den011t1}</span> …… se encuentran dentro, en la primera medición</span>
-      </div>
-      <p class="doc-nota-anexo">*Para información detallada, consultar los anexos del informe de resultados.</p>
-      <div class="doc-graficas-fila">
-        ${dibujarGraficaDoble('Niveles máximos de exposición a ruido', den011t1, 'Dentro de norma', t1.length - den011t1, 'Fuera de norma', t1.length)}
-      </div>`;
+    if (t1.length > 0) {
+      const den011t1 = t1.filter(function (r) { return r[2] === 'Dentro'; }).length;
+      contenido += `
+        <p style="font-weight:700;color:var(--texto);margin-bottom:4px">Para niveles máximos de exposición al ruido</p>
+        <p class="doc-intro" style="margin-bottom:14px">En la siguiente tabla se presentan las conclusiones para cada uno de los puntos evaluados para los niveles máximos de exposición al ruido.</p>
+        <div class="doc-nom-subtitulo">Tabla 1. Resultados y conclusiones para los niveles máximos de exposición al ruido</div>
+        <table class="doc-tabla-resumen">
+          <thead><tr>
+            <th style="width:40px">N°</th><th>Área</th>
+            <th>Identificación</th><th style="width:110px">Conclusión</th>
+          </tr></thead>
+          <tbody>
+            ${t1.map(function (r, i) {
+              return `<tr>
+                <td style="text-align:center">${i+1}</td>
+                <td>${r[0]||''}</td><td>${r[1]||''}</td>
+                <td style="text-align:center">${r[2]||''}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+        <div class="doc-leyenda-bloque">Nomenclatura utilizada = Dentro | Fuera = ✓ | ✖</div>
+        <div class="doc-conteos">
+          <span class="doc-conteo-linea"><span class="doc-conteo-num">${t1.length}</span> …… puntos en total evaluados</span>
+          <span class="doc-conteo-linea"><span class="doc-conteo-num">${den011t1}</span> …… se encuentran dentro, en la primera medición</span>
+        </div>
+        <p class="doc-nota-anexo">*Para información detallada, consultar los anexos del informe de resultados.</p>
+        <div class="doc-graficas-fila">
+          ${dibujarGraficaDoble('Niveles máximos de exposición a ruido', den011t1, 'Dentro de norma', t1.length - den011t1, 'Fuera de norma', t1.length)}
+        </div>`;
+    }
 
     // Tabla 2 — Medición personal
-    const den011t2 = t2.filter(function (r) { return r[2] === 'Dentro'; }).length;
-    contenido += `
-      <div class="doc-nom-subtitulo">Tabla 2. Resultados y conclusiones de la medición personal (por trabajador)</div>
-      <table class="doc-tabla-resumen">
-        <thead><tr>
-          <th style="width:40px">N°</th><th>Nombre del trabajador</th>
-          <th>Puesto</th><th style="width:110px">Conclusión</th>
-        </tr></thead>
-        <tbody>
-          ${t2.map(function (r, i) {
-            return `<tr>
-              <td style="text-align:center">${i+1}</td>
-              <td>${r[0]||''}</td><td>${r[1]||''}</td>
-              <td style="text-align:center">${r[2]||''}</td>
-            </tr>`;
-          }).join('')}
-        </tbody>
-      </table>
-      <div class="doc-leyenda-bloque">Nomenclatura utilizada = Dentro | Fuera = ✓ | ✖</div>
-      <div class="doc-conteos">
-        <span class="doc-conteo-linea"><span class="doc-conteo-num">${t2.length}</span> …… puntos en total evaluados</span>
-        <span class="doc-conteo-linea"><span class="doc-conteo-num">${den011t2}</span> …… se encuentran dentro, en la primera medición</span>
-      </div>
-      <p class="doc-nota-anexo">*Para información detallada, consultar los anexos del informe de resultados.</p>
-      <div class="doc-graficas-fila">
-        ${dibujarGraficaDoble('Medición personal por trabajador', den011t2, 'Dentro de norma', t2.length - den011t2, 'Fuera de norma', t2.length)}
-      </div>`;
+    if (t2.length > 0) {
+      const den011t2 = t2.filter(function (r) { return r[2] === 'Dentro'; }).length;
+      contenido += `
+        <div class="doc-nom-subtitulo">Tabla 2. Resultados y conclusiones de la medición personal (por trabajador)</div>
+        <table class="doc-tabla-resumen">
+          <thead><tr>
+            <th style="width:40px">N°</th><th>Nombre del trabajador</th>
+            <th>Puesto</th><th style="width:110px">Conclusión</th>
+          </tr></thead>
+          <tbody>
+            ${t2.map(function (r, i) {
+              return `<tr>
+                <td style="text-align:center">${i+1}</td>
+                <td>${r[0]||''}</td><td>${r[1]||''}</td>
+                <td style="text-align:center">${r[2]||''}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+        <div class="doc-leyenda-bloque">Nomenclatura utilizada = Dentro | Fuera = ✓ | ✖</div>
+        <div class="doc-conteos">
+          <span class="doc-conteo-linea"><span class="doc-conteo-num">${t2.length}</span> …… puntos en total evaluados</span>
+          <span class="doc-conteo-linea"><span class="doc-conteo-num">${den011t2}</span> …… se encuentran dentro, en la primera medición</span>
+        </div>
+        <p class="doc-nota-anexo">*Para información detallada, consultar los anexos del informe de resultados.</p>
+        <div class="doc-graficas-fila">
+          ${dibujarGraficaDoble('Medición personal por trabajador', den011t2, 'Dentro de norma', t2.length - den011t2, 'Fuera de norma', t2.length)}
+        </div>`;
+    }
   }
 
   if (nom === '022') {
@@ -2096,75 +2104,81 @@ function renderizarTablaResumen(datos, nom) {
     const t2 = datos.tablas['022-2'] || [];
 
     // Tabla 1 — Resistencia
-    const conCont022t1 = t1.filter(function (r) { return r[2] === '✓'; }).length;
-    const denRes022t1  = t1.filter(function (r) { return r[3] === 'Dentro'; }).length;
-    contenido += `
-      <div class="doc-nom-subtitulo">Tabla 1. Resultados y conclusiones de las mediciones de resistencia eléctrica</div>
-      <table class="doc-tabla-resumen">
-        <thead><tr>
-          <th style="width:40px">N°</th><th>Departamento</th><th>Área</th>
-          <th style="width:110px">EXISTE CONTINUIDAD</th>
-          <th style="width:110px">RESISTENCIA</th>
-        </tr></thead>
-        <tbody>
-          ${t1.map(function (r, i) {
-            return `<tr>
-              <td style="text-align:center">${i+1}</td>
-              <td>${r[0]||''}</td><td>${r[1]||''}</td>
-              <td style="text-align:center">${r[2]||''}</td>
-              <td style="text-align:center">${r[3]||''}</td>
-            </tr>`;
-          }).join('')}
-        </tbody>
-      </table>
-      <div class="doc-leyenda-bloque">
-        <div><strong>PARA EXISTE CONTINUIDAD:</strong> SI = ✓ &nbsp;&nbsp; NO = ✖</div>
-        <div><strong>PARA RESISTENCIA:</strong> DENTRO = ✓ &nbsp;&nbsp; FUERA = ✖</div>
-      </div>
-      <div class="doc-conteos">
-        <span class="doc-conteo-linea"><span class="doc-conteo-num">${conCont022t1}</span> …… presentan continuidad</span>
-        <span class="doc-conteo-linea"><span class="doc-conteo-num">${denRes022t1}</span> …… se encuentran dentro de la resistencia esperada de acuerdo a la norma</span>
-      </div>
-      <p class="doc-nota-anexo">*Para información detallada, consultar los anexos del informe de resultados.</p>
-      <div class="doc-graficas-fila">
-        ${dibujarGraficaDoble('Continuidad', conCont022t1, 'SI', t1.length - conCont022t1, 'NO', t1.length)}
-        ${dibujarGraficaDoble('Resistencia', denRes022t1, 'Dentro de norma', t1.length - denRes022t1, 'Fuera de norma', t1.length)}
-      </div>`;
+    if (t1.length > 0) {
+      const conCont022t1 = t1.filter(function (r) { return r[2] === '✓'; }).length;
+      const denRes022t1  = t1.filter(function (r) { return r[3] === 'Dentro'; }).length;
+      contenido += `
+        <div class="doc-nom-subtitulo">Tabla 1. Resultados y conclusiones de las mediciones de resistencia eléctrica</div>
+        <table class="doc-tabla-resumen">
+          <thead><tr>
+            <th style="width:40px">N°</th><th>Departamento</th><th>Área</th>
+            <th style="width:110px">EXISTE CONTINUIDAD</th>
+            <th style="width:110px">RESISTENCIA</th>
+          </tr></thead>
+          <tbody>
+            ${t1.map(function (r, i) {
+              return `<tr>
+                <td style="text-align:center">${i+1}</td>
+                <td>${r[0]||''}</td><td>${r[1]||''}</td>
+                <td style="text-align:center">${r[2]||''}</td>
+                <td style="text-align:center">${r[3]||''}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+        <div class="doc-leyenda-bloque">
+          <div><strong>PARA EXISTE CONTINUIDAD:</strong> SI = ✓ &nbsp;&nbsp; NO = ✖</div>
+          <div><strong>PARA RESISTENCIA:</strong> DENTRO = ✓ &nbsp;&nbsp; FUERA = ✖</div>
+        </div>
+        <div class="doc-conteos">
+          <span class="doc-conteo-linea"><span class="doc-conteo-num">${conCont022t1}</span> …… presentan continuidad</span>
+          <span class="doc-conteo-linea"><span class="doc-conteo-num">${denRes022t1}</span> …… se encuentran dentro de la resistencia esperada de acuerdo a la norma</span>
+        </div>
+        <p class="doc-nota-anexo">*Para información detallada, consultar los anexos del informe de resultados.</p>
+        <div class="doc-graficas-fila">
+          ${dibujarGraficaDoble('Continuidad', conCont022t1, 'SI', t1.length - conCont022t1, 'NO', t1.length)}
+          ${dibujarGraficaDoble('Resistencia', denRes022t1, 'Dentro de norma', t1.length - denRes022t1, 'Fuera de norma', t1.length)}
+        </div>`;
+    }
 
     // Tabla 2 — Continuidad eléctrica
-    const conCont022t2 = t2.filter(function (r) { return r[3] === '✓'; }).length;
-    contenido += `
-      <div class="doc-nom-subtitulo">Tabla 2. Resumen de continuidad eléctrica</div>
-      <table class="doc-tabla-resumen">
-        <thead><tr>
-          <th style="width:40px">N°</th><th>Electrodo</th>
-          <th>Equipo conectado</th><th>Lectura en (Ω)</th>
-          <th style="width:110px">EXISTE CONTINUIDAD</th>
-        </tr></thead>
-        <tbody>
-          ${t2.map(function (r, i) {
-            return `<tr>
-              <td style="text-align:center">${i+1}</td>
-              <td>${r[0]||''}</td><td>${r[1]||''}</td>
-              <td>${r[2]||''}</td>
-              <td style="text-align:center">${r[3]||''}</td>
-            </tr>`;
-          }).join('')}
-        </tbody>
-      </table>
-      <div class="doc-conteos">
-        <span class="doc-conteo-linea"><span class="doc-conteo-num">${t2.length}</span> …… puntos en total evaluados</span>
-        <span class="doc-conteo-linea"><span class="doc-conteo-num">${conCont022t2}</span> …… presentan continuidad</span>
-      </div>`;
+    if (t2.length > 0) {
+      const conCont022t2 = t2.filter(function (r) { return r[3] === '✓'; }).length;
+      contenido += `
+        <div class="doc-nom-subtitulo">Tabla 2. Resumen de continuidad eléctrica</div>
+        <table class="doc-tabla-resumen">
+          <thead><tr>
+            <th style="width:40px">N°</th><th>Electrodo</th>
+            <th>Equipo conectado</th><th>Lectura en (Ω)</th>
+            <th style="width:110px">EXISTE CONTINUIDAD</th>
+          </tr></thead>
+          <tbody>
+            ${t2.map(function (r, i) {
+              return `<tr>
+                <td style="text-align:center">${i+1}</td>
+                <td>${r[0]||''}</td><td>${r[1]||''}</td>
+                <td>${r[2]||''}</td>
+                <td style="text-align:center">${r[3]||''}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+        <div class="doc-conteos">
+          <span class="doc-conteo-linea"><span class="doc-conteo-num">${t2.length}</span> …… puntos en total evaluados</span>
+          <span class="doc-conteo-linea"><span class="doc-conteo-num">${conCont022t2}</span> …… presentan continuidad</span>
+        </div>`;
+    }
   }
 
   if (nom === '025') {
-    contenido += construirTablaYResumen025(
-      datos.tablas['025-1'] || [], 'Tabla 1 — Niveles mínimos de iluminación'
-    );
-    contenido += construirTablaYResumen025(
-      datos.tablas['025-2'] || [], 'Tabla 2 — Niveles máximos de reflexión'
-    );
+    const t025_1 = datos.tablas['025-1'] || [];
+    const t025_2 = datos.tablas['025-2'] || [];
+    if (t025_1.length > 0) {
+      contenido += construirTablaYResumen025(t025_1, 'Tabla 1 — Niveles mínimos de iluminación');
+    }
+    if (t025_2.length > 0) {
+      contenido += construirTablaYResumen025(t025_2, 'Tabla 2 — Niveles máximos de reflexión');
+    }
   }
 
   if (nom === '024') {
@@ -2869,12 +2883,16 @@ function cssPDFAltaCalidad() {
     }
     .doc-pagina.doc-carta {
       min-height: 279.4mm !important;
-      display: flex !important;
-      flex-direction: column !important;
+      display: block !important;
+      position: relative !important;
     }
     .doc-carta .doc-firma-fila {
-      margin-top: auto !important;
-      padding-top: 10mm !important;
+      position: absolute !important;
+      bottom: 28mm !important;
+      left: 15mm !important;
+      right: 15mm !important;
+      margin-top: 0 !important;
+      padding-top: 0 !important;
       page-break-inside: avoid !important;
       break-inside: avoid !important;
     }
@@ -2922,8 +2940,6 @@ function cssPDFAltaCalidad() {
     .doc-footer-bar:not(.print-footer) {
       display: none !important;
     }
-    .tabla-contenedor,
-    .doc-tabla-resumen,
     .doc-conteos,
     .doc-leyenda,
     .doc-leyenda-bloque,
