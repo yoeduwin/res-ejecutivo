@@ -1107,7 +1107,7 @@ select:focus {
             <thead>
               <tr>
                 <th class="col-num">N°</th>
-                <th>Departamento</th>
+                <th>Identificación</th>
                 <th>Área</th>
                 <th class="col-conclusion">EXISTE CONTINUIDAD</th>
                 <th class="col-conclusion">RESISTENCIA</th>
@@ -1117,7 +1117,7 @@ select:focus {
             <tbody id="tbody-022-1">
               <tr class="fila-template" style="display:none">
                 <td class="col-num num-fila">—</td>
-                <td><input type="text" class="campo-tabla" placeholder="Departamento"></td>
+                <td><input type="text" class="campo-tabla" placeholder="Identificación"></td>
                 <td><input type="text" class="campo-tabla" placeholder="Área"></td>
                 <td>
                   <select class="campo-tabla campo-select">
@@ -1150,7 +1150,6 @@ select:focus {
                 <th class="col-num">N°</th>
                 <th>Electrodo</th>
                 <th>Equipo conectado</th>
-                <th>Lectura (Ω)</th>
                 <th class="col-conclusion">EXISTE CONTINUIDAD</th>
                 <th class="col-accion"></th>
               </tr>
@@ -1160,7 +1159,6 @@ select:focus {
                 <td class="col-num num-fila">—</td>
                 <td><input type="text" class="campo-tabla" placeholder="Ej. EL-01"></td>
                 <td><input type="text" class="campo-tabla" placeholder="Equipo conectado"></td>
-                <td><input type="text" class="campo-tabla" placeholder="Lectura"></td>
                 <td>
                   <select class="campo-tabla campo-select">
                     <option value="✓">✓</option>
@@ -1316,8 +1314,8 @@ select:focus {
                 </td>
                 <td>
                   <select class="campo-tabla campo-select">
-                    <option value="Dentro">✓ Dentro</option>
-                    <option value="Fuera">✖ Fuera</option>
+                    <option value="Dentro">✓ Sin riesgo al POE</option>
+                    <option value="Fuera">✖ Con riesgo al POE</option>
                   </select>
                 </td>
                 <td>
@@ -2111,7 +2109,7 @@ function renderizarTablaResumen(datos, nom) {
         <div class="doc-nom-subtitulo">Tabla 1. Resultados y conclusiones de las mediciones de resistencia eléctrica</div>
         <table class="doc-tabla-resumen">
           <thead><tr>
-            <th style="width:40px">N°</th><th>Departamento</th><th>Área</th>
+            <th style="width:40px">N°</th><th>Identificación</th><th>Área</th>
             <th style="width:110px">EXISTE CONTINUIDAD</th>
             <th style="width:110px">RESISTENCIA</th>
           </tr></thead>
@@ -2143,13 +2141,13 @@ function renderizarTablaResumen(datos, nom) {
 
     // Tabla 2 — Continuidad eléctrica
     if (t2.length > 0) {
-      const conCont022t2 = t2.filter(function (r) { return r[3] === '✓'; }).length;
+      const conCont022t2 = t2.filter(function (r) { return r[2] === '✓'; }).length;
       contenido += `
         <div class="doc-nom-subtitulo">Tabla 2. Resumen de continuidad eléctrica</div>
         <table class="doc-tabla-resumen">
           <thead><tr>
             <th style="width:40px">N°</th><th>Electrodo</th>
-            <th>Equipo conectado</th><th>Lectura en (Ω)</th>
+            <th>Equipo conectado</th>
             <th style="width:110px">EXISTE CONTINUIDAD</th>
           </tr></thead>
           <tbody>
@@ -2157,8 +2155,7 @@ function renderizarTablaResumen(datos, nom) {
               return `<tr>
                 <td style="text-align:center">${i+1}</td>
                 <td>${r[0]||''}</td><td>${r[1]||''}</td>
-                <td>${r[2]||''}</td>
-                <td style="text-align:center">${r[3]||''}</td>
+                <td style="text-align:center">${r[2]||''}</td>
               </tr>`;
             }).join('')}
           </tbody>
@@ -2197,11 +2194,14 @@ function renderizarTablaResumen(datos, nom) {
         </tr></thead>
         <tbody>
           ${t.map(function (r, i) {
+            const conclusionPOE = r[3] === 'Dentro' ? 'Sin riesgo al POE'
+                                : r[3] === 'Fuera'  ? 'Con riesgo al POE'
+                                : (r[3] || '');
             return `<tr>
               <td style="text-align:center">${i+1}</td>
               <td>${r[0]||''}</td><td>${r[1]||''}</td>
               <td style="text-align:center">${r[2]||''}</td>
-              <td style="text-align:center">${r[3]||''}</td>
+              <td style="text-align:center">${conclusionPOE}</td>
             </tr>`;
           }).join('')}
         </tbody>
