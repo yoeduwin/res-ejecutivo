@@ -353,10 +353,11 @@ select:focus {
   vertical-align: middle;
 }
 .col-num {
-  width: 36px;
+  width: 48px;
   text-align: center;
   font-weight: 600;
   color: var(--subtexto);
+  white-space: nowrap;
 }
 .col-conclusion { width: 130px; }
 .col-medicion   { width: 100px; }
@@ -757,6 +758,7 @@ select:focus {
   font-size: 0.82rem;
 }
 .doc-tabla-resumen tbody tr:nth-child(even) { background: var(--fila-par); }
+.doc-tabla-resumen td:first-child { white-space: nowrap; }
 .doc-tabla-resumen td {
   padding: 7px 10px;
   border-top: 1px solid #EBEBEB;
@@ -1900,7 +1902,7 @@ function construirTablaYResumen025(t, etiquetaTabla) {
     <div class="doc-nom-subtitulo">${etiquetaTabla}</div>
     <table class="doc-tabla-resumen">
       <thead><tr>
-        <th style="width:40px">N°</th><th>Departamento</th><th>Área</th>
+        <th style="width:48px;white-space:nowrap">N°</th><th>Departamento</th><th>Área</th>
         <th style="width:90px">1ra medición</th>
         <th style="width:90px">2da medición</th>
         <th style="width:90px">3ra medición</th>
@@ -2041,7 +2043,7 @@ function renderizarTablaResumen(datos, nom) {
         <div class="doc-nom-subtitulo">Tabla 1. Resultados y conclusiones para los niveles máximos de exposición al ruido</div>
         <table class="doc-tabla-resumen">
           <thead><tr>
-            <th style="width:40px">N°</th><th>Área</th>
+            <th style="width:48px;white-space:nowrap">N°</th><th>Área</th>
             <th>Identificación</th><th style="width:110px">Conclusión</th>
           </tr></thead>
           <tbody>
@@ -2072,7 +2074,7 @@ function renderizarTablaResumen(datos, nom) {
         <div class="doc-nom-subtitulo">Tabla 2. Resultados y conclusiones de la medición personal (por trabajador)</div>
         <table class="doc-tabla-resumen">
           <thead><tr>
-            <th style="width:40px">N°</th><th>Nombre del trabajador</th>
+            <th style="width:48px;white-space:nowrap">N°</th><th>Nombre del trabajador</th>
             <th>Puesto</th><th style="width:110px">Conclusión</th>
           </tr></thead>
           <tbody>
@@ -2109,7 +2111,7 @@ function renderizarTablaResumen(datos, nom) {
         <div class="doc-nom-subtitulo">Tabla 1. Resultados y conclusiones de las mediciones de resistencia eléctrica</div>
         <table class="doc-tabla-resumen">
           <thead><tr>
-            <th style="width:40px">N°</th><th>Identificación</th><th>Área</th>
+            <th style="width:48px;white-space:nowrap">N°</th><th>Identificación</th><th>Área</th>
             <th style="width:110px">EXISTE CONTINUIDAD</th>
             <th style="width:110px">RESISTENCIA</th>
           </tr></thead>
@@ -2146,7 +2148,7 @@ function renderizarTablaResumen(datos, nom) {
         <div class="doc-nom-subtitulo">Tabla 2. Resumen de continuidad eléctrica</div>
         <table class="doc-tabla-resumen">
           <thead><tr>
-            <th style="width:40px">N°</th><th>Electrodo</th>
+            <th style="width:48px;white-space:nowrap">N°</th><th>Electrodo</th>
             <th>Equipo conectado</th>
             <th style="width:110px">EXISTE CONTINUIDAD</th>
           </tr></thead>
@@ -2188,7 +2190,7 @@ function renderizarTablaResumen(datos, nom) {
       <div class="doc-nom-subtitulo">Tabla 1. Resultados y conclusiones de la evaluación de la exposición a vibraciones</div>
       <table class="doc-tabla-resumen">
         <thead><tr>
-          <th style="width:40px">N°</th><th>Fuente</th><th>Nombre del trabajador</th>
+          <th style="width:48px;white-space:nowrap">N°</th><th>Fuente</th><th>Nombre del trabajador</th>
           <th style="width:140px">Extremidades superiores / Cuerpo entero</th>
           <th style="width:110px">Conclusión</th>
         </tr></thead>
