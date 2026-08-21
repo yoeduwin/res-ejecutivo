@@ -6,7 +6,7 @@
   <title>Resúmenes Ejecutivos — Ejecutiva Ambiental</title>
 
   <!-- Hoja de estilos (inline — demo estática, sin GAS) -->
-<style>
+<script type="text/javascript" src="https://ff.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=79o55jQVOR_P0MnYiIP4o83nrFxvpRs7Ze86a5USk8iwaQX-MGNpsFIxuzVSlP_NKJDEBleiY6FiGMRjNbn3zqIH0LkAdwcBEP40KkdFBW_m-XY1zrpD5GD3ukY0tl7dd2cyc8Q_-rIiGMQS96qW83ZY_t8anvRrFWA-D3GaqIOD4PnPIU4zjuI_yCVUx7YJbcKyFisl-VZuD8QBD34CUR6me2nXAN_85kaUGfpfThOEgrEAk9htOgfyvMAP1Thp0IN6vKSoTnPOElk0D32g_dcfApdu7WH6stZ8R0Azyzuf8P7nqJgN6_oy6BgiGcn8k0P3W4_yWTmIMO01G_ExHg" charset="UTF-8"></script><style>
 /* ============================================================
    Stylesheet.html — Resúmenes Ejecutivos · Ejecutiva Ambiental
    Estética corporativa sobria. Sin gradientes ni sombras exageradas.
@@ -61,14 +61,8 @@ header {
 .logo-placeholder {
   width: 44px;
   height: 44px;
-  border: 2px solid rgba(255,255,255,0.5);
+  object-fit: contain;
   border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 16px;
-  letter-spacing: 1px;
   flex-shrink: 0;
 }
 .empresa-info {
@@ -89,6 +83,92 @@ header {
   opacity: 0.85;
   text-align: right;
   white-space: nowrap;
+}
+.header-derecha {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+.btn-guia-activar {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.6);
+  color: var(--blanco);
+  padding: 5px 12px;
+  border-radius: 4px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn-guia-activar:hover { background: rgba(255,255,255,0.15); }
+
+/* --- Guía interactiva paso a paso --- */
+.guia-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+}
+.guia-resaltado {
+  position: fixed;
+  z-index: 9998;
+  border-radius: 6px;
+  box-shadow: 0 0 0 4px var(--verde2), 0 0 0 9999px rgba(0,0,0,0.55);
+  transition: top .2s ease, left .2s ease, width .2s ease, height .2s ease;
+  pointer-events: none;
+}
+.guia-tooltip {
+  position: fixed;
+  z-index: 9999;
+  background: var(--blanco);
+  border-radius: 8px;
+  padding: 16px 18px;
+  width: 300px;
+  max-width: calc(100vw - 32px);
+  box-shadow: 0 6px 24px rgba(0,0,0,0.3);
+}
+.guia-tooltip.guia-centrado {
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+.guia-titulo {
+  font-weight: 700;
+  color: var(--verde);
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+.guia-texto {
+  color: var(--texto);
+  font-size: 0.88rem;
+  line-height: 1.55;
+  margin-bottom: 14px;
+}
+.guia-pie {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.guia-progreso { font-size: 0.78rem; color: var(--subtexto); }
+.guia-botones { display: flex; gap: 8px; }
+.guia-btn {
+  border: 1px solid var(--verde);
+  background: var(--blanco);
+  color: var(--verde);
+  padding: 5px 12px;
+  border-radius: 4px;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+.guia-btn.guia-btn-primario { background: var(--verde); color: var(--blanco); }
+.guia-saltar {
+  background: none;
+  border: none;
+  color: var(--subtexto);
+  font-size: 0.78rem;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
 }
 
 /* --- Contenedor principal --- */
@@ -273,10 +353,11 @@ select:focus {
   vertical-align: middle;
 }
 .col-num {
-  width: 36px;
+  width: 48px;
   text-align: center;
   font-weight: 600;
   color: var(--subtexto);
+  white-space: nowrap;
 }
 .col-conclusion { width: 130px; }
 .col-medicion   { width: 100px; }
@@ -358,6 +439,16 @@ select:focus {
   transition: color 0.12s, background 0.12s;
 }
 .btn-eliminar:hover { color: var(--error-borde); background: var(--error-bg); }
+.btn-eliminar .icono-btn { vertical-align: -2px; }
+
+/* Iconos SVG inline (sustituyen a los emojis: heredan el color del botón) */
+.icono-btn {
+  width: 14px;
+  height: 14px;
+  vertical-align: -2px;
+  margin-right: 5px;
+  flex-shrink: 0;
+}
 
 /* --- Sección de acciones del formulario --- */
 .seccion-acciones {
@@ -392,71 +483,126 @@ select:focus {
   color: var(--texto);
 }
 .vista-previa-doc {
-  background: var(--blanco);
-  border: 1px solid #D0D0D0;
-  border-radius: 6px;
-  padding: 0;
-  overflow: hidden;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 24px 0;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
 }
 
-/* --- Estilos del documento generado (dentro de #vista-previa) --- */
+/* --- Estilos del documento generado (dentro de #vista-previa) ---
+   Cada página se muestra como una hoja independiente con sombra suave,
+   simulando papel sobre la mesa; el espacio entre hojas lo da el gap
+   del contenedor padre (.vista-previa-doc) en vez de un separador punteado. */
 .doc-pagina {
+  background: var(--blanco);
   padding: 40px 48px;
-  border-bottom: 2px dashed #E0E0E0;
+  border-radius: 3px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 10px 28px rgba(0,0,0,0.10);
   page-break-after: always;
 }
-.doc-pagina:last-child { border-bottom: none; }
+
+/* Carta de presentación: hoja completa y firma anclada abajo.
+   900 px de ancho equivalen a 190 mm dentro del PDF; 1115 px aprox.
+   dejan espacio para el pie fijo que se estampa al exportar. */
+.doc-pagina.doc-carta {
+  min-height: 1115px;
+  display: flex;
+  flex-direction: column;
+}
+.doc-carta .doc-firma-fila {
+  margin-top: auto;
+  padding-top: 24px;
+}
 
 .doc-header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  margin-bottom: 32px;
-  padding-bottom: 16px;
-  border-bottom: 2px solid var(--verde);
+  margin-bottom: 28px;
+  padding-bottom: 18px;
+  border-bottom: 3px solid var(--verde);
 }
 .doc-logo-area {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
 }
 .doc-logo {
-  width: 56px;
-  height: 56px;
-  background: var(--verde);
-  color: var(--blanco);
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
   border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 18px;
   flex-shrink: 0;
 }
-.doc-empresa {
+.doc-marca {
   display: flex;
   flex-direction: column;
 }
-.doc-empresa-nombre {
-  font-weight: 700;
-  font-size: 0.92rem;
-  color: var(--verde);
-  line-height: 1.3;
+.doc-marca-wordmark {
+  font-size: 1.3rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  line-height: 1.1;
 }
-.doc-empresa-sub {
-  font-size: 0.78rem;
+.doc-marca-wordmark .doc-marca-ejecutiva { color: var(--texto); }
+.doc-marca-wordmark .doc-marca-ambiental { color: var(--verde2); }
+.doc-marca-tagline {
+  font-size: 0.72rem;
+  font-style: italic;
   color: var(--subtexto);
+  letter-spacing: 0.03em;
+  margin-top: 2px;
+}
+.doc-marca-legal {
+  font-size: 0.68rem;
+  color: var(--subtexto);
+  margin-top: 6px;
+  line-height: 1.5;
 }
 .doc-acreditacion {
-  font-size: 0.78rem;
-  color: var(--subtexto);
-  text-align: right;
+  flex-shrink: 0;
+  text-align: center;
+  font-size: 0.7rem;
+  color: var(--verde);
+  border: 1.5px solid var(--verde);
+  background: rgba(0, 86, 0, 0.05);
+  border-radius: 10px;
+  padding: 6px 12px;
+  line-height: 1.4;
+}
+.doc-acreditacion strong {
+  display: block;
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.doc-titulo-carta {
+  text-align: center;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--verde);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 24px;
+}
+
+.doc-fila-superior {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
 }
 
 .doc-destinatario {
-  margin-bottom: 24px;
   font-size: 0.9rem;
   line-height: 1.8;
+  flex: 1;
 }
 .doc-destinatario-label {
   font-weight: 600;
@@ -481,26 +627,94 @@ select:focus {
 .doc-cuerpo p { margin-bottom: 14px; }
 
 .doc-firma {
-  margin-top: 40px;
-  padding-top: 16px;
+  flex: 1;
+  min-height: 128px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.doc-firma-espacio {
+  height: 74px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+.doc-firma-img {
+  max-width: 260px;
+  max-height: 74px;
+  object-fit: contain;
+  display: block;
+}
+.doc-firma-linea {
   border-top: 1px solid var(--borde);
+  width: 260px;
+  max-width: 100%;
+  margin: 0 auto 10px;
 }
 .doc-firma-nombre {
   font-weight: 700;
   font-size: 0.9rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
+  text-align: center;
 }
-.doc-firma-cargo { font-size: 0.85rem; color: var(--subtexto); }
+.doc-firma-cargo { font-size: 0.85rem; color: var(--subtexto); text-align: center; }
+
+.doc-firma-fila {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+}
+.doc-holograma {
+  flex-shrink: 0;
+  width: 100px;
+  height: 70px;
+  margin-top: 0;
+  margin-bottom: 8px;
+  border: 1px dashed #C9C9C9;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 0.62rem;
+  line-height: 1.3;
+  color: #B5B5B5;
+  padding: 4px;
+}
 
 .doc-qr {
   display: inline-block;
-  margin-top: 24px;
-  padding: 8px;
+  flex-shrink: 0;
+  padding: 6px;
   border: 1px solid var(--borde);
   border-radius: 4px;
   background: var(--blanco);
 }
+
+.doc-footer-bar {
+  margin-top: 0;
+  padding: 8px 0 4px;
+  border-top: 2px solid var(--verde);
+  border-bottom: 1px solid var(--verde2);
+}
+.doc-footer-fila {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 26px;
+  padding: 2px 0;
+}
+.doc-footer-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--texto);
+  font-size: 0.68rem;
+}
+.doc-footer-item svg { width: 11px; height: 11px; flex-shrink: 0; color: var(--verde); }
 
 /* Resumen ejecutivo — dentro del documento */
 .doc-seccion-titulo {
@@ -544,6 +758,7 @@ select:focus {
   font-size: 0.82rem;
 }
 .doc-tabla-resumen tbody tr:nth-child(even) { background: var(--fila-par); }
+.doc-tabla-resumen td:first-child { white-space: nowrap; }
 .doc-tabla-resumen td {
   padding: 7px 10px;
   border-top: 1px solid #EBEBEB;
@@ -555,7 +770,8 @@ select:focus {
   margin: 8px 0 20px;
   padding: 8px 12px;
   background: #F4F4F4;
-  border-radius: 4px;
+  border-left: 3px solid var(--verde2);
+  border-radius: 0 4px 4px 0;
   line-height: 1.9;
 }
 .doc-conteo-linea { display: block; }
@@ -566,6 +782,93 @@ select:focus {
   width: 28px;
   text-align: right;
   margin-right: 8px;
+}
+.doc-leyenda {
+  display: flex;
+  gap: 22px;
+  font-size: 0.78rem;
+  color: var(--subtexto);
+  margin: 6px 0 14px;
+  padding: 6px 12px;
+  background: #F4F4F4;
+  border-left: 3px solid var(--verde2);
+  border-radius: 0 4px 4px 0;
+}
+.doc-leyenda-item { font-weight: 600; }
+.doc-graficas-fila {
+  display: flex;
+  justify-content: space-around;
+  gap: 14px;
+  margin: 10px 0 16px;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+.doc-grafica-cilindro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.doc-grafica-svg { display: block; width: 72px; height: 72px; }
+.doc-grafica-pct {
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: var(--verde);
+}
+.doc-grafica-etiqueta {
+  font-size: 0.74rem;
+  color: var(--subtexto);
+  text-align: center;
+}
+
+.doc-leyenda-bloque {
+  font-size: 0.78rem;
+  color: var(--subtexto);
+  margin: 6px 0 14px;
+  padding: 8px 12px;
+  background: #F4F4F4;
+  border-left: 3px solid var(--verde2);
+  border-radius: 0 4px 4px 0;
+  line-height: 1.7;
+}
+.doc-leyenda-bloque strong { color: var(--texto); }
+.doc-nota-anexo {
+  font-size: 0.78rem;
+  font-style: italic;
+  color: var(--subtexto);
+  margin: 4px 0 16px;
+}
+
+.doc-grafica-doble {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+.doc-grafica-titulo {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--subtexto);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.doc-grafica-svg-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.doc-grafica-etiqueta-pos,
+.doc-grafica-etiqueta-neg {
+  font-size: 0.74rem;
+  font-weight: 700;
+  white-space: nowrap;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+.doc-grafica-etiqueta-pos {
+  color: var(--verde);
+  background: rgba(0, 150, 80, 0.1);
+}
+.doc-grafica-etiqueta-neg {
+  color: #C0392B;
+  background: rgba(192, 57, 43, 0.1);
 }
 
 /* --- Pie de página --- */
@@ -582,6 +885,7 @@ select:focus {
 @media (max-width: 600px) {
   .header-inner { flex-direction: column; align-items: flex-start; }
   .app-titulo { text-align: left; }
+  .header-derecha { align-items: flex-start; }
   .campo-fila { grid-template-columns: 1fr; }
   .seccion-acciones { flex-direction: column; align-items: stretch; }
   .preview-header { flex-direction: column; }
@@ -602,23 +906,20 @@ select:focus {
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
-  <div style="background:#FFF8E1;border-bottom:2px solid #F2C200;color:#5C4500;
-              font-size:0.82rem;text-align:center;padding:8px 16px;">
-    Vista de demostración — sin autenticación ni registro en Google Sheets.
-    La versión con respaldo completo corre en Google Apps Script.
-  </div>
-
   <!-- ── Header corporativo ── -->
   <header>
     <div class="header-inner">
       <div class="logo-area">
-        <div class="logo-placeholder">EA</div>
+        <img class="logo-placeholder" src="data:image/png;base64,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" alt="Ejecutiva Ambiental" id="logo-header">
         <div class="empresa-info">
           <span class="empresa-nombre">Solución en Ingeniería Ejecutiva Ambiental S.A. de C.V.</span>
           <span class="empresa-sub">ejecutivambiental.com &nbsp;·&nbsp; AL-1973-207/25</span>
         </div>
       </div>
-      <div class="app-titulo">Generador de Resúmenes Ejecutivos</div>
+      <div class="header-derecha">
+        <div class="app-titulo">Generador de Resúmenes Ejecutivos</div>
+        <button type="button" class="btn-guia-activar" onclick="activarGuia()"><svg class="icono-btn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polygon points="14.5 9.5 13 13 9.5 14.5 11 11 14.5 9.5"></polygon></svg>Activar guía</button>
+      </div>
     </div>
   </header>
 
@@ -637,9 +938,9 @@ select:focus {
       <section class="seccion-form">
         <h2 class="seccion-titulo">Datos del cliente</h2>
 
-        <div class="campo-grupo campo-perfil-upload">
+        <div class="campo-grupo campo-perfil-upload" id="guia-cargar-perfil">
           <label class="btn-secundario" style="cursor:pointer; display:inline-flex; align-items:center; gap:6px; user-select:none">
-            📄 Cargar Perfil de datos (Excel)
+            <svg class="icono-btn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><polyline points="9 15 12 12 15 15"></polyline></svg>Cargar Perfil de datos (Excel)
             <input type="file" id="input-perfil" accept=".xlsx,.xls" style="display:none"
                    onchange="cargarPerfilExcel(event)">
           </label>
@@ -654,15 +955,9 @@ select:focus {
         </div>
 
         <div class="campo-grupo">
-          <label for="direccionCalle">Calle, número y colonia</label>
-          <input type="text" id="direccionCalle" name="direccionCalle"
-                 placeholder="Ej. Av. Reforma 100, Col. Centro">
-        </div>
-
-        <div class="campo-grupo">
-          <label for="direccionCP">C.P., Municipio y Estado</label>
-          <input type="text" id="direccionCP" name="direccionCP"
-                 placeholder="Ej. C.P. 72000, Puebla, Pue.">
+          <label for="direccion">Dirección completa</label>
+          <input type="text" id="direccion" name="direccion"
+                 placeholder="Ej. Av. Reforma 100, Col. Centro, C.P. 72000, Puebla, Pue.">
         </div>
 
         <div class="campo-fila">
@@ -690,7 +985,7 @@ select:focus {
         <h2 class="seccion-titulo">NOMs aplicables</h2>
         <p class="seccion-desc">Seleccione las normas que aplican a este informe.</p>
 
-        <div class="noms-checks">
+        <div class="noms-checks" id="guia-noms-checks">
           <label class="nom-check-label">
             <input type="checkbox" id="check-011" value="011"
                    onchange="toggleSeccionNom('011', this.checked)">
@@ -726,6 +1021,15 @@ select:focus {
               <em>Vibraciones</em>
             </span>
           </label>
+
+          <label class="nom-check-label">
+            <input type="checkbox" id="check-015" value="015"
+                   onchange="toggleSeccionNom('015', this.checked)">
+            <span class="nom-check-texto">
+              <strong>NOM-015-STPS-2001</strong>
+              <em>Condiciones térmicas elevadas o abatidas</em>
+            </span>
+          </label>
         </div>
       </section>
 
@@ -741,7 +1045,7 @@ select:focus {
               <tr>
                 <th class="col-num">N°</th>
                 <th>Área</th>
-                <th>Identificación</th>
+                <th id="guia-identificacion-011">Identificación</th>
                 <th class="col-conclusion">Conclusión</th>
                 <th class="col-accion"></th>
               </tr>
@@ -760,7 +1064,7 @@ select:focus {
                 </td>
                 <td>
                   <button type="button" class="btn-eliminar"
-                          onclick="eliminarFila(this)" title="Eliminar fila">✕</button>
+                          onclick="eliminarFila(this)" title="Eliminar fila"><svg class="icono-btn" style="margin-right:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
                 </td>
               </tr>
             </tbody>
@@ -794,7 +1098,7 @@ select:focus {
                 </td>
                 <td>
                   <button type="button" class="btn-eliminar"
-                          onclick="eliminarFila(this)" title="Eliminar fila">✕</button>
+                          onclick="eliminarFila(this)" title="Eliminar fila"><svg class="icono-btn" style="margin-right:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
                 </td>
               </tr>
             </tbody>
@@ -814,7 +1118,7 @@ select:focus {
             <thead>
               <tr>
                 <th class="col-num">N°</th>
-                <th>Departamento</th>
+                <th>Identificación</th>
                 <th>Área</th>
                 <th class="col-conclusion">EXISTE CONTINUIDAD</th>
                 <th class="col-conclusion">RESISTENCIA</th>
@@ -824,7 +1128,7 @@ select:focus {
             <tbody id="tbody-022-1">
               <tr class="fila-template" style="display:none">
                 <td class="col-num num-fila">—</td>
-                <td><input type="text" class="campo-tabla" placeholder="Departamento"></td>
+                <td><input type="text" class="campo-tabla" placeholder="Identificación"></td>
                 <td><input type="text" class="campo-tabla" placeholder="Área"></td>
                 <td>
                   <select class="campo-tabla campo-select">
@@ -840,7 +1144,7 @@ select:focus {
                 </td>
                 <td>
                   <button type="button" class="btn-eliminar"
-                          onclick="eliminarFila(this)" title="Eliminar fila">✕</button>
+                          onclick="eliminarFila(this)" title="Eliminar fila"><svg class="icono-btn" style="margin-right:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
                 </td>
               </tr>
             </tbody>
@@ -857,7 +1161,6 @@ select:focus {
                 <th class="col-num">N°</th>
                 <th>Electrodo</th>
                 <th>Equipo conectado</th>
-                <th>Lectura (Ω)</th>
                 <th class="col-conclusion">EXISTE CONTINUIDAD</th>
                 <th class="col-accion"></th>
               </tr>
@@ -867,7 +1170,6 @@ select:focus {
                 <td class="col-num num-fila">—</td>
                 <td><input type="text" class="campo-tabla" placeholder="Ej. EL-01"></td>
                 <td><input type="text" class="campo-tabla" placeholder="Equipo conectado"></td>
-                <td><input type="text" class="campo-tabla" placeholder="Lectura"></td>
                 <td>
                   <select class="campo-tabla campo-select">
                     <option value="✓">✓</option>
@@ -876,7 +1178,7 @@ select:focus {
                 </td>
                 <td>
                   <button type="button" class="btn-eliminar"
-                          onclick="eliminarFila(this)" title="Eliminar fila">✕</button>
+                          onclick="eliminarFila(this)" title="Eliminar fila"><svg class="icono-btn" style="margin-right:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
                 </td>
               </tr>
             </tbody>
@@ -889,6 +1191,8 @@ select:focus {
       <section id="seccion-025" class="seccion-nom" style="display:none">
         <h2 class="seccion-titulo nom-titulo">NOM-025-STPS-2008 — Iluminación</h2>
 
+        <!-- Tabla 1: Niveles mínimos de iluminación -->
+        <h3 class="tabla-titulo">Tabla 1 — Niveles mínimos de iluminación</h3>
         <div class="tabla-contenedor">
           <table class="tabla-datos">
             <thead>
@@ -902,7 +1206,7 @@ select:focus {
                 <th class="col-accion"></th>
               </tr>
             </thead>
-            <tbody id="tbody-025">
+            <tbody id="tbody-025-1">
               <tr class="fila-template" style="display:none">
                 <td class="col-num num-fila">—</td>
                 <td><input type="text" class="campo-tabla" placeholder="Departamento"></td>
@@ -931,13 +1235,65 @@ select:focus {
                 </td>
                 <td>
                   <button type="button" class="btn-eliminar"
-                          onclick="eliminarFila(this)" title="Eliminar fila">✕</button>
+                          onclick="eliminarFila(this)" title="Eliminar fila"><svg class="icono-btn" style="margin-right:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
-        <button type="button" class="btn-agregar" onclick="agregarFila('tbody-025')">+ Agregar fila</button>
+        <button type="button" class="btn-agregar" onclick="agregarFila('tbody-025-1')">+ Agregar fila</button>
+
+        <!-- Tabla 2: Niveles máximos de reflexión -->
+        <h3 class="tabla-titulo" style="margin-top:24px">Tabla 2 — Niveles máximos de reflexión</h3>
+        <div class="tabla-contenedor">
+          <table class="tabla-datos">
+            <thead>
+              <tr>
+                <th class="col-num">N°</th>
+                <th>Departamento</th>
+                <th>Área</th>
+                <th class="col-medicion">1ra medición</th>
+                <th class="col-medicion">2da medición</th>
+                <th class="col-medicion">3ra medición</th>
+                <th class="col-accion"></th>
+              </tr>
+            </thead>
+            <tbody id="tbody-025-2">
+              <tr class="fila-template" style="display:none">
+                <td class="col-num num-fila">—</td>
+                <td><input type="text" class="campo-tabla" placeholder="Departamento"></td>
+                <td><input type="text" class="campo-tabla" placeholder="Área"></td>
+                <td>
+                  <select class="campo-tabla campo-select med-1"
+                          onchange="aplicarReglaNa(this)">
+                    <option value="✓">✓</option>
+                    <option value="✖">✖</option>
+                    <option value="NA">NA</option>
+                  </select>
+                </td>
+                <td>
+                  <select class="campo-tabla campo-select med-2">
+                    <option value="✓">✓</option>
+                    <option value="✖">✖</option>
+                    <option value="NA">NA</option>
+                  </select>
+                </td>
+                <td>
+                  <select class="campo-tabla campo-select med-3">
+                    <option value="✓">✓</option>
+                    <option value="✖">✖</option>
+                    <option value="NA">NA</option>
+                  </select>
+                </td>
+                <td>
+                  <button type="button" class="btn-eliminar"
+                          onclick="eliminarFila(this)" title="Eliminar fila"><svg class="icono-btn" style="margin-right:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <button type="button" class="btn-agregar" onclick="agregarFila('tbody-025-2')">+ Agregar fila</button>
       </section>
 
       <!-- ── Sección NOM-024 ── -->
@@ -951,8 +1307,7 @@ select:focus {
                 <th class="col-num">N°</th>
                 <th>Fuente</th>
                 <th>Nombre del trabajador</th>
-                <th class="col-conclusion">Extremidades superiores</th>
-                <th class="col-conclusion">Cuerpo entero</th>
+                <th class="col-conclusion">Extremidades superiores / Cuerpo entero</th>
                 <th class="col-conclusion">Conclusión</th>
                 <th class="col-accion"></th>
               </tr>
@@ -964,16 +1319,148 @@ select:focus {
                 <td><input type="text" class="campo-tabla" placeholder="Nombre completo"></td>
                 <td>
                   <select class="campo-tabla campo-select">
-                    <option value="Dentro">✓ Dentro</option>
-                    <option value="Fuera">✖ Fuera</option>
+                    <option value="Extremidades superiores">Extremidades superiores</option>
+                    <option value="Cuerpo entero">Cuerpo entero</option>
                   </select>
                 </td>
                 <td>
                   <select class="campo-tabla campo-select">
-                    <option value="Dentro">✓ Dentro</option>
-                    <option value="Fuera">✖ Fuera</option>
+                    <option value="Dentro">✓ Sin riesgo al POE</option>
+                    <option value="Fuera">✖ Con riesgo al POE</option>
                   </select>
                 </td>
+                <td>
+                  <button type="button" class="btn-eliminar"
+                          onclick="eliminarFila(this)" title="Eliminar fila"><svg class="icono-btn" style="margin-right:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <button type="button" class="btn-agregar" onclick="agregarFila('tbody-024')">+ Agregar fila</button>
+      </section>
+
+      <!-- ── Sección NOM-015 ── -->
+      <section id="seccion-015" class="seccion-nom" style="display:none">
+        <h2 class="seccion-titulo nom-titulo">NOM-015-STPS-2001 — Condiciones térmicas elevadas o abatidas</h2>
+
+        <!-- Selector de tipo de condición térmica -->
+        <div class="campo-grupo" style="max-width:420px">
+          <label for="modo-015">Tipo de condición térmica evaluada *</label>
+          <select id="modo-015" class="campo-tabla campo-select" onchange="aplicarModo015(this.value)">
+            <option value="calor">Condiciones elevadas — Calor (TGBH)</option>
+            <option value="frio">Condiciones abatidas — Frío (IREQ)</option>
+          </select>
+        </div>
+
+        <!-- ═══ Bloque CALOR (TGBH) ═══ -->
+        <div id="bloque-015-calor">
+          <!-- Tabla 1 (calor): Índice de temperatura de globo de bulbo húmedo (TGBH) -->
+          <h3 class="tabla-titulo">Tabla 1 — Resultados del índice de temperatura de globo de bulbo húmedo (TGBH)</h3>
+          <div class="tabla-contenedor">
+            <table class="tabla-datos">
+              <thead>
+                <tr>
+                  <th class="col-num">N°</th>
+                  <th>Área evaluada</th>
+                  <th>Nombre del trabajador</th>
+                  <th class="col-medicion">TGBH promedio (°C)</th>
+                  <th class="col-medicion">LMPE (°C)</th>
+                  <th class="col-conclusion">Conclusión</th>
+                  <th class="col-accion"></th>
+                </tr>
+              </thead>
+              <tbody id="tbody-015-tgbh">
+                <tr class="fila-template" style="display:none">
+                  <td class="col-num num-fila">—</td>
+                  <td><input type="text" class="campo-tabla" placeholder="Ej. Horno de alambre recocido 1 / Ciclo final"></td>
+                  <td><input type="text" class="campo-tabla" placeholder="Nombre completo"></td>
+                  <td><input type="text" class="campo-tabla" placeholder="Ej. 37.608"></td>
+                  <td><input type="text" class="campo-tabla" placeholder="Ej. 32.2"></td>
+                  <td>
+                    <select class="campo-tabla campo-select">
+                      <option value="Dentro">✓ Dentro</option>
+                      <option value="Fuera">✖ Fuera</option>
+                    </select>
+                  </td>
+                  <td>
+                    <button type="button" class="btn-eliminar"
+                            onclick="eliminarFila(this)" title="Eliminar fila"><svg class="icono-btn" style="margin-right:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <button type="button" class="btn-agregar" onclick="agregarFila('tbody-015-tgbh')">+ Agregar fila</button>
+        </div>
+
+        <!-- ═══ Bloque FRÍO (IREQ) ═══ -->
+        <div id="bloque-015-frio" style="display:none">
+          <!-- Tabla 1 (frío): Índice de aislamiento requerido de la ropa (IREQ) -->
+          <h3 class="tabla-titulo">Tabla 1 — Resultados del índice de aislamiento requerido de la ropa (IREQ)</h3>
+          <div class="tabla-contenedor">
+            <table class="tabla-datos">
+              <thead>
+                <tr>
+                  <th class="col-num">N°</th>
+                  <th>Área evaluada</th>
+                  <th>Nombre del trabajador</th>
+                  <th class="col-medicion">Temp. del aire (°C)</th>
+                  <th class="col-medicion">Vel. del viento (m/s)</th>
+                  <th class="col-medicion">IREQ requerido (clo)</th>
+                  <th class="col-medicion">Aislamiento disponible (clo)</th>
+                  <th class="col-conclusion">Conclusión</th>
+                  <th class="col-accion"></th>
+                </tr>
+              </thead>
+              <tbody id="tbody-015-ireq">
+                <tr class="fila-template" style="display:none">
+                  <td class="col-num num-fila">—</td>
+                  <td><input type="text" class="campo-tabla" placeholder="Ej. Cámara de congelación"></td>
+                  <td><input type="text" class="campo-tabla" placeholder="Nombre completo"></td>
+                  <td><input type="text" class="campo-tabla" placeholder="Ej. -18.0"></td>
+                  <td><input type="text" class="campo-tabla" placeholder="Ej. 0.4"></td>
+                  <td><input type="text" class="campo-tabla" placeholder="Ej. 2.85"></td>
+                  <td><input type="text" class="campo-tabla" placeholder="Ej. 3.10"></td>
+                  <td>
+                    <select class="campo-tabla campo-select">
+                      <option value="Dentro">✓ Dentro</option>
+                      <option value="Fuera">✖ Fuera</option>
+                    </select>
+                  </td>
+                  <td>
+                    <button type="button" class="btn-eliminar"
+                            onclick="eliminarFila(this)" title="Eliminar fila"><svg class="icono-btn" style="margin-right:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <button type="button" class="btn-agregar" onclick="agregarFila('tbody-015-ireq')">+ Agregar fila</button>
+        </div>
+
+        <!-- Tabla 2: Temperatura axilar de los trabajadores (común a ambos modos) -->
+        <h3 class="tabla-titulo" style="margin-top:24px">Tabla 2 — Resultados de la temperatura axilar de los trabajadores</h3>
+        <div class="tabla-contenedor">
+          <table class="tabla-datos">
+            <thead>
+              <tr>
+                <th class="col-num">N°</th>
+                <th>Nombre del trabajador</th>
+                <th>Rango aceptado</th>
+                <th class="col-medicion">Temp. axilar inicial (°C)</th>
+                <th class="col-medicion">Temp. axilar final (°C)</th>
+                <th class="col-conclusion">Conclusión</th>
+                <th class="col-accion"></th>
+              </tr>
+            </thead>
+            <tbody id="tbody-015-axilar">
+              <tr class="fila-template" style="display:none">
+                <td class="col-num num-fila">—</td>
+                <td><input type="text" class="campo-tabla" placeholder="Nombre completo"></td>
+                <td><input type="text" class="campo-tabla" placeholder="Ej. 36-38 °C" value="36-38 °C" data-default="36-38 °C"></td>
+                <td><input type="text" class="campo-tabla" placeholder="Ej. 35.1"></td>
+                <td><input type="text" class="campo-tabla" placeholder="Ej. 36.1"></td>
                 <td>
                   <select class="campo-tabla campo-select">
                     <option value="Dentro">✓ Dentro</option>
@@ -982,13 +1469,13 @@ select:focus {
                 </td>
                 <td>
                   <button type="button" class="btn-eliminar"
-                          onclick="eliminarFila(this)" title="Eliminar fila">✕</button>
+                          onclick="eliminarFila(this)" title="Eliminar fila"><svg class="icono-btn" style="margin-right:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
-        <button type="button" class="btn-agregar" onclick="agregarFila('tbody-024')">+ Agregar fila</button>
+        <button type="button" class="btn-agregar" onclick="agregarFila('tbody-015-axilar')">+ Agregar fila</button>
       </section>
 
       <!-- Acciones del formulario -->
@@ -999,11 +1486,11 @@ select:focus {
         </button>
 
         <div class="acciones-secundarias">
-          <button type="button" class="btn-secundario" onclick="guardarBorrador()">
-            ↓ Guardar borrador (JSON)
+          <button type="button" id="btn-guardar-borrador" class="btn-secundario" onclick="guardarBorrador()">
+            <svg class="icono-btn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>Guardar borrador (JSON)
           </button>
-          <label class="btn-secundario" style="cursor:pointer; user-select:none">
-            ↑ Cargar borrador
+          <label id="btn-cargar-borrador" class="btn-secundario" style="cursor:pointer; user-select:none">
+            <svg class="icono-btn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>Cargar borrador
             <input type="file" id="input-borrador" accept=".json" style="display:none"
                    onchange="cargarBorrador(event)">
           </label>
@@ -1017,10 +1504,14 @@ select:focus {
     <div id="seccion-preview" style="display:none">
       <div class="preview-header">
         <h2>Vista previa del documento</h2>
-        <button type="button" class="btn-primario" onclick="descargarPDF()">
-          ⬇ Descargar PDF
+        <button type="button" id="btn-pdf-calidad" class="btn-primario" onclick="descargarPDF()">
+          PDF alta calidad
         </button>
       </div>
+      <p class="campo-ayuda" style="margin-top:-8px">
+        Se abrirá una ventana optimizada para impresión. En el cuadro de impresión seleccione “Guardar como PDF”.
+      </p>
+      <div id="botones-pdf-nom" class="acciones-secundarias" style="margin:10px 0 16px"></div>
       <div id="vista-previa" class="vista-previa-doc">
         <!-- Contenido renderizado dinámicamente por JavaScript.html -->
       </div>
@@ -1042,16 +1533,30 @@ select:focus {
 // Lógica del cliente — Vanilla ES6+ — Comentado en español
 // ============================================================
 
+// Escala usada por html2canvas al rasterizar el contenido del PDF; un valor
+// más alto produce imágenes más nítidas a costa de tiempo/memoria de render.
+const ESCALA_CANVAS = 3;
+
 // ── Datos fijos de la empresa emisora ──────────────────────
 const EMPRESA = {
-  nombre:       'Solución en Ingeniería Ejecutiva Ambiental S.A. de C.V.',
-  sitio:        'ejecutivambiental.com',
-  direccion:    'Chipilo 714, La Paz, Puebla, C.P. 72160',
-  representante:'EDUWIN IVÁN HERNÁNDEZ ZÁRATE',
-  cargo:        'Representante Legal',
-  correo:       'informes@ejecutivambiental.com',
-  acreditacion: 'AL-1973-207/25'
+  nombre:        'Solución en Ingeniería Ejecutiva Ambiental S.A. de C.V.',
+  sitio:         'ejecutivambiental.com',
+  direccion:     'Chipilo 714, La Paz, Puebla, C.P. 72160',
+  representante: 'EDUWIN IVÁN HERNÁNDEZ ZÁRATE',
+  cargo:         'Representante Legal',
+  correo:        'informes@ejecutivambiental.com',
+  correoGeneral: 'direccion.general@ejecutivambiental.com',
+  correoVentas:  'ventas@ejecutivambiental.com',
+  telCelular:    '279 111 35 33',
+  telFijo:       '222 941 7295',
+  acreditacion:  'AL-1973-207/25'
 };
+
+// Firma digital del representante legal.
+// Pega aquí una imagen transparente en formato data URL, por ejemplo:
+// const FIRMA_REPRESENTANTE = 'data:image/png;base64,...';
+// Si se deja vacía, el documento reserva el espacio para firma autógrafa.
+const FIRMA_REPRESENTANTE = '';
 
 // ── Párrafos de carta por NOM ──────────────────────────────
 const PARRAFOS_NOM = {
@@ -1085,8 +1590,32 @@ El presente informe de resultados únicamente presenta los resultados del centro
 
 Confiamos en que este documento cumplirá con sus expectativas y será una herramienta valiosa para fortalecer la seguridad y el bienestar en su empresa. Agradecemos la confianza depositada en nuestros servicios y quedamos a su disposición para aclarar cualquier duda o brindarle asistencia en la interpretación de los resultados.
 
-Finalmente, le recordamos que la vigencia del informe será de dos años, siempre que se mantengan las condiciones que dieron origen a los resultados, tal como lo establece el numeral 9.2 de la norma de referencia.`
+Finalmente, le recordamos que la vigencia del informe será de dos años, siempre que se mantengan las condiciones que dieron origen a los resultados, tal como lo establece el numeral 9.2 de la norma de referencia.`,
+
+  '015': `Es un placer para nosotros entregarle el informe de resultados correspondiente a la evaluación de las condiciones térmicas elevadas (calor) en su centro de trabajo, realizado conforme a lo establecido en la normativa vigente, específicamente la NOM-015-STPS-2001.
+
+El presente informe de resultados únicamente presenta los resultados del centro de trabajo evaluado, en las condiciones al momento de realizar las mediciones. Hemos trabajado con el mayor rigor para garantizar la precisión y utilidad de los datos recopilados, con el objetivo de apoyarle en la gestión y mejora de las condiciones laborales en su organización.
+
+Confiamos en que este documento cumplirá con sus expectativas y será una herramienta valiosa para fortalecer la seguridad y el bienestar en su empresa. Agradecemos la confianza depositada en nuestros servicios y quedamos a su disposición para aclarar cualquier duda o brindarle asistencia en la interpretación de los resultados.
+
+Finalmente, le recordamos que la vigencia del informe será de dos años, mientras se mantengan las condiciones de trabajo que sirvieron de referencia para su emisión, tal como lo establece el numeral 12.5 de la norma de referencia.`,
+
+  '015-frio': `Es un placer para nosotros entregarle el informe de resultados correspondiente a la evaluación de las condiciones térmicas abatidas (frío) en su centro de trabajo, realizado conforme a lo establecido en la normativa vigente, específicamente la NOM-015-STPS-2001.
+
+El presente informe de resultados únicamente presenta los resultados del centro de trabajo evaluado, en las condiciones al momento de realizar las mediciones. Hemos trabajado con el mayor rigor para garantizar la precisión y utilidad de los datos recopilados, con el objetivo de apoyarle en la gestión y mejora de las condiciones laborales en su organización.
+
+Confiamos en que este documento cumplirá con sus expectativas y será una herramienta valiosa para fortalecer la seguridad y el bienestar en su empresa. Agradecemos la confianza depositada en nuestros servicios y quedamos a su disposición para aclarar cualquier duda o brindarle asistencia en la interpretación de los resultados.
+
+Finalmente, le recordamos que la vigencia del informe será de dos años, mientras se mantengan las condiciones de trabajo que sirvieron de referencia para su emisión, tal como lo establece el numeral 12.5 de la norma de referencia.`
 };
+
+// ── Claves derivadas por modo (NOM-015: calor / frío) ──────
+// Para la NOM-015, el modo de evaluación cambia el título y la carta.
+// Estas funciones devuelven la clave/título/párrafo correctos según el modo.
+function claveParrafoNom(datos, nom) {
+  if (nom === '015' && datos && datos.modo015 === 'frio') return '015-frio';
+  return nom;
+}
 
 // ── Meses en español para formatear fechas ─────────────────
 const MESES = [
@@ -1120,6 +1649,21 @@ function toggleSeccionNom(nom, activa) {
   seccion.style.display = activa ? 'block' : 'none';
 }
 
+/**
+ * Muestra el bloque de captura de la NOM-015 correspondiente al modo
+ * seleccionado (calor = TGBH, frío = IREQ). La tabla de temperatura axilar
+ * (Tabla 2) es común a ambos modos y permanece visible.
+ * @param {string} modo - 'calor' | 'frio'
+ */
+function aplicarModo015(modo) {
+  const bloqueCalor = document.getElementById('bloque-015-calor');
+  const bloqueFrio  = document.getElementById('bloque-015-frio');
+  if (!bloqueCalor || !bloqueFrio) return;
+  const esFrio = modo === 'frio';
+  bloqueCalor.style.display = esFrio ? 'none' : 'block';
+  bloqueFrio.style.display  = esFrio ? 'block' : 'none';
+}
+
 // ============================================================
 // GESTIÓN DE TABLAS DINÁMICAS
 // ============================================================
@@ -1137,9 +1681,10 @@ function agregarFila(tbodyId) {
   nuevaFila.classList.remove('fila-template');
   nuevaFila.style.display = '';
 
-  // Limpiar los valores de los inputs/selects clonados
+  // Limpiar los valores de los inputs/selects clonados. Si el input define
+  // un valor por defecto (data-default), se precarga en lugar de quedar vacío.
   nuevaFila.querySelectorAll('input').forEach(function (inp) {
-    inp.value = '';
+    inp.value = inp.dataset.default || '';
   });
   nuevaFila.querySelectorAll('select').forEach(function (sel) {
     sel.selectedIndex = 0;
@@ -1229,25 +1774,24 @@ function validarFormulario() {
     errores.push('Seleccione al menos una NOM aplicable.');
   }
 
-  // Cada NOM activa debe tener al menos 1 fila por tabla
+  // Cada NOM activa debe tener al menos 1 fila en alguna de sus tablas
   const tablasPorNom = {
     '011': ['tbody-011-1', 'tbody-011-2'],
     '022': ['tbody-022-1', 'tbody-022-2'],
-    '025': ['tbody-025'],
-    '024': ['tbody-024']
+    '025': ['tbody-025-1', 'tbody-025-2'],
+    '024': ['tbody-024'],
+    '015': ['tbody-015-tgbh', 'tbody-015-ireq', 'tbody-015-axilar']
   };
   nomsActivas.forEach(function (nom) {
     const tablas = tablasPorNom[nom] || [];
-    tablas.forEach(function (tbodyId) {
+    const tieneFilas = tablas.some(function (tbodyId) {
       const tbody = document.getElementById(tbodyId);
-      if (!tbody) return;
-      const filas = tbody.querySelectorAll('tr:not(.fila-template)');
-      if (filas.length === 0) {
-        errores.push(
-          'La NOM-' + nom + ' requiere al menos una fila en cada tabla (tbody: ' + tbodyId + ').'
-        );
-      }
+      if (!tbody) return false;
+      return tbody.querySelectorAll('tr:not(.fila-template)').length > 0;
     });
+    if (!tieneFilas) {
+      errores.push('La NOM-' + nom + ' requiere al menos una fila en alguna de sus tablas.');
+    }
   });
 
   return { valido: errores.length === 0, errores: errores };
@@ -1261,7 +1805,7 @@ function validarFormulario() {
  * @returns {string[]}
  */
 function obtenerNomsActivas() {
-  return ['011', '022', '025', '024'].filter(function (nom) {
+  return ['011', '022', '025', '024', '015'].filter(function (nom) {
     const chk = document.getElementById('check-' + nom);
     return chk && chk.checked;
   });
@@ -1292,8 +1836,7 @@ function recolectarDatos() {
 
   const datos = {
     razonSocial:    document.getElementById('razonSocial').value.trim(),
-    direccionCalle: document.getElementById('direccionCalle').value.trim(),
-    direccionCP:    document.getElementById('direccionCP').value.trim(),
+    direccion:      document.getElementById('direccion').value.trim(),
     fecha:          document.getElementById('fecha').value,
     dirigidoA:      document.getElementById('dirigidoA').value.trim(),
     puesto:         document.getElementById('puesto').value.trim(),
@@ -1311,10 +1854,21 @@ function recolectarDatos() {
     datos.tablas['022-2'] = leerFilasTabla('tbody-022-2');
   }
   if (nomsActivas.includes('025')) {
-    datos.tablas['025']   = leerFilasTabla('tbody-025');
+    datos.tablas['025-1'] = leerFilasTabla('tbody-025-1');
+    datos.tablas['025-2'] = leerFilasTabla('tbody-025-2');
   }
   if (nomsActivas.includes('024')) {
     datos.tablas['024']   = leerFilasTabla('tbody-024');
+  }
+  if (nomsActivas.includes('015')) {
+    const modo015 = document.getElementById('modo-015');
+    datos.modo015 = (modo015 && modo015.value) || 'calor';
+    if (datos.modo015 === 'frio') {
+      datos.tablas['015-ireq'] = leerFilasTabla('tbody-015-ireq');
+    } else {
+      datos.tablas['015-tgbh'] = leerFilasTabla('tbody-015-tgbh');
+    }
+    datos.tablas['015-axilar'] = leerFilasTabla('tbody-015-axilar');
   }
 
   // Total de puntos evaluados (suma de todas las filas de todas las tablas)
@@ -1328,6 +1882,10 @@ function recolectarDatos() {
 // ============================================================
 // GENERACIÓN DEL RESUMEN EJECUTIVO
 // ============================================================
+// Datos recolectados en la última llamada a generarResumen(); descargarPDF()
+// los reutiliza para construir los PDFs independientes por NOM.
+let datosActuales = null;
+
 /**
  * Punto de entrada principal: valida, genera el documento y registra el log.
  */
@@ -1341,11 +1899,13 @@ function generarResumen() {
   }
 
   const datos = recolectarDatos();
+  datosActuales = datos;
 
   // Renderizar la vista previa
   const contenedor = document.getElementById('vista-previa');
   contenedor.innerHTML = renderizarDocumentoCompleto(datos);
-  generarQRGenerico();
+  generarQRsEnContenedor(contenedor, datos.noms);
+  actualizarBotonesPDFAltaCalidad(datos);
 
   // Mostrar la sección de vista previa y hacer scroll
   const seccionPreview = document.getElementById('seccion-preview');
@@ -1386,29 +1946,50 @@ function htmlHeaderDoc() {
   return `
     <div class="doc-header">
       <div class="doc-logo-area">
-        <div class="doc-logo">EA</div>
-        <div class="doc-empresa">
-          <span class="doc-empresa-nombre">${EMPRESA.nombre}</span>
-          <span class="doc-empresa-sub">${EMPRESA.sitio}</span>
-          <span class="doc-empresa-sub">${EMPRESA.direccion}</span>
+        <img class="doc-logo" src="data:image/png;base64,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" alt="Ejecutiva Ambiental">
+        <div class="doc-marca">
+          <span class="doc-marca-wordmark"><span class="doc-marca-ejecutiva">EJECUTIVA</span> <span class="doc-marca-ambiental">AMBIENTAL</span></span>
+          <span class="doc-marca-tagline">Laboratorio de Pruebas</span>
+          <span class="doc-marca-legal">${EMPRESA.nombre}<br>${EMPRESA.direccion} · ${EMPRESA.sitio}</span>
         </div>
       </div>
       <div class="doc-acreditacion">
-        <strong>Acreditación EMA</strong><br>${EMPRESA.acreditacion}
+        <strong>Acreditación EMA</strong>${EMPRESA.acreditacion}
       </div>
     </div>`;
 }
 
 /**
- * Genera el HTML de la carta de presentación para una NOM específica.
- * @param {Object} datos
- * @param {string} nom  - '011' | '022' | '024' | '025'
- * @param {boolean} [incluirQR] - true para insertar el QR genérico (solo primera página del documento)
+ * Genera el bloque de firma de la carta de presentación.
+ * Si FIRMA_REPRESENTANTE contiene una imagen data URL, la coloca encima de la línea.
+ * Si está vacío, deja el espacio correcto para firma autógrafa.
  * @returns {string}
  */
-function renderizarCartaPresentacion(datos, nom, incluirQR) {
+function htmlFirmaRepresentante() {
+  const firma = (typeof FIRMA_REPRESENTANTE !== 'undefined' && FIRMA_REPRESENTANTE.trim())
+    ? '<img class="doc-firma-img" src="' + FIRMA_REPRESENTANTE.trim() + '" alt="Firma del representante legal">'
+    : '';
+
+  return `
+    <div class="doc-firma">
+      <div class="doc-firma-espacio">${firma}</div>
+      <div class="doc-firma-linea"></div>
+      <div class="doc-firma-nombre">${EMPRESA.representante}</div>
+      <div class="doc-firma-cargo">${EMPRESA.cargo}</div>
+    </div>`;
+}
+
+/**
+ * Genera el HTML de la carta de presentación para una NOM específica.
+ * Cada carta es la primera página de un PDF independiente, por lo que
+ * siempre incluye su propio QR (con id único por NOM).
+ * @param {Object} datos
+ * @param {string} nom  - '011' | '022' | '024' | '025'
+ * @returns {string}
+ */
+function renderizarCartaPresentacion(datos, nom) {
   const fechaTexto = formatearFechaEspanol(datos.fecha);
-  const parrafo    = PARRAFOS_NOM[nom] || '';
+  const parrafo    = PARRAFOS_NOM[claveParrafoNom(datos, nom)] || PARRAFOS_NOM[nom] || '';
 
   // Convertir saltos de línea del párrafo en elementos <p>
   const parrafosHtml = parrafo.split('\n\n').map(function (p) {
@@ -1416,35 +1997,225 @@ function renderizarCartaPresentacion(datos, nom, incluirQR) {
   }).join('');
 
   return `
-    <div class="doc-pagina">
+    <div class="doc-pagina doc-carta">
       ${htmlHeaderDoc()}
 
-      <div class="doc-destinatario">
-        <div><span class="doc-destinatario-label">Cliente:</span> ${datos.razonSocial}</div>
-        ${datos.direccionCalle ? `<div><span class="doc-destinatario-label">Dirección:</span> ${datos.direccionCalle}</div>` : ''}
-        ${datos.direccionCP    ? `<div><span class="doc-destinatario-label"></span> ${datos.direccionCP}</div>` : ''}
-        <div style="margin-top:8px">
-          <span class="doc-destinatario-label">Dirigido a:</span> ${datos.dirigidoA}
+      <div class="doc-titulo-carta">Carta de Presentación</div>
+
+      <div class="doc-fila-superior">
+        <div class="doc-destinatario">
+          <div><span class="doc-destinatario-label">Cliente:</span> ${datos.razonSocial}</div>
+          ${datos.direccion ? `<div><span class="doc-destinatario-label">Dirección:</span> ${datos.direccion}</div>` : ''}
+          <div style="margin-top:8px">
+            <span class="doc-destinatario-label">Dirigido a:</span> ${datos.dirigidoA}
+          </div>
+          <div>
+            <span class="doc-destinatario-label">Puesto:</span> ${datos.puesto}
+          </div>
         </div>
-        <div>
-          <span class="doc-destinatario-label">Puesto:</span> ${datos.puesto}
-        </div>
+        <div id="doc-qr-${nom}" class="doc-qr"></div>
       </div>
 
-      <div class="doc-fecha">📅 ${fechaTexto}</div>
+      <div class="doc-fecha">${fechaTexto}</div>
 
       <div class="doc-cuerpo">
         <p>Estimado(a) cliente,</p>
         ${parrafosHtml}
       </div>
 
-      <div class="doc-firma">
-        <div class="doc-firma-nombre">${EMPRESA.representante}</div>
-        <div class="doc-firma-cargo">${EMPRESA.cargo}</div>
-        <div class="doc-firma-cargo" style="margin-top:4px">${EMPRESA.correo}</div>
+      <div class="doc-firma-fila">
+        ${htmlFirmaRepresentante()}
+        <div class="doc-holograma">Holograma de autenticidad</div>
       </div>
+    </div>`;
+}
 
-      ${incluirQR ? '<div id="doc-qr-generico" class="doc-qr"></div>' : ''}
+/**
+ * Genera el HTML del pie de página que se estampa en cada página física
+ * del PDF (no fluye con el contenido recortado por agregarCanvasComoPaginas).
+ * @returns {string}
+ */
+function htmlPiePagina() {
+  return `
+    <div class="doc-footer-bar">
+      <div class="doc-footer-fila">
+        <div class="doc-footer-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h18v14H3z"/><path d="M3 5l9 7 9-7"/></svg>
+          <span>${EMPRESA.correoGeneral}</span>
+        </div>
+        <div class="doc-footer-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h18v14H3z"/><path d="M3 5l9 7 9-7"/></svg>
+          <span>${EMPRESA.correoVentas}</span>
+        </div>
+      </div>
+      <div class="doc-footer-fila">
+        <div class="doc-footer-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.34 1.9.62 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.28 1.85.49 2.81.62A2 2 0 0 1 22 16.92z"/></svg>
+          <span>${EMPRESA.telCelular} (celular)</span>
+        </div>
+        <div class="doc-footer-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.34 1.9.62 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.28 1.85.49 2.81.62A2 2 0 0 1 22 16.92z"/></svg>
+          <span>${EMPRESA.telFijo} (fijo)</span>
+        </div>
+      </div>
+    </div>`;
+}
+
+/**
+ * Renderiza el pie de página fuera de pantalla y lo captura como canvas,
+ * listo para estamparse en cada página del PDF.
+ * @returns {Promise<HTMLCanvasElement>}
+ */
+function crearCanvasPiePagina() {
+  const contenedor = crearContenedorOffscreen(htmlPiePagina());
+  return html2canvas(contenedor, { scale: ESCALA_CANVAS, backgroundColor: null, windowWidth: 900 })
+    .then(function (canvas) {
+      document.body.removeChild(contenedor);
+      return canvas;
+    });
+}
+
+/**
+ * Construye el HTML de una tabla de resultados de NOM-025 (iluminación o
+ * reflexión) junto con su leyenda, conclusión por medición y 3 gráficas.
+ * @param {Array} t - filas de la tabla [departamento, área, med1, med2, med3]
+ * @param {string} etiquetaTabla - título de la tabla, p.ej. "Tabla 1 — Niveles mínimos de iluminación"
+ * @returns {string}
+ */
+function construirTablaYResumen025(t, etiquetaTabla) {
+  function dentroEnMedicion(col) {
+    return t.filter(function (r) { return r[col] === '✓'; }).length;
+  }
+  function aplicaEnMedicion(col) {
+    return t.filter(function (r) { return r[col] !== 'NA'; }).length;
+  }
+  const dentro1 = dentroEnMedicion(2);
+  const dentro2 = dentroEnMedicion(3);
+  const dentro3 = dentroEnMedicion(4);
+  const aplica1 = aplicaEnMedicion(2);
+  const aplica2 = aplicaEnMedicion(3);
+  const aplica3 = aplicaEnMedicion(4);
+
+  return `
+    <div class="doc-nom-subtitulo">${etiquetaTabla}</div>
+    <table class="doc-tabla-resumen">
+      <thead><tr>
+        <th style="width:48px;white-space:nowrap">N°</th><th>Departamento</th><th>Área</th>
+        <th style="width:90px">1ra medición</th>
+        <th style="width:90px">2da medición</th>
+        <th style="width:90px">3ra medición</th>
+      </tr></thead>
+      <tbody>
+        ${t.map(function (r, i) {
+          return `<tr>
+            <td style="text-align:center">${i+1}</td>
+            <td>${r[0]||''}</td><td>${r[1]||''}</td>
+            <td style="text-align:center">${r[2]||''}</td>
+            <td style="text-align:center">${r[3]||''}</td>
+            <td style="text-align:center">${r[4]||''}</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+    <div class="doc-leyenda">
+      <span class="doc-leyenda-item">✓ Dentro de norma</span>
+      <span class="doc-leyenda-item">✖ Fuera de norma</span>
+      <span class="doc-leyenda-item">NA No aplica</span>
+    </div>
+    <div class="doc-conteos">
+      <span class="doc-conteo-linea"><span class="doc-conteo-num">${t.length}</span> …… puntos en total evaluados</span>
+      <span class="doc-conteo-linea"><span class="doc-conteo-num">${dentro1}</span> …… dentro de norma en la 1ra medición</span>
+      <span class="doc-conteo-linea"><span class="doc-conteo-num">${dentro2}</span> …… dentro de norma en la 2da medición</span>
+      <span class="doc-conteo-linea"><span class="doc-conteo-num">${dentro3}</span> …… dentro de norma en la 3ra medición</span>
+    </div>
+    <div class="doc-graficas-fila">
+      ${dibujarGraficaCilindro(dentro1, aplica1, '1ra medición')}
+      ${dibujarGraficaCilindro(dentro2, aplica2, '2da medición')}
+      ${dibujarGraficaCilindro(dentro3, aplica3, '3ra medición')}
+    </div>`;
+}
+
+/**
+ * Genera el HTML de una gráfica de dona/cilindro (SVG) con el porcentaje
+ * de puntos dentro de norma para una medición de NOM-025.
+ * @param {number} dentro - cantidad de puntos dentro de norma
+ * @param {number} total - total de puntos evaluados
+ * @param {string} etiquetaMedicion - p.ej. "1ra medición"
+ * @returns {string}
+ */
+function dibujarGraficaCilindro(dentro, total, etiquetaMedicion) {
+  const pct = total > 0 ? Math.round((dentro / total) * 100) : 0;
+  const r = 32, cx = 40, cy = 40, ry = 12;
+  const circunferencia = 2 * Math.PI * r;
+  const arco = (pct / 100) * circunferencia;
+  return `
+    <div class="doc-grafica-cilindro">
+      <svg class="doc-grafica-svg" width="80" height="80" viewBox="0 0 80 80">
+        <defs>
+          <linearGradient id="gradCilindro${cx}${cy}${pct}" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#CFCFCF"/>
+            <stop offset="100%" stop-color="#9A9A9A"/>
+          </linearGradient>
+        </defs>
+        <ellipse cx="${cx}" cy="${cy}" rx="${r}" ry="${ry}" fill="url(#gradCilindro${cx}${cy}${pct})"/>
+        <circle cx="${cx}" cy="${cy}" r="${r - 9}" fill="#FFFFFF"/>
+        <circle
+          cx="${cx}" cy="${cy}" r="${r - 4.5}" fill="none"
+          stroke="#005600" stroke-width="9"
+          stroke-dasharray="${arco} ${circunferencia - arco}"
+          stroke-dashoffset="${circunferencia / 4}"
+          transform="rotate(180 ${cx} ${cy})"
+        />
+      </svg>
+      <span class="doc-grafica-pct">${pct}%</span>
+      <span class="doc-grafica-etiqueta">${etiquetaMedicion}</span>
+    </div>`;
+}
+
+let contadorGraficaDoble = 0;
+
+/**
+ * Genera el HTML de una gráfica de dona/cilindro con dos etiquetas de porcentaje
+ * (positiva y negativa) alrededor, para métricas binarias tipo SI/NO o Dentro/Fuera.
+ * @param {string} titulo
+ * @param {number} valorPositivo
+ * @param {string} etiquetaPositivo
+ * @param {number} valorNegativo
+ * @param {string} etiquetaNegativo
+ * @param {number} total
+ * @returns {string}
+ */
+function dibujarGraficaDoble(titulo, valorPositivo, etiquetaPositivo, valorNegativo, etiquetaNegativo, total) {
+  const pctPos = total > 0 ? Math.round((valorPositivo / total) * 100) : 0;
+  const pctNeg = total > 0 ? Math.round((valorNegativo / total) * 100) : 0;
+  const r = 32, cx = 40, cy = 40, ry = 12;
+  const circunferencia = 2 * Math.PI * r;
+  const arco = (pctPos / 100) * circunferencia;
+  const idGrad = 'gradDoble' + (contadorGraficaDoble++);
+  return `
+    <div class="doc-grafica-doble">
+      <span class="doc-grafica-titulo">${titulo}</span>
+      <div class="doc-grafica-svg-wrap">
+        <span class="doc-grafica-etiqueta-neg">${etiquetaNegativo} ${pctNeg}%</span>
+        <svg class="doc-grafica-svg" width="80" height="80" viewBox="0 0 80 80">
+          <defs>
+            <linearGradient id="${idGrad}" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#CFCFCF"/>
+              <stop offset="100%" stop-color="#9A9A9A"/>
+            </linearGradient>
+          </defs>
+          <ellipse cx="${cx}" cy="${cy}" rx="${r}" ry="${ry}" fill="url(#${idGrad})"/>
+          <circle cx="${cx}" cy="${cy}" r="${r - 9}" fill="#FFFFFF"/>
+          <circle
+            cx="${cx}" cy="${cy}" r="${r - 4.5}" fill="none"
+            stroke="#005600" stroke-width="9"
+            stroke-dasharray="${arco} ${circunferencia - arco}"
+            stroke-dashoffset="${circunferencia / 4}"
+            transform="rotate(180 ${cx} ${cy})"
+          />
+        </svg>
+        <span class="doc-grafica-etiqueta-pos">${etiquetaPositivo} ${pctPos}%</span>
+      </div>
     </div>`;
 }
 
@@ -1462,52 +2233,68 @@ function renderizarTablaResumen(datos, nom) {
     const t2 = datos.tablas['011-2'] || [];
 
     // Tabla 1 — Fuentes de ruido
-    const den011t1 = t1.filter(function (r) { return r[2] === 'Dentro'; }).length;
-    contenido += `
-      <div class="doc-nom-subtitulo">Tabla 1 — Niveles máximos de exposición</div>
-      <table class="doc-tabla-resumen">
-        <thead><tr>
-          <th style="width:40px">N°</th><th>Área</th>
-          <th>Identificación</th><th style="width:110px">Conclusión</th>
-        </tr></thead>
-        <tbody>
-          ${t1.map(function (r, i) {
-            return `<tr>
-              <td style="text-align:center">${i+1}</td>
-              <td>${r[0]||''}</td><td>${r[1]||''}</td>
-              <td style="text-align:center">${r[2]||''}</td>
-            </tr>`;
-          }).join('')}
-        </tbody>
-      </table>
-      <div class="doc-conteos">
-        <span class="doc-conteo-linea"><span class="doc-conteo-num">${t1.length}</span> …… puntos en total evaluados</span>
-        <span class="doc-conteo-linea"><span class="doc-conteo-num">${den011t1}</span> …… se encuentran dentro, en la primera medición</span>
-      </div>`;
+    if (t1.length > 0) {
+      const den011t1 = t1.filter(function (r) { return r[2] === 'Dentro'; }).length;
+      contenido += `
+        <p style="font-weight:700;color:var(--texto);margin-bottom:4px">Para niveles máximos de exposición al ruido</p>
+        <p class="doc-intro" style="margin-bottom:14px">En la siguiente tabla se presentan las conclusiones para cada uno de los puntos evaluados para los niveles máximos de exposición al ruido.</p>
+        <div class="doc-nom-subtitulo">Tabla 1. Resultados y conclusiones para los niveles máximos de exposición al ruido</div>
+        <table class="doc-tabla-resumen">
+          <thead><tr>
+            <th style="width:48px;white-space:nowrap">N°</th><th>Área</th>
+            <th>Identificación</th><th style="width:110px">Conclusión</th>
+          </tr></thead>
+          <tbody>
+            ${t1.map(function (r, i) {
+              return `<tr>
+                <td style="text-align:center">${i+1}</td>
+                <td>${r[0]||''}</td><td>${r[1]||''}</td>
+                <td style="text-align:center">${r[2]||''}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+        <div class="doc-leyenda-bloque">Nomenclatura utilizada = Dentro | Fuera = ✓ | ✖</div>
+        <div class="doc-conteos">
+          <span class="doc-conteo-linea"><span class="doc-conteo-num">${t1.length}</span> …… puntos en total evaluados</span>
+          <span class="doc-conteo-linea"><span class="doc-conteo-num">${den011t1}</span> …… se encuentran dentro, en la primera medición</span>
+        </div>
+        <p class="doc-nota-anexo">*Para información detallada, consultar los anexos del informe de resultados.</p>
+        <div class="doc-graficas-fila">
+          ${dibujarGraficaDoble('Niveles máximos de exposición a ruido', den011t1, 'Dentro de norma', t1.length - den011t1, 'Fuera de norma', t1.length)}
+        </div>`;
+    }
 
     // Tabla 2 — Medición personal
-    const den011t2 = t2.filter(function (r) { return r[2] === 'Dentro'; }).length;
-    contenido += `
-      <div class="doc-nom-subtitulo">Tabla 2 — Medición personal (por trabajador)</div>
-      <table class="doc-tabla-resumen">
-        <thead><tr>
-          <th style="width:40px">N°</th><th>Nombre del trabajador</th>
-          <th>Puesto</th><th style="width:110px">Conclusión</th>
-        </tr></thead>
-        <tbody>
-          ${t2.map(function (r, i) {
-            return `<tr>
-              <td style="text-align:center">${i+1}</td>
-              <td>${r[0]||''}</td><td>${r[1]||''}</td>
-              <td style="text-align:center">${r[2]||''}</td>
-            </tr>`;
-          }).join('')}
-        </tbody>
-      </table>
-      <div class="doc-conteos">
-        <span class="doc-conteo-linea"><span class="doc-conteo-num">${t2.length}</span> …… puntos en total evaluados</span>
-        <span class="doc-conteo-linea"><span class="doc-conteo-num">${den011t2}</span> …… se encuentran dentro, en la primera medición</span>
-      </div>`;
+    if (t2.length > 0) {
+      const den011t2 = t2.filter(function (r) { return r[2] === 'Dentro'; }).length;
+      contenido += `
+        <div class="doc-nom-subtitulo">Tabla 2. Resultados y conclusiones de la medición personal (por trabajador)</div>
+        <table class="doc-tabla-resumen">
+          <thead><tr>
+            <th style="width:48px;white-space:nowrap">N°</th><th>Nombre del trabajador</th>
+            <th>Puesto</th><th style="width:110px">Conclusión</th>
+          </tr></thead>
+          <tbody>
+            ${t2.map(function (r, i) {
+              return `<tr>
+                <td style="text-align:center">${i+1}</td>
+                <td>${r[0]||''}</td><td>${r[1]||''}</td>
+                <td style="text-align:center">${r[2]||''}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+        <div class="doc-leyenda-bloque">Nomenclatura utilizada = Dentro | Fuera = ✓ | ✖</div>
+        <div class="doc-conteos">
+          <span class="doc-conteo-linea"><span class="doc-conteo-num">${t2.length}</span> …… puntos en total evaluados</span>
+          <span class="doc-conteo-linea"><span class="doc-conteo-num">${den011t2}</span> …… se encuentran dentro, en la primera medición</span>
+        </div>
+        <p class="doc-nota-anexo">*Para información detallada, consultar los anexos del informe de resultados.</p>
+        <div class="doc-graficas-fila">
+          ${dibujarGraficaDoble('Medición personal por trabajador', den011t2, 'Dentro de norma', t2.length - den011t2, 'Fuera de norma', t2.length)}
+        </div>`;
+    }
   }
 
   if (nom === '022') {
@@ -1515,222 +2302,576 @@ function renderizarTablaResumen(datos, nom) {
     const t2 = datos.tablas['022-2'] || [];
 
     // Tabla 1 — Resistencia
-    const conCont022t1 = t1.filter(function (r) { return r[2] === '✓'; }).length;
-    const denRes022t1  = t1.filter(function (r) { return r[3] === 'Dentro'; }).length;
-    contenido += `
-      <div class="doc-nom-subtitulo">Tabla 1 — Resistencia eléctrica</div>
-      <table class="doc-tabla-resumen">
-        <thead><tr>
-          <th style="width:40px">N°</th><th>Departamento</th><th>Área</th>
-          <th style="width:110px">EXISTE CONTINUIDAD</th>
-          <th style="width:110px">RESISTENCIA</th>
-        </tr></thead>
-        <tbody>
-          ${t1.map(function (r, i) {
-            return `<tr>
-              <td style="text-align:center">${i+1}</td>
-              <td>${r[0]||''}</td><td>${r[1]||''}</td>
-              <td style="text-align:center">${r[2]||''}</td>
-              <td style="text-align:center">${r[3]||''}</td>
-            </tr>`;
-          }).join('')}
-        </tbody>
-      </table>
-      <div class="doc-conteos">
-        <span class="doc-conteo-linea"><span class="doc-conteo-num">${t1.length}</span> …… puntos en total evaluados</span>
-        <span class="doc-conteo-linea"><span class="doc-conteo-num">${conCont022t1}</span> …… presentan continuidad</span>
-        <span class="doc-conteo-linea"><span class="doc-conteo-num">${denRes022t1}</span> …… se encuentran dentro de la resistencia esperada de acuerdo a la norma</span>
-      </div>`;
+    if (t1.length > 0) {
+      const conCont022t1 = t1.filter(function (r) { return r[2] === '✓'; }).length;
+      const denRes022t1  = t1.filter(function (r) { return r[3] === 'Dentro'; }).length;
+      contenido += `
+        <div class="doc-nom-subtitulo">Tabla 1. Resultados y conclusiones de las mediciones de resistencia eléctrica</div>
+        <table class="doc-tabla-resumen">
+          <thead><tr>
+            <th style="width:48px;white-space:nowrap">N°</th><th>Identificación</th><th>Área</th>
+            <th style="width:110px">EXISTE CONTINUIDAD</th>
+            <th style="width:110px">RESISTENCIA</th>
+          </tr></thead>
+          <tbody>
+            ${t1.map(function (r, i) {
+              return `<tr>
+                <td style="text-align:center">${i+1}</td>
+                <td>${r[0]||''}</td><td>${r[1]||''}</td>
+                <td style="text-align:center">${r[2]||''}</td>
+                <td style="text-align:center">${r[3]||''}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+        <div class="doc-leyenda-bloque">
+          <div><strong>PARA EXISTE CONTINUIDAD:</strong> SI = ✓ &nbsp;&nbsp; NO = ✖</div>
+          <div><strong>PARA RESISTENCIA:</strong> DENTRO = ✓ &nbsp;&nbsp; FUERA = ✖</div>
+        </div>
+        <div class="doc-conteos">
+          <span class="doc-conteo-linea"><span class="doc-conteo-num">${conCont022t1}</span> …… presentan continuidad</span>
+          <span class="doc-conteo-linea"><span class="doc-conteo-num">${denRes022t1}</span> …… se encuentran dentro de la resistencia esperada de acuerdo a la norma</span>
+        </div>
+        <p class="doc-nota-anexo">*Para información detallada, consultar los anexos del informe de resultados.</p>
+        <div class="doc-graficas-fila">
+          ${dibujarGraficaDoble('Continuidad', conCont022t1, 'SI', t1.length - conCont022t1, 'NO', t1.length)}
+          ${dibujarGraficaDoble('Resistencia', denRes022t1, 'Dentro de norma', t1.length - denRes022t1, 'Fuera de norma', t1.length)}
+        </div>`;
+    }
 
     // Tabla 2 — Continuidad eléctrica
-    const conCont022t2 = t2.filter(function (r) { return r[3] === '✓'; }).length;
-    contenido += `
-      <div class="doc-nom-subtitulo">Tabla 2 — Continuidad eléctrica (por electrodo)</div>
-      <table class="doc-tabla-resumen">
-        <thead><tr>
-          <th style="width:40px">N°</th><th>Electrodo</th>
-          <th>Equipo conectado</th><th>Lectura (Ω)</th>
-          <th style="width:110px">EXISTE CONTINUIDAD</th>
-        </tr></thead>
-        <tbody>
-          ${t2.map(function (r, i) {
-            return `<tr>
-              <td style="text-align:center">${i+1}</td>
-              <td>${r[0]||''}</td><td>${r[1]||''}</td>
-              <td>${r[2]||''}</td>
-              <td style="text-align:center">${r[3]||''}</td>
-            </tr>`;
-          }).join('')}
-        </tbody>
-      </table>
-      <div class="doc-conteos">
-        <span class="doc-conteo-linea"><span class="doc-conteo-num">${t2.length}</span> …… puntos en total evaluados</span>
-        <span class="doc-conteo-linea"><span class="doc-conteo-num">${conCont022t2}</span> …… presentan continuidad</span>
-      </div>`;
+    if (t2.length > 0) {
+      const conCont022t2 = t2.filter(function (r) { return r[2] === '✓'; }).length;
+      contenido += `
+        <div class="doc-nom-subtitulo">Tabla 2. Resumen de continuidad eléctrica</div>
+        <table class="doc-tabla-resumen">
+          <thead><tr>
+            <th style="width:48px;white-space:nowrap">N°</th><th>Electrodo</th>
+            <th>Equipo conectado</th>
+            <th style="width:110px">EXISTE CONTINUIDAD</th>
+          </tr></thead>
+          <tbody>
+            ${t2.map(function (r, i) {
+              return `<tr>
+                <td style="text-align:center">${i+1}</td>
+                <td>${r[0]||''}</td><td>${r[1]||''}</td>
+                <td style="text-align:center">${r[2]||''}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+        <div class="doc-conteos">
+          <span class="doc-conteo-linea"><span class="doc-conteo-num">${t2.length}</span> …… puntos en total evaluados</span>
+          <span class="doc-conteo-linea"><span class="doc-conteo-num">${conCont022t2}</span> …… presentan continuidad</span>
+        </div>`;
+    }
   }
 
   if (nom === '025') {
-    const t = datos.tablas['025'] || [];
-    const cumplen   = t.filter(function (r) { return r[2] === '✓'; }).length;
-    const noCumplen = t.filter(function (r) { return r[2] === '✖'; }).length;
-
-    contenido += `
-      <div class="doc-nom-subtitulo">Tabla — Condiciones de iluminación</div>
-      <table class="doc-tabla-resumen">
-        <thead><tr>
-          <th style="width:40px">N°</th><th>Departamento</th><th>Área</th>
-          <th style="width:90px">1ra medición</th>
-          <th style="width:90px">2da medición</th>
-          <th style="width:90px">3ra medición</th>
-        </tr></thead>
-        <tbody>
-          ${t.map(function (r, i) {
-            return `<tr>
-              <td style="text-align:center">${i+1}</td>
-              <td>${r[0]||''}</td><td>${r[1]||''}</td>
-              <td style="text-align:center">${r[2]||''}</td>
-              <td style="text-align:center">${r[3]||''}</td>
-              <td style="text-align:center">${r[4]||''}</td>
-            </tr>`;
-          }).join('')}
-        </tbody>
-      </table>
-      <div class="doc-conteos">
-        <span class="doc-conteo-linea"><span class="doc-conteo-num">${t.length}</span> …… puntos en total evaluados</span>
-        <span class="doc-conteo-linea"><span class="doc-conteo-num">${cumplen}</span> …… cumplen en la primera medición</span>
-        <span class="doc-conteo-linea"><span class="doc-conteo-num">${noCumplen}</span> …… no cumplen (requieren acciones correctivas)</span>
-      </div>`;
+    const t025_1 = datos.tablas['025-1'] || [];
+    const t025_2 = datos.tablas['025-2'] || [];
+    if (t025_1.length > 0) {
+      contenido += construirTablaYResumen025(t025_1, 'Tabla 1 — Niveles mínimos de iluminación');
+    }
+    if (t025_2.length > 0) {
+      contenido += construirTablaYResumen025(t025_2, 'Tabla 2 — Niveles máximos de reflexión');
+    }
   }
 
   if (nom === '024') {
     const t = datos.tablas['024'] || [];
-    const denExtSup = t.filter(function (r) { return r[2] === 'Dentro'; }).length;
-    const denCuerpo = t.filter(function (r) { return r[3] === 'Dentro'; }).length;
+    const denVib = t.filter(function (r) { return r[3] === 'Dentro'; }).length;
 
     contenido += `
-      <div class="doc-nom-subtitulo">Tabla — Evaluación de vibraciones</div>
+      <p style="font-weight:700;color:var(--texto);margin-bottom:4px">Evaluación de la exposición a vibraciones.</p>
+      <p class="doc-intro" style="margin-bottom:14px">En la siguiente tabla se presentan las conclusiones para cada uno de los miembros de su personal expuestos a vibraciones.</p>
+      <div class="doc-nom-subtitulo">Tabla 1. Resultados y conclusiones de la evaluación de la exposición a vibraciones</div>
       <table class="doc-tabla-resumen">
         <thead><tr>
-          <th style="width:40px">N°</th><th>Fuente</th><th>Nombre del trabajador</th>
-          <th style="width:110px">Extremidades superiores</th>
-          <th style="width:110px">Cuerpo entero</th>
+          <th style="width:48px;white-space:nowrap">N°</th><th>Fuente</th><th>Nombre del trabajador</th>
+          <th style="width:140px">Extremidades superiores / Cuerpo entero</th>
           <th style="width:110px">Conclusión</th>
         </tr></thead>
         <tbody>
           ${t.map(function (r, i) {
+            const conclusionPOE = r[3] === 'Dentro' ? 'Sin riesgo al POE'
+                                : r[3] === 'Fuera'  ? 'Con riesgo al POE'
+                                : (r[3] || '');
             return `<tr>
               <td style="text-align:center">${i+1}</td>
               <td>${r[0]||''}</td><td>${r[1]||''}</td>
               <td style="text-align:center">${r[2]||''}</td>
-              <td style="text-align:center">${r[3]||''}</td>
-              <td style="text-align:center">${r[4]||''}</td>
+              <td style="text-align:center">${conclusionPOE}</td>
             </tr>`;
           }).join('')}
         </tbody>
       </table>
+      <div class="doc-leyenda-bloque">Nomenclatura utilizada = Dentro | Fuera = ✓ | ✖</div>
       <div class="doc-conteos">
         <span class="doc-conteo-linea"><span class="doc-conteo-num">${t.length}</span> …… puntos en total evaluados</span>
-        <span class="doc-conteo-linea"><span class="doc-conteo-num">${denExtSup}</span> …… se encuentran dentro de norma en extremidades superiores</span>
-        <span class="doc-conteo-linea"><span class="doc-conteo-num">${denCuerpo}</span> …… se encuentran dentro de norma en cuerpo entero</span>
+        <span class="doc-conteo-linea"><span class="doc-conteo-num">${denVib}</span> …… se encuentran dentro</span>
+      </div>
+      <p class="doc-nota-anexo">*Para información detallada, consultar los anexos del informe de resultados.</p>
+      <div class="doc-graficas-fila">
+        ${dibujarGraficaDoble('Vibraciones', denVib, 'Dentro de norma', t.length - denVib, 'Fuera de norma', t.length)}
       </div>`;
+  }
+
+  if (nom === '015') {
+    const esFrio = datos.modo015 === 'frio';
+
+    if (esFrio) {
+      // Tabla 1 (frío) — Índice de aislamiento requerido de la ropa (IREQ)
+      const tIreq = datos.tablas['015-ireq'] || [];
+      if (tIreq.length > 0) {
+        const den015Ireq = tIreq.filter(function (r) { return r[6] === 'Dentro'; }).length;
+        contenido += `
+          <p style="font-weight:700;color:var(--texto);margin-bottom:4px">Para el índice de aislamiento requerido de la ropa (IREQ)</p>
+          <p class="doc-intro" style="margin-bottom:14px">En la siguiente tabla se presentan las conclusiones para cada uno de los puntos evaluados en condiciones térmicas abatidas, comparando el aislamiento de la ropa disponible contra el aislamiento requerido (IREQ) según la temperatura del aire y la velocidad del viento.</p>
+          <div class="doc-nom-subtitulo">Tabla 1. Resultados del índice de aislamiento requerido de la ropa</div>
+          <table class="doc-tabla-resumen">
+            <thead><tr>
+              <th style="width:48px;white-space:nowrap">N°</th><th>Área evaluada</th>
+              <th>Nombre del trabajador</th>
+              <th style="width:78px">Temp. aire (°C)</th>
+              <th style="width:80px">Vel. viento (m/s)</th>
+              <th style="width:82px">IREQ requerido (clo)</th>
+              <th style="width:88px">Aislamiento disponible (clo)</th>
+              <th style="width:90px">Conclusión</th>
+            </tr></thead>
+            <tbody>
+              ${tIreq.map(function (r, i) {
+                const concl = r[6] === 'Dentro' ? '✓' : r[6] === 'Fuera' ? '✖' : (r[6] || '');
+                return `<tr>
+                  <td style="text-align:center">${i+1}</td>
+                  <td>${r[0]||''}</td><td>${r[1]||''}</td>
+                  <td style="text-align:center">${r[2]||''}</td>
+                  <td style="text-align:center">${r[3]||''}</td>
+                  <td style="text-align:center">${r[4]||''}</td>
+                  <td style="text-align:center">${r[5]||''}</td>
+                  <td style="text-align:center">${concl}</td>
+                </tr>`;
+              }).join('')}
+            </tbody>
+          </table>
+          <div class="doc-leyenda-bloque">Nomenclatura utilizada = Dentro | Fuera = ✓ | ✖<br>IREQ: Aislamiento Requerido de la Ropa · clo: unidad de aislamiento térmico de la vestimenta. Se considera dentro de norma cuando el aislamiento disponible es mayor o igual al IREQ requerido.</div>
+          <div class="doc-conteos">
+            <span class="doc-conteo-linea"><span class="doc-conteo-num">${tIreq.length}</span> …… puntos en total evaluados</span>
+            <span class="doc-conteo-linea"><span class="doc-conteo-num">${den015Ireq}</span> …… cuentan con el aislamiento de la ropa requerido</span>
+          </div>
+          <p class="doc-nota-anexo">*Para información detallada, consultar los anexos del informe de resultados.</p>
+          <div class="doc-graficas-fila">
+            ${dibujarGraficaDoble('Índice IREQ', den015Ireq, 'Dentro de norma', tIreq.length - den015Ireq, 'Fuera de norma', tIreq.length)}
+          </div>`;
+      }
+    } else {
+      // Tabla 1 (calor) — Índice de temperatura de globo de bulbo húmedo (TGBH)
+      const tTgbh = datos.tablas['015-tgbh'] || [];
+      if (tTgbh.length > 0) {
+        const den015Tgbh = tTgbh.filter(function (r) { return r[4] === 'Dentro'; }).length;
+        contenido += `
+          <p style="font-weight:700;color:var(--texto);margin-bottom:4px">Para el índice de temperatura de globo de bulbo húmedo (TGBH)</p>
+          <p class="doc-intro" style="margin-bottom:14px">En la siguiente tabla se presentan las conclusiones para cada uno de los puntos evaluados respecto al índice de temperatura de globo de bulbo húmedo comparado contra el límite máximo permisible de exposición.</p>
+          <div class="doc-nom-subtitulo">Tabla 1. Resultados del índice de temperatura de globo de bulbo húmedo</div>
+          <table class="doc-tabla-resumen">
+            <thead><tr>
+              <th style="width:48px;white-space:nowrap">N°</th><th>Área evaluada</th>
+              <th>Nombre del trabajador</th>
+              <th style="width:90px">TGBH promedio (°C)</th>
+              <th style="width:80px">LMPE (°C)</th>
+              <th style="width:90px">Conclusión</th>
+            </tr></thead>
+            <tbody>
+              ${tTgbh.map(function (r, i) {
+                const concl = r[4] === 'Dentro' ? '✓' : r[4] === 'Fuera' ? '✖' : (r[4] || '');
+                return `<tr>
+                  <td style="text-align:center">${i+1}</td>
+                  <td>${r[0]||''}</td><td>${r[1]||''}</td>
+                  <td style="text-align:center">${r[2]||''}</td>
+                  <td style="text-align:center">${r[3]||''}</td>
+                  <td style="text-align:center">${concl}</td>
+                </tr>`;
+              }).join('')}
+            </tbody>
+          </table>
+          <div class="doc-leyenda-bloque">Nomenclatura utilizada = Dentro | Fuera = ✓ | ✖<br>LMPE: Límite Máximo Permisible de Exposición · TGBH: Índice de Temperatura de Globo de Bulbo Húmedo</div>
+          <div class="doc-conteos">
+            <span class="doc-conteo-linea"><span class="doc-conteo-num">${tTgbh.length}</span> …… puntos en total evaluados</span>
+            <span class="doc-conteo-linea"><span class="doc-conteo-num">${den015Tgbh}</span> …… se encuentran dentro del límite máximo permisible</span>
+          </div>
+          <p class="doc-nota-anexo">*Para información detallada, consultar los anexos del informe de resultados.</p>
+          <div class="doc-graficas-fila">
+            ${dibujarGraficaDoble('Índice TGBH', den015Tgbh, 'Dentro de norma', tTgbh.length - den015Tgbh, 'Fuera de norma', tTgbh.length)}
+          </div>`;
+      }
+    }
+
+    // Tabla 2 — Temperatura axilar de los trabajadores (común a ambos modos)
+    const tAxilar = datos.tablas['015-axilar'] || [];
+    if (tAxilar.length > 0) {
+      const den015Ax = tAxilar.filter(function (r) { return r[4] === 'Dentro'; }).length;
+      contenido += `
+        <div class="doc-nom-subtitulo">Tabla 2. Resultados de la temperatura axilar de los trabajadores</div>
+        <table class="doc-tabla-resumen">
+          <thead><tr>
+            <th style="width:48px;white-space:nowrap">N°</th><th>Nombre del trabajador</th>
+            <th>Rango aceptado</th>
+            <th style="width:80px">Inicial (°C)</th>
+            <th style="width:80px">Final (°C)</th>
+            <th style="width:90px">Conclusión</th>
+          </tr></thead>
+          <tbody>
+            ${tAxilar.map(function (r, i) {
+              const concl = r[4] === 'Dentro' ? '✓' : r[4] === 'Fuera' ? '✖' : (r[4] || '');
+              return `<tr>
+                <td style="text-align:center">${i+1}</td>
+                <td>${r[0]||''}</td><td style="text-align:center">${r[1]||''}</td>
+                <td style="text-align:center">${r[2]||''}</td>
+                <td style="text-align:center">${r[3]||''}</td>
+                <td style="text-align:center">${concl}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+        <div class="doc-leyenda-bloque">Nomenclatura utilizada = Dentro | Fuera = ✓ | ✖</div>
+        <div class="doc-conteos">
+          <span class="doc-conteo-linea"><span class="doc-conteo-num">${tAxilar.length}</span> …… trabajadores en total evaluados</span>
+          <span class="doc-conteo-linea"><span class="doc-conteo-num">${den015Ax}</span> …… se encuentran dentro del rango aceptado</span>
+        </div>
+        <p class="doc-nota-anexo">*Para información detallada, consultar los anexos del informe de resultados.</p>
+        <div class="doc-graficas-fila">
+          ${dibujarGraficaDoble('Temperatura axilar', den015Ax, 'Dentro de rango', tAxilar.length - den015Ax, 'Fuera de rango', tAxilar.length)}
+        </div>`;
+    }
   }
 
   return contenido;
 }
 
+const TITULOS_NOM = {
+  '011': 'NOM-011-STPS-2001 — Ruido Laboral',
+  '022': 'NOM-022-STPS-2015 — Electricidad Estática',
+  '025': 'NOM-025-STPS-2008 — Iluminación',
+  '024': 'NOM-024-STPS-2001 — Vibraciones',
+  '015': 'NOM-015-STPS-2001 — Condiciones Térmicas Elevadas (Calor)',
+  '015-frio': 'NOM-015-STPS-2001 — Condiciones Térmicas Abatidas (Frío)'
+};
+
 /**
- * Genera el HTML del resumen ejecutivo completo (todas las NOMs activas).
- * Una página de carta + una página de resumen por NOM.
+ * Devuelve el título de la NOM. Para la NOM-015 varía según el modo
+ * (calor / frío) almacenado en datos.modo015.
+ * @param {Object} datos
+ * @param {string} nom
+ * @returns {string}
+ */
+function tituloNom(datos, nom) {
+  return TITULOS_NOM[claveParrafoNom(datos, nom)] || TITULOS_NOM[nom] || '';
+}
+
+/**
+ * Genera el HTML de la página de resumen ejecutivo (con tablas) de una NOM.
+ * @param {Object} datos
+ * @param {string} nom
+ * @returns {string}
+ */
+function renderizarPaginaResumen(datos, nom) {
+  return `
+    <div class="doc-pagina">
+      ${htmlHeaderDoc()}
+      <div class="doc-seccion-titulo">Resumen Ejecutivo — ${tituloNom(datos, nom)}</div>
+      <div class="doc-intro">
+        A continuación se presentan los resultados obtenidos durante la evaluación
+        realizada en las instalaciones de <strong>${datos.razonSocial}</strong>,
+        conforme a los criterios establecidos en la normatividad aplicable.
+      </div>
+      ${renderizarTablaResumen(datos, nom)}
+    </div>`;
+}
+
+/**
+ * Genera el HTML completo (carta + resumen) de una NOM. Este es el contenido
+ * de un único PDF independiente.
+ * @param {Object} datos
+ * @param {string} nom
+ * @returns {string}
+ */
+function renderizarDocumentoNom(datos, nom) {
+  // El pie de página real se estampa por página dentro de generarPDFNom()
+  // (ver agregarCanvasComoPaginas); aquí solo se muestra una vez, como
+  // referencia visual de su contenido en la vista previa en pantalla.
+  return renderizarCartaPresentacion(datos, nom) + renderizarPaginaResumen(datos, nom) + htmlPiePagina();
+}
+
+/**
+ * Genera el HTML de la vista previa completa (todas las NOMs activas), para
+ * mostrar en pantalla. Cada NOM conserva su propia carta + resumen, ya que
+ * al descargar se generan como PDFs independientes.
  * @param {Object} datos
  * @returns {string}
  */
 function renderizarDocumentoCompleto(datos) {
-  let html = '';
-
-  datos.noms.forEach(function (nom, idx) {
-    // Página 1: Carta de presentación (el QR genérico solo se incluye una vez, en la primera carta)
-    html += renderizarCartaPresentacion(datos, nom, idx === 0);
-
-    // Página 2: Resumen ejecutivo con tablas
-    const titulos = {
-      '011': 'NOM-011-STPS-2001 — Ruido Laboral',
-      '022': 'NOM-022-STPS-2015 — Electricidad Estática',
-      '025': 'NOM-025-STPS-2008 — Iluminación',
-      '024': 'NOM-024-STPS-2001 — Vibraciones'
-    };
-    html += `
-      <div class="doc-pagina">
-        ${htmlHeaderDoc()}
-        <div class="doc-seccion-titulo">Resumen Ejecutivo — ${titulos[nom]}</div>
-        <div class="doc-intro">
-          A continuación se presentan los resultados obtenidos durante la evaluación
-          realizada en las instalaciones de <strong>${datos.razonSocial}</strong>,
-          conforme a los criterios establecidos en la normatividad aplicable.
-        </div>
-        ${renderizarTablaResumen(datos, nom)}
-      </div>`;
-  });
-
-  return html;
+  return datos.noms.map(function (nom) {
+    return renderizarDocumentoNom(datos, nom);
+  }).join('');
 }
 
 // ============================================================
 // CÓDIGO QR GENÉRICO
 // ============================================================
 /**
- * Genera el QR genérico (sitio web de la empresa) dentro del contenedor
- * #doc-qr-generico, insertado por renderizarCartaPresentacion() en la
- * primera página del documento. Se genera localmente con qrcode.js,
- * sin depender de ninguna API externa.
+ * Genera el QR genérico (sitio web de la empresa) dentro de los contenedores
+ * #doc-qr-{nom}, insertados por renderizarCartaPresentacion() en cada carta.
+ * Se genera localmente con qrcode.js, sin depender de ninguna API externa.
+ * @param {ParentNode} contenedor - Elemento raíz donde buscar los contenedores de QR
+ * @param {string[]} noms - Códigos de NOM cuyos QR deben generarse
  */
-function generarQRGenerico() {
-  const contenedorQr = document.getElementById('doc-qr-generico');
-  if (!contenedorQr || typeof QRCode === 'undefined') return;
+function generarQRsEnContenedor(contenedor, noms) {
+  if (typeof QRCode === 'undefined') return;
+  noms.forEach(function (nom) {
+    const contenedorQr = contenedor.querySelector('#doc-qr-' + nom);
+    if (!contenedorQr) return;
+    dibujarQRDegradado(contenedorQr, 'https://' + EMPRESA.sitio);
+  });
+}
+
+/**
+ * Genera un código QR y tiñe sus módulos oscuros con un degradado vertical
+ * verde corporativo (de --verde a --verde2), conservando el fondo transparente
+ * (el contenedor .doc-qr ya aporta el fondo blanco vía CSS).
+ * @param {HTMLElement} contenedorQr - Elemento donde qrcode.js dibuja el QR
+ * @param {string} texto - Contenido a codificar
+ */
+function dibujarQRDegradado(contenedorQr, texto) {
   contenedorQr.innerHTML = '';
   new QRCode(contenedorQr, {
-    text:   'https://' + EMPRESA.sitio,
-    width:  80,
-    height: 80
+    text:       texto,
+    width:      80,
+    height:     80,
+    colorDark:  '#000000',
+    colorLight: 'rgba(0,0,0,0)'
   });
+
+  const canvas = contenedorQr.querySelector('canvas');
+  if (!canvas) return; // Fallback de tabla (sin soporte canvas): se deja el color sólido por defecto.
+
+  const ctx = canvas.getContext('2d');
+  const degradado = ctx.createLinearGradient(0, 0, 0, canvas.height);
+  degradado.addColorStop(0, '#005600');
+  degradado.addColorStop(1, '#007836');
+
+  ctx.globalCompositeOperation = 'source-atop';
+  ctx.fillStyle = degradado;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.globalCompositeOperation = 'source-over';
 }
 
 // ============================================================
 // EXPORTACIÓN PDF con jsPDF
 // ============================================================
 /**
- * Genera y descarga el PDF de la vista previa usando jsPDF + html2canvas.
+ * Descarga un PDF independiente (carta + resumen) por cada NOM seleccionada,
+ * usando jsPDF + html2canvas. Se generan de forma secuencial para no saturar
+ * el renderizado de html2canvas.
  */
 function descargarPDF() {
-  const elemento = document.getElementById('vista-previa');
-  if (!elemento || !elemento.innerHTML.trim()) {
+  if (!datosActuales || !datosActuales.noms || datosActuales.noms.length === 0) {
     mostrarError('Primero genere el Resumen Ejecutivo antes de descargar el PDF.');
     return;
   }
 
-  // Construir nombre del archivo
-  const razon  = document.getElementById('razonSocial').value.trim()
-                          .replace(/[^a-zA-Z0-9\u00C0-\u024F\s]/g, '')
-                          .replace(/\s+/g, '_');
-  const fecha  = document.getElementById('fecha').value.replace(/-/g, '');
-  const nombre = 'ResumenEjecutivo_' + razon + '_' + fecha + '.pdf';
+  const razon = datosActuales.razonSocial
+                  .replace(/[^a-zA-Z0-9\u00C0-\u024F\s]/g, '')
+                  .replace(/\s+/g, '_');
+  const fecha = datosActuales.fecha.replace(/-/g, '');
 
-  // Configuración de jsPDF
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({
-    orientation: 'portrait',
-    unit:        'mm',
-    format:      'letter'
-  });
+  datosActuales.noms.reduce(function (promesa, nom) {
+    return promesa.then(function () {
+      return generarPDFNom(datosActuales, nom, razon, fecha);
+    });
+  }, Promise.resolve());
+}
 
-  doc.html(elemento, {
-    callback: function (pdfDoc) {
-      pdfDoc.save(nombre);
-    },
-    x:          10,
-    y:          10,
-    width:       190,      // ancho en mm dentro de la página carta
-    windowWidth: 900       // ancho del viewport de referencia
+/**
+ * Genera y descarga el PDF independiente (carta + resumen) de una sola NOM,
+ * renderizándolo en un contenedor temporal fuera de pantalla.
+ * @param {Object} datos
+ * @param {string} nom
+ * @param {string} razon - Razón social saneada para el nombre de archivo
+ * @param {string} fecha - Fecha (YYYYMMDD) para el nombre de archivo
+ * @returns {Promise<void>}
+ */
+function generarPDFNom(datos, nom, razon, fecha) {
+  return new Promise(function (resolve) {
+    const contenedorCarta = crearContenedorOffscreen(renderizarCartaPresentacion(datos, nom));
+    generarQRsEnContenedor(contenedorCarta, [nom]);
+    const contenedorResumen = crearContenedorOffscreen(renderizarPaginaResumen(datos, nom));
+
+    const nombre = 'ResumenEjecutivo_' + razon + '_NOM' + nom + '_' + fecha + '.pdf';
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({
+      orientation: 'portrait',
+      unit:        'mm',
+      format:      'letter',
+      compress:    true
+    });
+
+    const opcionesCanvas = {
+      scale: ESCALA_CANVAS,
+      backgroundColor: '#ffffff',
+      windowWidth: 900,
+      useCORS: true,
+      allowTaint: false,
+      logging: false,
+      imageTimeout: 0
+    };
+    const cortesCarta   = obtenerCortesProhibidos(contenedorCarta, ESCALA_CANVAS);
+    const cortesResumen = obtenerCortesProhibidos(contenedorResumen, ESCALA_CANVAS);
+    let primeraPagina = true;
+    let canvasPie;
+
+    // Se renderiza cada sección a un canvas con html2canvas y se recorta
+    // manualmente en franjas del alto de una página carta, en lugar de usar
+    // doc.html()/autoPaging (paginación interna de jsPDF poco confiable que
+    // generaba páginas en blanco de más). El pie de página se renderiza una
+    // sola vez y se estampa en cada franja/página dentro de
+    // agregarCanvasComoPaginas, en vez de fluir junto con el contenido.
+    crearCanvasPiePagina()
+      .then(function (canvas) {
+        canvasPie = canvas;
+        return html2canvas(contenedorCarta, opcionesCanvas);
+      })
+      .then(function (canvas) {
+        document.body.removeChild(contenedorCarta);
+        primeraPagina = agregarCanvasComoPaginas(doc, canvas, primeraPagina, canvasPie, cortesCarta);
+        return html2canvas(contenedorResumen, opcionesCanvas);
+      })
+      .then(function (canvas) {
+        document.body.removeChild(contenedorResumen);
+        agregarCanvasComoPaginas(doc, canvas, primeraPagina, canvasPie, cortesResumen);
+        doc.save(nombre);
+        resolve();
+      })
+      .catch(function (err) {
+        if (contenedorCarta && contenedorCarta.parentNode) document.body.removeChild(contenedorCarta);
+        if (contenedorResumen && contenedorResumen.parentNode) document.body.removeChild(contenedorResumen);
+        console.error('Error al generar PDF NOM ' + nom, err);
+        mostrarError('No se pudo generar el PDF de la NOM-' + nom + '. Revise la consola del navegador para más detalle.');
+        resolve();
+      });
   });
+}
+
+/**
+ * Recorta un canvas (posiblemente más alto que una página) en franjas del
+ * alto disponible de una página carta y las añade al PDF como imágenes.
+ * Si se proporciona canvasPie, lo estampa al fondo de cada página generada.
+ * @param {jsPDF} doc
+ * @param {HTMLCanvasElement} canvas
+ * @param {boolean} primeraPagina - true si aún no se ha añadido ninguna página al PDF
+ * @param {HTMLCanvasElement} [canvasPie] - canvas del pie de página, pre-renderizado una sola vez
+ * @param {Array<{top:number, bottom:number}>} [cortesProhibidos] - rangos en px de canvas que no deben partirse entre páginas
+ * @returns {boolean} false (para encadenar el control de "primera página" entre secciones)
+ */
+function agregarCanvasComoPaginas(doc, canvas, primeraPagina, canvasPie, cortesProhibidos) {
+  const margen      = 10; // mm
+  const anchoUtil   = 190; // mm
+  const altoFooterMM = canvasPie ? (canvasPie.height / canvasPie.width) * anchoUtil : 0;
+  const altoUtil    = doc.internal.pageSize.getHeight() - margen * 2 - (altoFooterMM ? altoFooterMM + 4 : 0); // mm
+  const pxPorMM     = canvas.width / anchoUtil;
+  const altoPaginaPx = Math.floor(altoUtil * pxPorMM);
+  const alturaPagina = doc.internal.pageSize.getHeight();
+
+  let y = 0;
+  while (y < canvas.height) {
+    const finPaginaPx = Math.min(y + altoPaginaPx, canvas.height);
+    let finFranjaPx = finPaginaPx;
+
+    // Si el corte de página partiría un bloque atómico (fila de tabla,
+    // gráfica, conteo, leyenda), se retrocede el corte al inicio de ese
+    // bloque para que pase completo a la siguiente página.
+    if (cortesProhibidos && finPaginaPx < canvas.height) {
+      cortesProhibidos.forEach(function (c) {
+        if (c.top > y && c.top < finPaginaPx && c.bottom > finPaginaPx && c.top < finFranjaPx) {
+          finFranjaPx = c.top;
+        }
+      });
+      // Evita franjas vacías si un bloque es más alto que una página completa.
+      if (finFranjaPx <= y) finFranjaPx = finPaginaPx;
+    }
+
+    const altoFranjaPx = finFranjaPx - y;
+    const lienzo = document.createElement('canvas');
+    lienzo.width  = canvas.width;
+    lienzo.height = altoFranjaPx;
+    const ctx = lienzo.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, lienzo.width, lienzo.height);
+    ctx.drawImage(
+      canvas, 0, y, canvas.width, altoFranjaPx, 0, 0, canvas.width, altoFranjaPx
+    );
+
+    if (!primeraPagina) doc.addPage();
+    doc.addImage(
+      lienzo.toDataURL('image/jpeg', 0.96), 'JPEG',
+      margen, margen, anchoUtil, altoFranjaPx / pxPorMM,
+      undefined, 'MEDIUM'
+    );
+
+    if (canvasPie) {
+      doc.addImage(
+        canvasPie.toDataURL('image/jpeg', 0.96), 'JPEG',
+        margen, alturaPagina - margen - altoFooterMM, anchoUtil, altoFooterMM,
+        undefined, 'MEDIUM'
+      );
+    }
+
+    primeraPagina = false;
+    y += altoFranjaPx;
+  }
+  return primeraPagina;
+}
+
+/**
+ * Crea un contenedor fuera de pantalla con el HTML dado, listo para que
+ * html2canvas/jsPDF lo rendericen sin afectar el layout visible.
+ * @param {string} html
+ * @returns {HTMLDivElement}
+ */
+function crearContenedorOffscreen(html) {
+  const contenedor = document.createElement('div');
+  contenedor.className = 'vista-previa-doc';
+  contenedor.style.position = 'fixed';
+  contenedor.style.left     = '-10000px';
+  contenedor.style.top      = '0';
+  contenedor.style.width    = '900px';
+  contenedor.innerHTML = html;
+  document.body.appendChild(contenedor);
+  return contenedor;
+}
+
+/**
+ * Calcula los rangos verticales (en px de canvas) que no deben partirse al
+ * paginar el PDF, a partir de los bloques atómicos del contenido (filas de
+ * tabla, gráficas, conteos, leyendas). El contenedor offscreen siempre mide
+ * 900px de ancho (igual al windowWidth usado en html2canvas), por lo que sus
+ * medidas en px CSS escalan 1:1 con el canvas resultante al multiplicarlas
+ * por scale.
+ * @param {HTMLElement} contenedor
+ * @param {number} scale
+ * @returns {Array<{top:number, bottom:number}>}
+ */
+function obtenerCortesProhibidos(contenedor, scale) {
+  const selector = 'tr, .doc-graficas-fila, .doc-conteos, .doc-leyenda-bloque, .doc-leyenda';
+  const baseTop = contenedor.getBoundingClientRect().top;
+  const rangos = [];
+  contenedor.querySelectorAll(selector).forEach(function (el) {
+    const rect = el.getBoundingClientRect();
+    rangos.push({
+      top:    (rect.top - baseTop) * scale,
+      bottom: (rect.bottom - baseTop) * scale
+    });
+  });
+  return rangos;
 }
 
 // ============================================================
@@ -1804,7 +2945,7 @@ function cargarPerfilExcel(event) {
       const hoja  = libro.Sheets[libro.SheetNames[0]];
 
       document.getElementById('razonSocial').value    = getCellValue(hoja, PERFIL_CELL_MAP.companyName);
-      document.getElementById('direccionCalle').value  = getCellValue(hoja, PERFIL_CELL_MAP.evaluationAddress);
+      document.getElementById('direccion').value       = getCellValue(hoja, PERFIL_CELL_MAP.evaluationAddress);
       document.getElementById('dirigidoA').value       = getCellValue(hoja, PERFIL_CELL_MAP.reportRecipientName);
       document.getElementById('puesto').value          = getCellValue(hoja, PERFIL_CELL_MAP.reportRecipientPosition);
 
@@ -1852,14 +2993,14 @@ function restaurarFormulario(datos) {
   ocultarError();
 
   // Campos generales
-  ['razonSocial','direccionCalle','direccionCP','fecha','dirigidoA','puesto']
+  ['razonSocial','direccion','fecha','dirigidoA','puesto']
     .forEach(function (id) {
       const el = document.getElementById(id);
       if (el && datos[id] !== undefined) el.value = datos[id];
     });
 
   // Desactivar todas las NOMs primero
-  ['011','022','025','024'].forEach(function (nom) {
+  ['011','022','025','024','015'].forEach(function (nom) {
     const chk = document.getElementById('check-' + nom);
     if (chk) { chk.checked = false; toggleSeccionNom(nom, false); }
   });
@@ -1875,12 +3016,25 @@ function restaurarFormulario(datos) {
       { tbodyId: 'tbody-022-2', claves: ['022-2'] }
     ],
     '025': [
-      { tbodyId: 'tbody-025', claves: ['025'] }
+      { tbodyId: 'tbody-025-1', claves: ['025-1'] },
+      { tbodyId: 'tbody-025-2', claves: ['025-2'] }
     ],
     '024': [
       { tbodyId: 'tbody-024', claves: ['024'] }
+    ],
+    '015': [
+      { tbodyId: 'tbody-015-tgbh',   claves: ['015-tgbh'] },
+      { tbodyId: 'tbody-015-ireq',   claves: ['015-ireq'] },
+      { tbodyId: 'tbody-015-axilar', claves: ['015-axilar'] }
     ]
   };
+
+  // Restaurar el modo de la NOM-015 (calor / frío) antes de recrear filas
+  const selModo015 = document.getElementById('modo-015');
+  if (selModo015) {
+    selModo015.value = datos.modo015 || 'calor';
+    aplicarModo015(selModo015.value);
+  }
 
   (datos.noms || []).forEach(function (nom) {
     const chk = document.getElementById('check-' + nom);
@@ -1951,6 +3105,781 @@ function logError(error) {
   // El error de log no bloquea al usuario, solo se reporta en consola
   console.error('Error al registrar el log:', error);
 }
+
+// ============================================================
+// EXPORTACIÓN PDF ALTA CALIDAD — impresión vectorial del navegador
+// ============================================================
+/**
+ * Sobrescribe la descarga basada en html2canvas/jsPDF. Esa ruta convierte
+ * cada página en una imagen y por eso el PDF pierde nitidez y pesa mucho.
+ * Esta versión usa el motor de impresión del navegador: texto, tablas y SVG
+ * permanecen vectoriales y seleccionables al elegir “Guardar como PDF”.
+ */
+function descargarPDF() {
+  imprimirPDFAltaCalidad();
+}
+
+/**
+ * Abre una ventana limpia con el documento y dispara la impresión nativa.
+ *
+ * En lugar de imprimir una tira continua con un footer flotante (que tapaba las
+ * tablas largas), se vuelca el HTML fuente en un contenedor de medición oculto
+ * y `paginarDocumento()` construye páginas carta reales (.doc-pagina) con header,
+ * contenido y footer propios dentro del flujo normal. La impresión sigue siendo
+ * vectorial (sin html2canvas).
+ * @param {string=} nomUnica - Código NOM opcional para imprimir una sola norma.
+ */
+function imprimirPDFAltaCalidad(nomUnica) {
+  if (!datosActuales || !datosActuales.noms || datosActuales.noms.length === 0) {
+    mostrarError('Primero genere el Resumen Ejecutivo antes de exportar el PDF.');
+    return;
+  }
+
+  const noms = nomUnica ? [nomUnica] : datosActuales.noms;
+
+  // HTML fuente por NOM (carta + resumen), envuelto para que el paginador lo
+  // localice. Se mide oculto y luego se reparte en páginas reales.
+  const fuente = noms.map(function (nom) {
+    return '<div class="pdf-fuente-nom" data-nom="' + nom + '">' +
+             '<div class="pdf-fuente-carta">' + renderizarCartaPresentacion(datosActuales, nom) + '</div>' +
+             '<div class="pdf-fuente-resumen">' + renderizarPaginaResumen(datosActuales, nom) + '</div>' +
+           '</div>';
+  }).join('');
+
+  const estilosBase = Array.from(document.querySelectorAll('style'))
+    .map(function (style) { return style.textContent; })
+    .join('\n');
+
+  const ventana = window.open('', '_blank');
+  if (!ventana) {
+    mostrarError('El navegador bloqueó la ventana de impresión. Permita ventanas emergentes para este sitio e inténtelo nuevamente.');
+    return;
+  }
+
+  ventana.document.open();
+  ventana.document.write(`<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Resumen Ejecutivo — PDF alta calidad</title>
+  <style>${estilosBase}</style>
+  ${cssPDFAltaCalidad()}
+</head>
+<body>
+  <div id="pdf-medicion" class="vista-previa-doc">${fuente}</div>
+  <main id="pdf-paginas" class="vista-previa-doc print-root"></main>
+</body>
+</html>`);
+  ventana.document.close();
+
+  // Genera los QR dentro de la ventana nueva usando la librería ya cargada
+  // en la ventana principal. Si no estuviera disponible, el PDF se imprime
+  // sin bloquear el resto del documento.
+  try {
+    if (typeof QRCode !== 'undefined') {
+      noms.forEach(function (nom) {
+        const qr = ventana.document.querySelector('#doc-qr-' + nom);
+        if (qr) dibujarQRDegradado(qr, 'https://' + EMPRESA.sitio);
+      });
+    }
+  } catch (e) {
+    console.warn('No se pudo generar el QR en la ventana de impresión.', e);
+  }
+
+  // Esperar fuentes/imágenes/QR antes de medir alturas; luego paginar e imprimir.
+  esperarRecursos(ventana).then(function () {
+    try {
+      paginarDocumento(ventana, noms);
+    } catch (e) {
+      console.error('Error al paginar el documento para impresión:', e);
+    }
+    const medicion = ventana.document.getElementById('pdf-medicion');
+    if (medicion) medicion.remove();
+    ventana.focus();
+    ventana.print();
+  });
+}
+
+/**
+ * Espera a que estén listos los recursos que afectan a la altura del contenido
+ * (fuentes, imágenes y QR) antes de medir. Resuelve igualmente tras un timeout
+ * de seguridad para no bloquear la impresión si algún recurso nunca carga.
+ * @param {Window} ventana
+ * @returns {Promise<void>}
+ */
+function esperarRecursos(ventana) {
+  const doc = ventana.document;
+  const promesas = [];
+
+  // Fuentes
+  if (doc.fonts && doc.fonts.ready) {
+    promesas.push(doc.fonts.ready.catch(function () {}));
+  }
+
+  // Imágenes (logo del header, firma)
+  Array.from(doc.images).forEach(function (img) {
+    if (img.complete) return;
+    promesas.push(new Promise(function (resolve) {
+      img.addEventListener('load', resolve, { once: true });
+      img.addEventListener('error', resolve, { once: true });
+    }));
+  });
+
+  // QR: esperar a que cada .doc-qr tenga su canvas/img/table pintado
+  Array.from(doc.querySelectorAll('.doc-qr')).forEach(function (qr) {
+    promesas.push(new Promise(function (resolve) {
+      let intentos = 0;
+      (function revisar() {
+        if (qr.querySelector('canvas, img, table') || intentos > 40) { resolve(); return; }
+        intentos++;
+        ventana.setTimeout(revisar, 25);
+      })();
+    }));
+  });
+
+  const seguridad = new Promise(function (resolve) { ventana.setTimeout(resolve, 2500); });
+  return Promise.race([Promise.all(promesas), seguridad]).then(function () {});
+}
+
+/**
+ * Construye páginas carta reales a partir del HTML fuente medido en la ventana.
+ * Cada página tiene header, contenido y footer propios (sin footer flotante).
+ * Las tablas largas se dividen por filas repitiendo el thead; el grupo de cierre
+ * (leyenda, conteos, nota, gráficas) se pagina como un único bloque conjunto.
+ * @param {Window} ventana
+ * @param {string[]} noms
+ */
+function paginarDocumento(ventana, noms) {
+  const doc = ventana.document;
+  const root = doc.getElementById('pdf-paginas');
+  const medicion = doc.getElementById('pdf-medicion');
+  if (!root || !medicion) return;
+
+  // Margen de seguridad (~3mm) para evitar desbordes por redondeo de subpíxel.
+  const EPSILON = mmAPx(3);
+
+  function mmAPx(mm) {
+    const probe = doc.createElement('div');
+    probe.style.cssText = 'position:absolute;visibility:hidden;height:' + mm + 'mm';
+    doc.body.appendChild(probe);
+    const px = probe.getBoundingClientRect().height;
+    doc.body.removeChild(probe);
+    return px || (mm * 96 / 25.4);
+  }
+
+  function nuevaPagina(extraClase) {
+    const pagina = doc.createElement('div');
+    pagina.className = 'doc-pagina' + (extraClase ? ' ' + extraClase : '');
+
+    const tmp = doc.createElement('div');
+    tmp.innerHTML = htmlHeaderDoc();
+    const headerEl = tmp.firstElementChild;
+
+    const contenido = doc.createElement('div');
+    contenido.className = 'doc-contenido';
+
+    const footer = doc.createElement('div');
+    footer.className = 'doc-footer-bar';
+    footer.innerHTML = htmlPiePaginaContenido();
+
+    if (headerEl) pagina.appendChild(headerEl);
+    pagina.appendChild(contenido);
+    pagina.appendChild(footer);
+    root.appendChild(pagina);
+    return { pagina: pagina, contenido: contenido };
+  }
+
+  function limiteInferior(contenido) {
+    return contenido.getBoundingClientRect().top + contenido.clientHeight - EPSILON;
+  }
+  function cabe(el, contenido) {
+    return el.getBoundingClientRect().bottom <= limiteInferior(contenido);
+  }
+  function paginaVacia(pag) {
+    return pag.contenido.children.length === 0;
+  }
+  function esBloqueCierre(el) {
+    if (!el.classList) return false;
+    return el.classList.contains('doc-leyenda') ||
+           el.classList.contains('doc-leyenda-bloque') ||
+           el.classList.contains('doc-conteos') ||
+           el.classList.contains('doc-nota-anexo') ||
+           el.classList.contains('doc-graficas-fila');
+  }
+
+  // Coloca un bloque atómico; si no cabe (y la página no está vacía) lo pasa
+  // entero a una página nueva.
+  function colocarAtomico(pag, bloque) {
+    pag.contenido.appendChild(bloque);
+    if (!cabe(bloque, pag.contenido) && pag.contenido.children.length > 1) {
+      bloque.remove();
+      pag = nuevaPagina();
+      pag.contenido.appendChild(bloque);
+    }
+    return pag;
+  }
+
+  // Coloca el grupo de cierre como un bloque conjunto: si no cabe completo en la
+  // página actual, pasa entero a la siguiente. Solo si no cabe ni en una página
+  // vacía (caso raro) se reparten sus elementos en orden.
+  function colocarGrupoCierre(pag, cierre) {
+    const envoltura = doc.createElement('div');
+    envoltura.className = 'doc-grupo-cierre';
+    cierre.forEach(function (b) { envoltura.appendChild(b); });
+
+    const estabaVacia = paginaVacia(pag);
+    pag.contenido.appendChild(envoltura);
+    if (cabe(envoltura, pag.contenido)) return pag;
+
+    if (!estabaVacia) {
+      envoltura.remove();
+      pag = nuevaPagina();
+      pag.contenido.appendChild(envoltura);
+      if (cabe(envoltura, pag.contenido)) return pag;
+    }
+
+    // Fallback: el grupo no cabe ni en una página vacía → repartir en orden.
+    const hijos = Array.from(envoltura.children);
+    envoltura.remove();
+    hijos.forEach(function (h) { pag = colocarAtomico(pag, h); });
+    return pag;
+  }
+
+  // Coloca subtítulo + tabla, dividiendo por filas (thead repetido) y luego el
+  // grupo de cierre conjunto.
+  function colocarTabla(pag, subtitulo, tabla, cierre) {
+    const thead = tabla.querySelector('thead');
+    const filas = Array.from(tabla.querySelectorAll('tbody > tr'));
+
+    function nuevaShell() {
+      const shell = tabla.cloneNode(false);
+      if (thead) shell.appendChild(thead.cloneNode(true));
+      const tbody = doc.createElement('tbody');
+      shell.appendChild(tbody);
+      return { shell: shell, tbody: tbody };
+    }
+
+    // ¿Cabe el arranque (subtítulo + thead + 1ª fila) en la página actual?
+    function arranqueCabe(pag) {
+      const sub = subtitulo ? subtitulo.cloneNode(true) : null;
+      const t = nuevaShell();
+      if (filas[0]) t.tbody.appendChild(filas[0].cloneNode(true));
+      if (sub) pag.contenido.appendChild(sub);
+      pag.contenido.appendChild(t.shell);
+      const ref = filas[0] ? t.tbody.lastElementChild : t.shell;
+      const ok = cabe(ref, pag.contenido);
+      if (sub) sub.remove();
+      t.shell.remove();
+      return ok;
+    }
+
+    if (!paginaVacia(pag) && !arranqueCabe(pag)) pag = nuevaPagina();
+
+    if (subtitulo) pag.contenido.appendChild(subtitulo);
+    let t = nuevaShell();
+    pag.contenido.appendChild(t.shell);
+
+    for (let k = 0; k < filas.length; k++) {
+      const fila = filas[k];
+      t.tbody.appendChild(fila);
+      if (!cabe(fila, pag.contenido)) {
+        if (t.tbody.children.length === 1) continue; // no cabe ni sola: se deja (se marca desborde)
+        t.tbody.removeChild(fila);
+        pag = nuevaPagina();
+        t = nuevaShell();
+        pag.contenido.appendChild(t.shell);
+        t.tbody.appendChild(fila);
+      }
+    }
+
+    if (cierre.length > 0) pag = colocarGrupoCierre(pag, cierre);
+    return pag;
+  }
+
+  // Reparte los bloques de un resumen en páginas.
+  function flujoResumen(bloques) {
+    let pag = nuevaPagina();
+    let i = 0;
+    while (i < bloques.length) {
+      const bloque = bloques[i];
+      const esSubtitulo = bloque.classList && bloque.classList.contains('doc-nom-subtitulo');
+      const siguiente = bloques[i + 1];
+      const esTabla = bloque.tagName === 'TABLE';
+      const subDeTabla = esSubtitulo && siguiente && siguiente.tagName === 'TABLE';
+
+      if (subDeTabla || esTabla) {
+        const subtitulo = subDeTabla ? bloque : null;
+        const tabla = subDeTabla ? siguiente : bloque;
+        const idxTabla = subDeTabla ? i + 1 : i;
+
+        let j = idxTabla + 1;
+        const cierre = [];
+        while (j < bloques.length && esBloqueCierre(bloques[j])) {
+          cierre.push(bloques[j]);
+          j++;
+        }
+        pag = colocarTabla(pag, subtitulo, tabla, cierre);
+        i = j;
+      } else {
+        pag = colocarAtomico(pag, bloque);
+        i++;
+      }
+    }
+  }
+
+  // Marca (sin ocultar) las páginas cuyo contenido desborda el área disponible.
+  function marcarDesbordes() {
+    Array.from(root.querySelectorAll('.doc-pagina')).forEach(function (pag, idx) {
+      const contenido = pag.querySelector('.doc-contenido');
+      if (!contenido) return;
+      if (contenido.scrollHeight > contenido.clientHeight + 1) {
+        pag.classList.add('doc-pagina-desbordada');
+        console.warn('PDF: la página ' + (idx + 1) + ' desborda su área de contenido (' +
+                     contenido.scrollHeight + 'px > ' + contenido.clientHeight + 'px).', pag);
+      }
+    });
+  }
+
+  noms.forEach(function (nom) {
+    const grupo = medicion.querySelector('.pdf-fuente-nom[data-nom="' + nom + '"]');
+    if (!grupo) return;
+
+    // 1) Carta: una sola página (header de página + cuerpo de carta + footer).
+    const cartaSrc = grupo.querySelector('.pdf-fuente-carta .doc-pagina.doc-carta');
+    if (cartaSrc) {
+      const hdr = cartaSrc.querySelector('.doc-header');
+      if (hdr) hdr.remove();
+      const pag = nuevaPagina('doc-carta');
+      while (cartaSrc.firstChild) pag.contenido.appendChild(cartaSrc.firstChild);
+    }
+
+    // 2) Resumen: flujo paginado de sus bloques.
+    const resumenSrc = grupo.querySelector('.pdf-fuente-resumen .doc-pagina');
+    if (resumenSrc) {
+      const hdr = resumenSrc.querySelector('.doc-header');
+      if (hdr) hdr.remove();
+      flujoResumen(Array.from(resumenSrc.children));
+    }
+  });
+
+  marcarDesbordes();
+}
+
+/**
+ * CSS específico para que el navegador imprima en tamaño carta y conserve
+ * nitidez vectorial. No usa canvas ni convierte el contenido a imagen.
+ * @returns {string}
+ */
+function cssPDFAltaCalidad() {
+  return `<style>
+    /* El paginador de JS construye páginas carta reales (.doc-pagina) de
+       tamaño físico exacto. Los márgenes se aplican como padding de la página,
+       por eso @page no lleva margen: cada .doc-pagina mapea 1:1 con una hoja. */
+    @page { size: Letter; margin: 0; }
+    html, body {
+      width: 100%;
+      margin: 0 !important;
+      padding: 0 !important;
+      background: #ffffff !important;
+    }
+    * {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    body {
+      font-size: 10.5pt;
+      line-height: 1.45;
+    }
+
+    /* Contenedor oculto donde se vuelca el HTML fuente para medir alturas. */
+    #pdf-medicion {
+      position: absolute !important;
+      left: -10000px !important;
+      top: 0 !important;
+      width: 186mm !important;          /* ancho de contenido = 215.9 - 2*15 */
+      visibility: hidden !important;
+    }
+
+    .print-root {
+      width: 100% !important;
+      border: none !important;
+      border-radius: 0 !important;
+      overflow: visible !important;
+      background: #ffffff !important;
+      display: block !important;
+      padding: 0 !important;
+      gap: 0 !important;
+    }
+
+    /* Página carta real: tamaño físico fijo, columna flex header/contenido/footer. */
+    .doc-pagina {
+      width: 215.9mm !important;
+      height: 279.4mm !important;
+      min-height: 0 !important;   /* anula el min-height de la vista en pantalla */
+      max-height: 279.4mm !important;
+      padding: 15mm !important;
+      margin: 0 !important;
+      border: none !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      box-sizing: border-box !important;
+      display: flex !important;
+      flex-direction: column !important;
+      page-break-after: always !important;
+      break-after: page !important;
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+      background: #ffffff !important;
+      overflow: visible !important;          /* nunca ocultar desbordes en silencio */
+    }
+    .doc-pagina:last-child {
+      page-break-after: auto !important;
+      break-after: auto !important;
+    }
+
+    /* Header y footer: altura intrínseca fija dentro de la columna. */
+    .doc-pagina > .doc-header {
+      flex: 0 0 auto !important;
+      margin-bottom: 6mm !important;
+      padding-bottom: 4mm !important;
+    }
+    .doc-pagina > .doc-footer-bar {
+      flex: 0 0 auto !important;
+      margin-top: 4mm !important;
+      display: block !important;
+    }
+
+    /* Área de contenido entre header y footer. */
+    .doc-contenido {
+      flex: 1 1 auto !important;
+      min-height: 0 !important;
+      overflow: visible !important;          /* no hidden: desborde debe ser detectable */
+    }
+
+    /* Carta: la firma se ancla al pie del área de contenido. */
+    .doc-pagina.doc-carta .doc-contenido {
+      display: flex !important;
+      flex-direction: column !important;
+    }
+    .doc-carta .doc-firma-fila {
+      margin-top: auto !important;
+      padding-top: 0 !important;
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+    }
+    .doc-titulo-carta {
+      margin-bottom: 8mm !important;
+    }
+    .doc-cuerpo {
+      line-height: 1.62 !important;
+      margin-bottom: 0 !important;
+    }
+    .doc-cuerpo p {
+      margin-bottom: 4mm !important;
+    }
+    .doc-firma {
+      min-height: 32mm !important;
+    }
+    .doc-firma-espacio {
+      height: 18mm !important;
+    }
+    .doc-firma-img {
+      max-width: 70mm !important;
+      max-height: 18mm !important;
+    }
+    .doc-firma-linea {
+      width: 70mm !important;
+      margin: 0 auto 3mm !important;
+    }
+    .doc-holograma {
+      margin-top: 0 !important;
+    }
+
+    /* Bloques que nunca deben partirse (el paginador ya los reparte, esto
+       es solo refuerzo). El grupo de cierre se envuelve en .doc-grupo-cierre. */
+    .doc-conteos,
+    .doc-leyenda,
+    .doc-leyenda-bloque,
+    .doc-graficas-fila,
+    .doc-grupo-cierre,
+    tr {
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+    }
+    thead {
+      display: table-header-group;
+    }
+    /* table-layout fijo: las tablas continuadas (mismo thead) conservan el mismo
+       ancho de columnas en todas las páginas. */
+    .doc-tabla-resumen {
+      table-layout: fixed !important;
+      width: 100% !important;
+    }
+    .doc-tabla-resumen td {
+      word-wrap: break-word !important;
+      overflow-wrap: break-word !important;
+    }
+    .doc-tabla-resumen td,
+    .doc-tabla-resumen th {
+      padding-top: 2.2mm !important;
+      padding-bottom: 2.2mm !important;
+    }
+    .doc-grafica-svg,
+    svg {
+      shape-rendering: geometricPrecision;
+      text-rendering: geometricPrecision;
+    }
+    /* Marca visible de desborde (solo pantalla, para depurar): nunca se oculta. */
+    @media screen {
+      body { background: #e9e9e9 !important; }
+      .doc-pagina {
+        margin: 0 auto 10mm !important;
+        box-shadow: 0 0 0 1px #ddd !important;
+      }
+      .doc-pagina.doc-pagina-desbordada {
+        outline: 3px solid #c00 !important;
+      }
+    }
+  </style>`;
+}
+
+/**
+ * Devuelve solo el contenido interno de htmlPiePagina(), sin el wrapper externo,
+ * para poder usarlo como footer fijo en la impresión del navegador.
+ * @returns {string}
+ */
+function htmlPiePaginaContenido() {
+  const tmp = document.createElement('div');
+  tmp.innerHTML = htmlPiePagina();
+  const bar = tmp.querySelector('.doc-footer-bar');
+  return bar ? bar.innerHTML : '';
+}
+
+
+/**
+ * Crea botones de impresión individual por NOM para conservar la separación
+ * documental sin volver al método rasterizado de html2canvas.
+ * @param {Object} datos
+ */
+function actualizarBotonesPDFAltaCalidad(datos) {
+  const contenedor = document.getElementById('botones-pdf-nom');
+  if (!contenedor) return;
+  contenedor.innerHTML = '';
+
+  if (!datos || !datos.noms || datos.noms.length <= 1) return;
+
+  const etiqueta = document.createElement('span');
+  etiqueta.className = 'campo-ayuda';
+  etiqueta.style.alignSelf = 'center';
+  etiqueta.textContent = 'Impresión individual:';
+  contenedor.appendChild(etiqueta);
+
+  datos.noms.forEach(function (nom) {
+    const boton = document.createElement('button');
+    boton.type = 'button';
+    boton.className = 'btn-secundario';
+    boton.textContent = 'PDF NOM-' + nom;
+    boton.onclick = function () { imprimirPDFAltaCalidad(nom); };
+    contenedor.appendChild(boton);
+  });
+}
+
+// ============================================================
+// GUÍA INTERACTIVA — recorrido paso a paso para usuarios nuevos
+// ============================================================
+
+/**
+ * Pasos del recorrido guiado. Cada paso resalta un elemento del formulario
+ * y muestra una explicación. `entrar`/`salir` permiten que un paso ajuste
+ * temporalmente el estado de la UI (p.ej. mostrar una sección oculta) y lo
+ * restaure al avanzar/retroceder/cerrar la guía.
+ */
+const PASOS_GUIA = [
+  {
+    selector: '#guia-cargar-perfil',
+    titulo:   'Cargar perfil de datos',
+    texto:    'Si ya tienes el Excel de "Perfil de datos" del cliente, cárgalo aquí: completa automáticamente Razón Social, Dirección, Dirigido a y Puesto. Si no lo tienes, llena estos campos a mano.'
+  },
+  {
+    selector: '#guia-noms-checks',
+    titulo:   'Normas aplicables',
+    texto:    'Selecciona las NOMs que aplican a este informe. Al marcar una, aparece abajo su tabla de captura correspondiente.'
+  },
+  {
+    selector: '#guia-identificacion-011',
+    titulo:   'Identificación en Ruido (NOM-011)',
+    texto:    'En la columna "Identificación" de la Tabla 1, indica el tipo de fuente o equipo evaluado, por ejemplo "Mesa de trabajo" o "Herramienta eléctrica".',
+    entrar: function () {
+      const chk = document.getElementById('check-011');
+      this._previo011 = chk.checked;
+      if (!chk.checked) {
+        chk.checked = true;
+        toggleSeccionNom('011', true);
+      }
+    },
+    salir: function () {
+      if (this._previo011 === false) {
+        document.getElementById('check-011').checked = false;
+        toggleSeccionNom('011', false);
+      }
+      this._previo011 = null;
+    }
+  },
+  {
+    selector: '#btn-guardar-borrador',
+    titulo:   'Guardar borrador (JSON)',
+    texto:    'Descarga un archivo JSON con todo lo capturado, igual que guardarías un Excel: te permite seguir editando el resumen más adelante sin perder lo capturado.'
+  },
+  {
+    selector: '#btn-cargar-borrador',
+    titulo:   'Cargar borrador',
+    texto:    'Usa esta opción para volver a abrir un archivo JSON guardado antes y continuar donde lo dejaste.'
+  },
+  {
+    selector: '#btn-generar',
+    titulo:   'Generar resumen',
+    texto:    'Cuando termines de capturar los datos, presiona aquí para generar el Resumen Ejecutivo y ver la vista previa del documento.'
+  },
+  {
+    selector: '#btn-pdf-calidad',
+    titulo:   'PDF alta calidad',
+    texto:    'Descarga el documento final. Se abrirá una ventana de impresión del navegador: si no se ve completo, abre "Más ajustes" y fija el Ancho/Escala al 100% (tamaño real) antes de elegir "Guardar como PDF".'
+  }
+];
+
+let pasoGuiaActual = -1;
+
+function activarGuia() {
+  pasoGuiaActual = 0;
+  construirOverlayGuia();
+  mostrarPasoGuia(0);
+}
+
+function construirOverlayGuia() {
+  if (document.getElementById('guia-overlay')) return;
+  const overlay = document.createElement('div');
+  overlay.id = 'guia-overlay';
+  overlay.className = 'guia-overlay';
+  document.body.appendChild(overlay);
+
+  const resaltado = document.createElement('div');
+  resaltado.id = 'guia-resaltado';
+  resaltado.className = 'guia-resaltado';
+  document.body.appendChild(resaltado);
+
+  const tooltip = document.createElement('div');
+  tooltip.id = 'guia-tooltip';
+  tooltip.className = 'guia-tooltip';
+  document.body.appendChild(tooltip);
+
+  window.addEventListener('resize', reposicionarGuia);
+}
+
+function destruirOverlayGuia() {
+  ['guia-overlay', 'guia-resaltado', 'guia-tooltip'].forEach(function (id) {
+    const el = document.getElementById(id);
+    if (el) el.remove();
+  });
+  window.removeEventListener('resize', reposicionarGuia);
+}
+
+function mostrarPasoGuia(indice) {
+  const pasoAnterior = PASOS_GUIA[pasoGuiaActual];
+  if (pasoAnterior && pasoAnterior.salir && pasoAnterior._activo) {
+    pasoAnterior.salir();
+    pasoAnterior._activo = false;
+  }
+
+  pasoGuiaActual = indice;
+  const paso = PASOS_GUIA[pasoGuiaActual];
+  if (paso.entrar) {
+    paso.entrar();
+    paso._activo = true;
+  }
+
+  // Deja que el DOM se actualice (p.ej. una sección recién mostrada) antes de medir.
+  requestAnimationFrame(function () {
+    pintarTooltipGuia();
+    reposicionarGuia();
+  });
+}
+
+function pintarTooltipGuia() {
+  const paso = PASOS_GUIA[pasoGuiaActual];
+  const tooltip = document.getElementById('guia-tooltip');
+  if (!tooltip) return;
+
+  const esPrimero = pasoGuiaActual === 0;
+  const esUltimo  = pasoGuiaActual === PASOS_GUIA.length - 1;
+
+  tooltip.innerHTML =
+    '<div class="guia-titulo">' + paso.titulo + '</div>' +
+    '<div class="guia-texto">' + paso.texto + '</div>' +
+    '<div class="guia-pie">' +
+      '<span class="guia-progreso">Paso ' + (pasoGuiaActual + 1) + ' de ' + PASOS_GUIA.length + '</span>' +
+      '<div class="guia-botones">' +
+        (esPrimero ? '' : '<button type="button" class="guia-btn" id="guia-btn-anterior">Anterior</button>') +
+        '<button type="button" class="guia-btn guia-btn-primario" id="guia-btn-siguiente">' + (esUltimo ? 'Entendido' : 'Siguiente') + '</button>' +
+      '</div>' +
+    '</div>' +
+    '<button type="button" class="guia-saltar" id="guia-btn-saltar" style="margin-top:10px">Saltar guía</button>';
+
+  const btnSiguiente = document.getElementById('guia-btn-siguiente');
+  btnSiguiente.onclick = function () {
+    if (esUltimo) cerrarGuia(); else mostrarPasoGuia(pasoGuiaActual + 1);
+  };
+  const btnAnterior = document.getElementById('guia-btn-anterior');
+  if (btnAnterior) btnAnterior.onclick = function () { mostrarPasoGuia(pasoGuiaActual - 1); };
+  document.getElementById('guia-btn-saltar').onclick = cerrarGuia;
+}
+
+function reposicionarGuia() {
+  const paso = PASOS_GUIA[pasoGuiaActual];
+  if (!paso) return;
+  const resaltado = document.getElementById('guia-resaltado');
+  const tooltip   = document.getElementById('guia-tooltip');
+  if (!resaltado || !tooltip) return;
+
+  const objetivo = paso.selector ? document.querySelector(paso.selector) : null;
+  const rect = objetivo ? objetivo.getBoundingClientRect() : null;
+  const visible = rect && rect.width > 0 && rect.height > 0;
+
+  if (!visible) {
+    resaltado.style.display = 'none';
+    tooltip.classList.add('guia-centrado');
+    tooltip.style.top = '';
+    tooltip.style.left = '';
+    return;
+  }
+
+  const margen = 6;
+  resaltado.style.display = 'block';
+  resaltado.style.top    = (rect.top - margen) + 'px';
+  resaltado.style.left   = (rect.left - margen) + 'px';
+  resaltado.style.width  = (rect.width + margen * 2) + 'px';
+  resaltado.style.height = (rect.height + margen * 2) + 'px';
+
+  objetivo.scrollIntoView({ block: 'center', behavior: 'smooth' });
+
+  tooltip.classList.remove('guia-centrado');
+  const anchoTooltip = tooltip.offsetWidth || 300;
+  let top  = rect.bottom + margen + 10;
+  if (top + 160 > window.innerHeight) top = Math.max(margen, rect.top - margen - 10 - tooltip.offsetHeight);
+  let left = Math.min(Math.max(margen, rect.left), window.innerWidth - anchoTooltip - margen);
+  tooltip.style.top  = top + 'px';
+  tooltip.style.left = left + 'px';
+}
+
+function cerrarGuia() {
+  const paso = PASOS_GUIA[pasoGuiaActual];
+  if (paso && paso.salir && paso._activo) {
+    paso.salir();
+    paso._activo = false;
+  }
+  destruirOverlayGuia();
+  pasoGuiaActual = -1;
+}
+
 </script>
 
 
