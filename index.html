@@ -1401,7 +1401,7 @@ select:focus {
               <tr class="fila-template" style="display:none">
                 <td class="col-num num-fila">—</td>
                 <td><input type="text" class="campo-tabla" placeholder="Nombre completo"></td>
-                <td><input type="text" class="campo-tabla" placeholder="Ej. 36-38 °C" value="36-38 °C"></td>
+                <td><input type="text" class="campo-tabla" placeholder="Ej. 36-38 °C" value="36-38 °C" data-default="36-38 °C"></td>
                 <td><input type="text" class="campo-tabla" placeholder="Ej. 35.1"></td>
                 <td><input type="text" class="campo-tabla" placeholder="Ej. 36.1"></td>
                 <td>
@@ -1541,7 +1541,7 @@ El presente informe de resultados únicamente presenta los resultados del centro
 
 Confiamos en que este documento cumplirá con sus expectativas y será una herramienta valiosa para fortalecer la seguridad y el bienestar en su empresa. Agradecemos la confianza depositada en nuestros servicios y quedamos a su disposición para aclarar cualquier duda o brindarle asistencia en la interpretación de los resultados.
 
-Finalmente, le recordamos que la evaluación deberá repetirse siempre que se modifiquen las condiciones que dieron origen a los resultados, conforme a lo establecido en la norma de referencia.`
+Finalmente, le recordamos que la vigencia del informe será de dos años, mientras se mantengan las condiciones de trabajo que sirvieron de referencia para su emisión, tal como lo establece el numeral 12.5 de la norma de referencia.`
 };
 
 // ── Meses en español para formatear fechas ─────────────────
@@ -1593,9 +1593,10 @@ function agregarFila(tbodyId) {
   nuevaFila.classList.remove('fila-template');
   nuevaFila.style.display = '';
 
-  // Limpiar los valores de los inputs/selects clonados
+  // Limpiar los valores de los inputs/selects clonados. Si el input define
+  // un valor por defecto (data-default), se precarga en lugar de quedar vacío.
   nuevaFila.querySelectorAll('input').forEach(function (inp) {
-    inp.value = '';
+    inp.value = inp.dataset.default || '';
   });
   nuevaFila.querySelectorAll('select').forEach(function (sel) {
     sel.selectedIndex = 0;
