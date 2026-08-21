@@ -1021,6 +1021,15 @@ select:focus {
               <em>Vibraciones</em>
             </span>
           </label>
+
+          <label class="nom-check-label">
+            <input type="checkbox" id="check-015" value="015"
+                   onchange="toggleSeccionNom('015', this.checked)">
+            <span class="nom-check-texto">
+              <strong>NOM-015-STPS-2001</strong>
+              <em>Condiciones térmicas elevadas o abatidas</em>
+            </span>
+          </label>
         </div>
       </section>
 
@@ -1331,6 +1340,87 @@ select:focus {
         <button type="button" class="btn-agregar" onclick="agregarFila('tbody-024')">+ Agregar fila</button>
       </section>
 
+      <!-- ── Sección NOM-015 ── -->
+      <section id="seccion-015" class="seccion-nom" style="display:none">
+        <h2 class="seccion-titulo nom-titulo">NOM-015-STPS-2001 — Condiciones térmicas elevadas o abatidas</h2>
+
+        <!-- Tabla 1: Índice de temperatura de globo de bulbo húmedo (TGBH) -->
+        <h3 class="tabla-titulo">Tabla 1 — Resultados del índice de temperatura de globo de bulbo húmedo (TGBH)</h3>
+        <div class="tabla-contenedor">
+          <table class="tabla-datos">
+            <thead>
+              <tr>
+                <th class="col-num">N°</th>
+                <th>Área evaluada</th>
+                <th>Nombre del trabajador</th>
+                <th class="col-medicion">TGBH promedio (°C)</th>
+                <th class="col-medicion">LMPE (°C)</th>
+                <th class="col-conclusion">Conclusión</th>
+                <th class="col-accion"></th>
+              </tr>
+            </thead>
+            <tbody id="tbody-015-1">
+              <tr class="fila-template" style="display:none">
+                <td class="col-num num-fila">—</td>
+                <td><input type="text" class="campo-tabla" placeholder="Ej. Horno de alambre recocido 1 / Ciclo final"></td>
+                <td><input type="text" class="campo-tabla" placeholder="Nombre completo"></td>
+                <td><input type="text" class="campo-tabla" placeholder="Ej. 37.608"></td>
+                <td><input type="text" class="campo-tabla" placeholder="Ej. 32.2"></td>
+                <td>
+                  <select class="campo-tabla campo-select">
+                    <option value="Dentro">✓ Dentro</option>
+                    <option value="Fuera">✖ Fuera</option>
+                  </select>
+                </td>
+                <td>
+                  <button type="button" class="btn-eliminar"
+                          onclick="eliminarFila(this)" title="Eliminar fila"><svg class="icono-btn" style="margin-right:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <button type="button" class="btn-agregar" onclick="agregarFila('tbody-015-1')">+ Agregar fila</button>
+
+        <!-- Tabla 2: Temperatura axilar de los trabajadores -->
+        <h3 class="tabla-titulo" style="margin-top:24px">Tabla 2 — Resultados de la temperatura axilar de los trabajadores</h3>
+        <div class="tabla-contenedor">
+          <table class="tabla-datos">
+            <thead>
+              <tr>
+                <th class="col-num">N°</th>
+                <th>Nombre del trabajador</th>
+                <th>Rango aceptado</th>
+                <th class="col-medicion">Temp. axilar inicial (°C)</th>
+                <th class="col-medicion">Temp. axilar final (°C)</th>
+                <th class="col-conclusion">Conclusión</th>
+                <th class="col-accion"></th>
+              </tr>
+            </thead>
+            <tbody id="tbody-015-2">
+              <tr class="fila-template" style="display:none">
+                <td class="col-num num-fila">—</td>
+                <td><input type="text" class="campo-tabla" placeholder="Nombre completo"></td>
+                <td><input type="text" class="campo-tabla" placeholder="Ej. 36-38 °C" value="36-38 °C"></td>
+                <td><input type="text" class="campo-tabla" placeholder="Ej. 35.1"></td>
+                <td><input type="text" class="campo-tabla" placeholder="Ej. 36.1"></td>
+                <td>
+                  <select class="campo-tabla campo-select">
+                    <option value="Dentro">✓ Dentro</option>
+                    <option value="Fuera">✖ Fuera</option>
+                  </select>
+                </td>
+                <td>
+                  <button type="button" class="btn-eliminar"
+                          onclick="eliminarFila(this)" title="Eliminar fila"><svg class="icono-btn" style="margin-right:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <button type="button" class="btn-agregar" onclick="agregarFila('tbody-015-2')">+ Agregar fila</button>
+      </section>
+
       <!-- Acciones del formulario -->
       <section class="seccion-acciones">
         <button type="button" id="btn-generar" class="btn-primario"
@@ -1443,7 +1533,15 @@ El presente informe de resultados únicamente presenta los resultados del centro
 
 Confiamos en que este documento cumplirá con sus expectativas y será una herramienta valiosa para fortalecer la seguridad y el bienestar en su empresa. Agradecemos la confianza depositada en nuestros servicios y quedamos a su disposición para aclarar cualquier duda o brindarle asistencia en la interpretación de los resultados.
 
-Finalmente, le recordamos que la vigencia del informe será de dos años, siempre que se mantengan las condiciones que dieron origen a los resultados, tal como lo establece el numeral 9.2 de la norma de referencia.`
+Finalmente, le recordamos que la vigencia del informe será de dos años, siempre que se mantengan las condiciones que dieron origen a los resultados, tal como lo establece el numeral 9.2 de la norma de referencia.`,
+
+  '015': `Es un placer para nosotros entregarle el informe de resultados correspondiente a la evaluación de las condiciones térmicas elevadas o abatidas en su centro de trabajo, realizado conforme a lo establecido en la normativa vigente, específicamente la NOM-015-STPS-2001.
+
+El presente informe de resultados únicamente presenta los resultados del centro de trabajo evaluado, en las condiciones al momento de realizar las mediciones. Hemos trabajado con el mayor rigor para garantizar la precisión y utilidad de los datos recopilados, con el objetivo de apoyarle en la gestión y mejora de las condiciones laborales en su organización.
+
+Confiamos en que este documento cumplirá con sus expectativas y será una herramienta valiosa para fortalecer la seguridad y el bienestar en su empresa. Agradecemos la confianza depositada en nuestros servicios y quedamos a su disposición para aclarar cualquier duda o brindarle asistencia en la interpretación de los resultados.
+
+Finalmente, le recordamos que la evaluación deberá repetirse siempre que se modifiquen las condiciones que dieron origen a los resultados, conforme a lo establecido en la norma de referencia.`
 };
 
 // ── Meses en español para formatear fechas ─────────────────
@@ -1592,7 +1690,8 @@ function validarFormulario() {
     '011': ['tbody-011-1', 'tbody-011-2'],
     '022': ['tbody-022-1', 'tbody-022-2'],
     '025': ['tbody-025-1', 'tbody-025-2'],
-    '024': ['tbody-024']
+    '024': ['tbody-024'],
+    '015': ['tbody-015-1', 'tbody-015-2']
   };
   nomsActivas.forEach(function (nom) {
     const tablas = tablasPorNom[nom] || [];
@@ -1617,7 +1716,7 @@ function validarFormulario() {
  * @returns {string[]}
  */
 function obtenerNomsActivas() {
-  return ['011', '022', '025', '024'].filter(function (nom) {
+  return ['011', '022', '025', '024', '015'].filter(function (nom) {
     const chk = document.getElementById('check-' + nom);
     return chk && chk.checked;
   });
@@ -1671,6 +1770,10 @@ function recolectarDatos() {
   }
   if (nomsActivas.includes('024')) {
     datos.tablas['024']   = leerFilasTabla('tbody-024');
+  }
+  if (nomsActivas.includes('015')) {
+    datos.tablas['015-1'] = leerFilasTabla('tbody-015-1');
+    datos.tablas['015-2'] = leerFilasTabla('tbody-015-2');
   }
 
   // Total de puntos evaluados (suma de todas las filas de todas las tablas)
@@ -2219,6 +2322,87 @@ function renderizarTablaResumen(datos, nom) {
       </div>`;
   }
 
+  if (nom === '015') {
+    const t1 = datos.tablas['015-1'] || [];
+    const t2 = datos.tablas['015-2'] || [];
+
+    // Tabla 1 — Índice de temperatura de globo de bulbo húmedo (TGBH)
+    if (t1.length > 0) {
+      const den015t1 = t1.filter(function (r) { return r[4] === 'Dentro'; }).length;
+      contenido += `
+        <p style="font-weight:700;color:var(--texto);margin-bottom:4px">Para el índice de temperatura de globo de bulbo húmedo (TGBH)</p>
+        <p class="doc-intro" style="margin-bottom:14px">En la siguiente tabla se presentan las conclusiones para cada uno de los puntos evaluados respecto al índice de temperatura de globo de bulbo húmedo comparado contra el límite máximo permisible de exposición.</p>
+        <div class="doc-nom-subtitulo">Tabla 1. Resultados del índice de temperatura de globo de bulbo húmedo</div>
+        <table class="doc-tabla-resumen">
+          <thead><tr>
+            <th style="width:48px;white-space:nowrap">N°</th><th>Área evaluada</th>
+            <th>Nombre del trabajador</th>
+            <th style="width:90px">TGBH promedio (°C)</th>
+            <th style="width:80px">LMPE (°C)</th>
+            <th style="width:90px">Conclusión</th>
+          </tr></thead>
+          <tbody>
+            ${t1.map(function (r, i) {
+              const concl = r[4] === 'Dentro' ? '✓' : r[4] === 'Fuera' ? '✖' : (r[4] || '');
+              return `<tr>
+                <td style="text-align:center">${i+1}</td>
+                <td>${r[0]||''}</td><td>${r[1]||''}</td>
+                <td style="text-align:center">${r[2]||''}</td>
+                <td style="text-align:center">${r[3]||''}</td>
+                <td style="text-align:center">${concl}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+        <div class="doc-leyenda-bloque">Nomenclatura utilizada = Dentro | Fuera = ✓ | ✖<br>LMPE: Límite Máximo Permisible de Exposición · TGBH: Índice de Temperatura de Globo de Bulbo Húmedo</div>
+        <div class="doc-conteos">
+          <span class="doc-conteo-linea"><span class="doc-conteo-num">${t1.length}</span> …… puntos en total evaluados</span>
+          <span class="doc-conteo-linea"><span class="doc-conteo-num">${den015t1}</span> …… se encuentran dentro del límite máximo permisible</span>
+        </div>
+        <p class="doc-nota-anexo">*Para información detallada, consultar los anexos del informe de resultados.</p>
+        <div class="doc-graficas-fila">
+          ${dibujarGraficaDoble('Índice TGBH', den015t1, 'Dentro de norma', t1.length - den015t1, 'Fuera de norma', t1.length)}
+        </div>`;
+    }
+
+    // Tabla 2 — Temperatura axilar de los trabajadores
+    if (t2.length > 0) {
+      const den015t2 = t2.filter(function (r) { return r[4] === 'Dentro'; }).length;
+      contenido += `
+        <div class="doc-nom-subtitulo">Tabla 2. Resultados de la temperatura axilar de los trabajadores</div>
+        <table class="doc-tabla-resumen">
+          <thead><tr>
+            <th style="width:48px;white-space:nowrap">N°</th><th>Nombre del trabajador</th>
+            <th>Rango aceptado</th>
+            <th style="width:80px">Inicial (°C)</th>
+            <th style="width:80px">Final (°C)</th>
+            <th style="width:90px">Conclusión</th>
+          </tr></thead>
+          <tbody>
+            ${t2.map(function (r, i) {
+              const concl = r[4] === 'Dentro' ? '✓' : r[4] === 'Fuera' ? '✖' : (r[4] || '');
+              return `<tr>
+                <td style="text-align:center">${i+1}</td>
+                <td>${r[0]||''}</td><td style="text-align:center">${r[1]||''}</td>
+                <td style="text-align:center">${r[2]||''}</td>
+                <td style="text-align:center">${r[3]||''}</td>
+                <td style="text-align:center">${concl}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+        <div class="doc-leyenda-bloque">Nomenclatura utilizada = Dentro | Fuera = ✓ | ✖</div>
+        <div class="doc-conteos">
+          <span class="doc-conteo-linea"><span class="doc-conteo-num">${t2.length}</span> …… trabajadores en total evaluados</span>
+          <span class="doc-conteo-linea"><span class="doc-conteo-num">${den015t2}</span> …… se encuentran dentro del rango aceptado</span>
+        </div>
+        <p class="doc-nota-anexo">*Para información detallada, consultar los anexos del informe de resultados.</p>
+        <div class="doc-graficas-fila">
+          ${dibujarGraficaDoble('Temperatura axilar', den015t2, 'Dentro de rango', t2.length - den015t2, 'Fuera de rango', t2.length)}
+        </div>`;
+    }
+  }
+
   return contenido;
 }
 
@@ -2226,7 +2410,8 @@ const TITULOS_NOM = {
   '011': 'NOM-011-STPS-2001 — Ruido Laboral',
   '022': 'NOM-022-STPS-2015 — Electricidad Estática',
   '025': 'NOM-025-STPS-2008 — Iluminación',
-  '024': 'NOM-024-STPS-2001 — Vibraciones'
+  '024': 'NOM-024-STPS-2001 — Vibraciones',
+  '015': 'NOM-015-STPS-2001 — Condiciones Térmicas Elevadas o Abatidas'
 };
 
 /**
@@ -2661,7 +2846,7 @@ function restaurarFormulario(datos) {
     });
 
   // Desactivar todas las NOMs primero
-  ['011','022','025','024'].forEach(function (nom) {
+  ['011','022','025','024','015'].forEach(function (nom) {
     const chk = document.getElementById('check-' + nom);
     if (chk) { chk.checked = false; toggleSeccionNom(nom, false); }
   });
@@ -2682,6 +2867,10 @@ function restaurarFormulario(datos) {
     ],
     '024': [
       { tbodyId: 'tbody-024', claves: ['024'] }
+    ],
+    '015': [
+      { tbodyId: 'tbody-015-1', claves: ['015-1'] },
+      { tbodyId: 'tbody-015-2', claves: ['015-2'] }
     ]
   };
 
