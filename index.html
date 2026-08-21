@@ -1344,45 +1344,102 @@ select:focus {
       <section id="seccion-015" class="seccion-nom" style="display:none">
         <h2 class="seccion-titulo nom-titulo">NOM-015-STPS-2001 — Condiciones térmicas elevadas o abatidas</h2>
 
-        <!-- Tabla 1: Índice de temperatura de globo de bulbo húmedo (TGBH) -->
-        <h3 class="tabla-titulo">Tabla 1 — Resultados del índice de temperatura de globo de bulbo húmedo (TGBH)</h3>
-        <div class="tabla-contenedor">
-          <table class="tabla-datos">
-            <thead>
-              <tr>
-                <th class="col-num">N°</th>
-                <th>Área evaluada</th>
-                <th>Nombre del trabajador</th>
-                <th class="col-medicion">TGBH promedio (°C)</th>
-                <th class="col-medicion">LMPE (°C)</th>
-                <th class="col-conclusion">Conclusión</th>
-                <th class="col-accion"></th>
-              </tr>
-            </thead>
-            <tbody id="tbody-015-1">
-              <tr class="fila-template" style="display:none">
-                <td class="col-num num-fila">—</td>
-                <td><input type="text" class="campo-tabla" placeholder="Ej. Horno de alambre recocido 1 / Ciclo final"></td>
-                <td><input type="text" class="campo-tabla" placeholder="Nombre completo"></td>
-                <td><input type="text" class="campo-tabla" placeholder="Ej. 37.608"></td>
-                <td><input type="text" class="campo-tabla" placeholder="Ej. 32.2"></td>
-                <td>
-                  <select class="campo-tabla campo-select">
-                    <option value="Dentro">✓ Dentro</option>
-                    <option value="Fuera">✖ Fuera</option>
-                  </select>
-                </td>
-                <td>
-                  <button type="button" class="btn-eliminar"
-                          onclick="eliminarFila(this)" title="Eliminar fila"><svg class="icono-btn" style="margin-right:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        <!-- Selector de tipo de condición térmica -->
+        <div class="campo-grupo" style="max-width:420px">
+          <label for="modo-015">Tipo de condición térmica evaluada *</label>
+          <select id="modo-015" class="campo-tabla campo-select" onchange="aplicarModo015(this.value)">
+            <option value="calor">Condiciones elevadas — Calor (TGBH)</option>
+            <option value="frio">Condiciones abatidas — Frío (IREQ)</option>
+          </select>
         </div>
-        <button type="button" class="btn-agregar" onclick="agregarFila('tbody-015-1')">+ Agregar fila</button>
 
-        <!-- Tabla 2: Temperatura axilar de los trabajadores -->
+        <!-- ═══ Bloque CALOR (TGBH) ═══ -->
+        <div id="bloque-015-calor">
+          <!-- Tabla 1 (calor): Índice de temperatura de globo de bulbo húmedo (TGBH) -->
+          <h3 class="tabla-titulo">Tabla 1 — Resultados del índice de temperatura de globo de bulbo húmedo (TGBH)</h3>
+          <div class="tabla-contenedor">
+            <table class="tabla-datos">
+              <thead>
+                <tr>
+                  <th class="col-num">N°</th>
+                  <th>Área evaluada</th>
+                  <th>Nombre del trabajador</th>
+                  <th class="col-medicion">TGBH promedio (°C)</th>
+                  <th class="col-medicion">LMPE (°C)</th>
+                  <th class="col-conclusion">Conclusión</th>
+                  <th class="col-accion"></th>
+                </tr>
+              </thead>
+              <tbody id="tbody-015-tgbh">
+                <tr class="fila-template" style="display:none">
+                  <td class="col-num num-fila">—</td>
+                  <td><input type="text" class="campo-tabla" placeholder="Ej. Horno de alambre recocido 1 / Ciclo final"></td>
+                  <td><input type="text" class="campo-tabla" placeholder="Nombre completo"></td>
+                  <td><input type="text" class="campo-tabla" placeholder="Ej. 37.608"></td>
+                  <td><input type="text" class="campo-tabla" placeholder="Ej. 32.2"></td>
+                  <td>
+                    <select class="campo-tabla campo-select">
+                      <option value="Dentro">✓ Dentro</option>
+                      <option value="Fuera">✖ Fuera</option>
+                    </select>
+                  </td>
+                  <td>
+                    <button type="button" class="btn-eliminar"
+                            onclick="eliminarFila(this)" title="Eliminar fila"><svg class="icono-btn" style="margin-right:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <button type="button" class="btn-agregar" onclick="agregarFila('tbody-015-tgbh')">+ Agregar fila</button>
+        </div>
+
+        <!-- ═══ Bloque FRÍO (IREQ) ═══ -->
+        <div id="bloque-015-frio" style="display:none">
+          <!-- Tabla 1 (frío): Índice de aislamiento requerido de la ropa (IREQ) -->
+          <h3 class="tabla-titulo">Tabla 1 — Resultados del índice de aislamiento requerido de la ropa (IREQ)</h3>
+          <div class="tabla-contenedor">
+            <table class="tabla-datos">
+              <thead>
+                <tr>
+                  <th class="col-num">N°</th>
+                  <th>Área evaluada</th>
+                  <th>Nombre del trabajador</th>
+                  <th class="col-medicion">Temp. del aire (°C)</th>
+                  <th class="col-medicion">Vel. del viento (m/s)</th>
+                  <th class="col-medicion">IREQ requerido (clo)</th>
+                  <th class="col-medicion">Aislamiento disponible (clo)</th>
+                  <th class="col-conclusion">Conclusión</th>
+                  <th class="col-accion"></th>
+                </tr>
+              </thead>
+              <tbody id="tbody-015-ireq">
+                <tr class="fila-template" style="display:none">
+                  <td class="col-num num-fila">—</td>
+                  <td><input type="text" class="campo-tabla" placeholder="Ej. Cámara de congelación"></td>
+                  <td><input type="text" class="campo-tabla" placeholder="Nombre completo"></td>
+                  <td><input type="text" class="campo-tabla" placeholder="Ej. -18.0"></td>
+                  <td><input type="text" class="campo-tabla" placeholder="Ej. 0.4"></td>
+                  <td><input type="text" class="campo-tabla" placeholder="Ej. 2.85"></td>
+                  <td><input type="text" class="campo-tabla" placeholder="Ej. 3.10"></td>
+                  <td>
+                    <select class="campo-tabla campo-select">
+                      <option value="Dentro">✓ Dentro</option>
+                      <option value="Fuera">✖ Fuera</option>
+                    </select>
+                  </td>
+                  <td>
+                    <button type="button" class="btn-eliminar"
+                            onclick="eliminarFila(this)" title="Eliminar fila"><svg class="icono-btn" style="margin-right:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <button type="button" class="btn-agregar" onclick="agregarFila('tbody-015-ireq')">+ Agregar fila</button>
+        </div>
+
+        <!-- Tabla 2: Temperatura axilar de los trabajadores (común a ambos modos) -->
         <h3 class="tabla-titulo" style="margin-top:24px">Tabla 2 — Resultados de la temperatura axilar de los trabajadores</h3>
         <div class="tabla-contenedor">
           <table class="tabla-datos">
@@ -1397,7 +1454,7 @@ select:focus {
                 <th class="col-accion"></th>
               </tr>
             </thead>
-            <tbody id="tbody-015-2">
+            <tbody id="tbody-015-axilar">
               <tr class="fila-template" style="display:none">
                 <td class="col-num num-fila">—</td>
                 <td><input type="text" class="campo-tabla" placeholder="Nombre completo"></td>
@@ -1418,7 +1475,7 @@ select:focus {
             </tbody>
           </table>
         </div>
-        <button type="button" class="btn-agregar" onclick="agregarFila('tbody-015-2')">+ Agregar fila</button>
+        <button type="button" class="btn-agregar" onclick="agregarFila('tbody-015-axilar')">+ Agregar fila</button>
       </section>
 
       <!-- Acciones del formulario -->
@@ -1535,7 +1592,15 @@ Confiamos en que este documento cumplirá con sus expectativas y será una herra
 
 Finalmente, le recordamos que la vigencia del informe será de dos años, siempre que se mantengan las condiciones que dieron origen a los resultados, tal como lo establece el numeral 9.2 de la norma de referencia.`,
 
-  '015': `Es un placer para nosotros entregarle el informe de resultados correspondiente a la evaluación de las condiciones térmicas elevadas o abatidas en su centro de trabajo, realizado conforme a lo establecido en la normativa vigente, específicamente la NOM-015-STPS-2001.
+  '015': `Es un placer para nosotros entregarle el informe de resultados correspondiente a la evaluación de las condiciones térmicas elevadas (calor) en su centro de trabajo, realizado conforme a lo establecido en la normativa vigente, específicamente la NOM-015-STPS-2001.
+
+El presente informe de resultados únicamente presenta los resultados del centro de trabajo evaluado, en las condiciones al momento de realizar las mediciones. Hemos trabajado con el mayor rigor para garantizar la precisión y utilidad de los datos recopilados, con el objetivo de apoyarle en la gestión y mejora de las condiciones laborales en su organización.
+
+Confiamos en que este documento cumplirá con sus expectativas y será una herramienta valiosa para fortalecer la seguridad y el bienestar en su empresa. Agradecemos la confianza depositada en nuestros servicios y quedamos a su disposición para aclarar cualquier duda o brindarle asistencia en la interpretación de los resultados.
+
+Finalmente, le recordamos que la vigencia del informe será de dos años, mientras se mantengan las condiciones de trabajo que sirvieron de referencia para su emisión, tal como lo establece el numeral 12.5 de la norma de referencia.`,
+
+  '015-frio': `Es un placer para nosotros entregarle el informe de resultados correspondiente a la evaluación de las condiciones térmicas abatidas (frío) en su centro de trabajo, realizado conforme a lo establecido en la normativa vigente, específicamente la NOM-015-STPS-2001.
 
 El presente informe de resultados únicamente presenta los resultados del centro de trabajo evaluado, en las condiciones al momento de realizar las mediciones. Hemos trabajado con el mayor rigor para garantizar la precisión y utilidad de los datos recopilados, con el objetivo de apoyarle en la gestión y mejora de las condiciones laborales en su organización.
 
@@ -1543,6 +1608,14 @@ Confiamos en que este documento cumplirá con sus expectativas y será una herra
 
 Finalmente, le recordamos que la vigencia del informe será de dos años, mientras se mantengan las condiciones de trabajo que sirvieron de referencia para su emisión, tal como lo establece el numeral 12.5 de la norma de referencia.`
 };
+
+// ── Claves derivadas por modo (NOM-015: calor / frío) ──────
+// Para la NOM-015, el modo de evaluación cambia el título y la carta.
+// Estas funciones devuelven la clave/título/párrafo correctos según el modo.
+function claveParrafoNom(datos, nom) {
+  if (nom === '015' && datos && datos.modo015 === 'frio') return '015-frio';
+  return nom;
+}
 
 // ── Meses en español para formatear fechas ─────────────────
 const MESES = [
@@ -1574,6 +1647,21 @@ function toggleSeccionNom(nom, activa) {
   const seccion = document.getElementById('seccion-' + nom);
   if (!seccion) return;
   seccion.style.display = activa ? 'block' : 'none';
+}
+
+/**
+ * Muestra el bloque de captura de la NOM-015 correspondiente al modo
+ * seleccionado (calor = TGBH, frío = IREQ). La tabla de temperatura axilar
+ * (Tabla 2) es común a ambos modos y permanece visible.
+ * @param {string} modo - 'calor' | 'frio'
+ */
+function aplicarModo015(modo) {
+  const bloqueCalor = document.getElementById('bloque-015-calor');
+  const bloqueFrio  = document.getElementById('bloque-015-frio');
+  if (!bloqueCalor || !bloqueFrio) return;
+  const esFrio = modo === 'frio';
+  bloqueCalor.style.display = esFrio ? 'none' : 'block';
+  bloqueFrio.style.display  = esFrio ? 'block' : 'none';
 }
 
 // ============================================================
@@ -1692,7 +1780,7 @@ function validarFormulario() {
     '022': ['tbody-022-1', 'tbody-022-2'],
     '025': ['tbody-025-1', 'tbody-025-2'],
     '024': ['tbody-024'],
-    '015': ['tbody-015-1', 'tbody-015-2']
+    '015': ['tbody-015-tgbh', 'tbody-015-ireq', 'tbody-015-axilar']
   };
   nomsActivas.forEach(function (nom) {
     const tablas = tablasPorNom[nom] || [];
@@ -1773,8 +1861,14 @@ function recolectarDatos() {
     datos.tablas['024']   = leerFilasTabla('tbody-024');
   }
   if (nomsActivas.includes('015')) {
-    datos.tablas['015-1'] = leerFilasTabla('tbody-015-1');
-    datos.tablas['015-2'] = leerFilasTabla('tbody-015-2');
+    const modo015 = document.getElementById('modo-015');
+    datos.modo015 = (modo015 && modo015.value) || 'calor';
+    if (datos.modo015 === 'frio') {
+      datos.tablas['015-ireq'] = leerFilasTabla('tbody-015-ireq');
+    } else {
+      datos.tablas['015-tgbh'] = leerFilasTabla('tbody-015-tgbh');
+    }
+    datos.tablas['015-axilar'] = leerFilasTabla('tbody-015-axilar');
   }
 
   // Total de puntos evaluados (suma de todas las filas de todas las tablas)
@@ -1895,7 +1989,7 @@ function htmlFirmaRepresentante() {
  */
 function renderizarCartaPresentacion(datos, nom) {
   const fechaTexto = formatearFechaEspanol(datos.fecha);
-  const parrafo    = PARRAFOS_NOM[nom] || '';
+  const parrafo    = PARRAFOS_NOM[claveParrafoNom(datos, nom)] || PARRAFOS_NOM[nom] || '';
 
   // Convertir saltos de línea del párrafo en elementos <p>
   const parrafosHtml = parrafo.split('\n\n').map(function (p) {
@@ -2324,51 +2418,98 @@ function renderizarTablaResumen(datos, nom) {
   }
 
   if (nom === '015') {
-    const t1 = datos.tablas['015-1'] || [];
-    const t2 = datos.tablas['015-2'] || [];
+    const esFrio = datos.modo015 === 'frio';
 
-    // Tabla 1 — Índice de temperatura de globo de bulbo húmedo (TGBH)
-    if (t1.length > 0) {
-      const den015t1 = t1.filter(function (r) { return r[4] === 'Dentro'; }).length;
-      contenido += `
-        <p style="font-weight:700;color:var(--texto);margin-bottom:4px">Para el índice de temperatura de globo de bulbo húmedo (TGBH)</p>
-        <p class="doc-intro" style="margin-bottom:14px">En la siguiente tabla se presentan las conclusiones para cada uno de los puntos evaluados respecto al índice de temperatura de globo de bulbo húmedo comparado contra el límite máximo permisible de exposición.</p>
-        <div class="doc-nom-subtitulo">Tabla 1. Resultados del índice de temperatura de globo de bulbo húmedo</div>
-        <table class="doc-tabla-resumen">
-          <thead><tr>
-            <th style="width:48px;white-space:nowrap">N°</th><th>Área evaluada</th>
-            <th>Nombre del trabajador</th>
-            <th style="width:90px">TGBH promedio (°C)</th>
-            <th style="width:80px">LMPE (°C)</th>
-            <th style="width:90px">Conclusión</th>
-          </tr></thead>
-          <tbody>
-            ${t1.map(function (r, i) {
-              const concl = r[4] === 'Dentro' ? '✓' : r[4] === 'Fuera' ? '✖' : (r[4] || '');
-              return `<tr>
-                <td style="text-align:center">${i+1}</td>
-                <td>${r[0]||''}</td><td>${r[1]||''}</td>
-                <td style="text-align:center">${r[2]||''}</td>
-                <td style="text-align:center">${r[3]||''}</td>
-                <td style="text-align:center">${concl}</td>
-              </tr>`;
-            }).join('')}
-          </tbody>
-        </table>
-        <div class="doc-leyenda-bloque">Nomenclatura utilizada = Dentro | Fuera = ✓ | ✖<br>LMPE: Límite Máximo Permisible de Exposición · TGBH: Índice de Temperatura de Globo de Bulbo Húmedo</div>
-        <div class="doc-conteos">
-          <span class="doc-conteo-linea"><span class="doc-conteo-num">${t1.length}</span> …… puntos en total evaluados</span>
-          <span class="doc-conteo-linea"><span class="doc-conteo-num">${den015t1}</span> …… se encuentran dentro del límite máximo permisible</span>
-        </div>
-        <p class="doc-nota-anexo">*Para información detallada, consultar los anexos del informe de resultados.</p>
-        <div class="doc-graficas-fila">
-          ${dibujarGraficaDoble('Índice TGBH', den015t1, 'Dentro de norma', t1.length - den015t1, 'Fuera de norma', t1.length)}
-        </div>`;
+    if (esFrio) {
+      // Tabla 1 (frío) — Índice de aislamiento requerido de la ropa (IREQ)
+      const tIreq = datos.tablas['015-ireq'] || [];
+      if (tIreq.length > 0) {
+        const den015Ireq = tIreq.filter(function (r) { return r[6] === 'Dentro'; }).length;
+        contenido += `
+          <p style="font-weight:700;color:var(--texto);margin-bottom:4px">Para el índice de aislamiento requerido de la ropa (IREQ)</p>
+          <p class="doc-intro" style="margin-bottom:14px">En la siguiente tabla se presentan las conclusiones para cada uno de los puntos evaluados en condiciones térmicas abatidas, comparando el aislamiento de la ropa disponible contra el aislamiento requerido (IREQ) según la temperatura del aire y la velocidad del viento.</p>
+          <div class="doc-nom-subtitulo">Tabla 1. Resultados del índice de aislamiento requerido de la ropa</div>
+          <table class="doc-tabla-resumen">
+            <thead><tr>
+              <th style="width:48px;white-space:nowrap">N°</th><th>Área evaluada</th>
+              <th>Nombre del trabajador</th>
+              <th style="width:78px">Temp. aire (°C)</th>
+              <th style="width:80px">Vel. viento (m/s)</th>
+              <th style="width:82px">IREQ requerido (clo)</th>
+              <th style="width:88px">Aislamiento disponible (clo)</th>
+              <th style="width:90px">Conclusión</th>
+            </tr></thead>
+            <tbody>
+              ${tIreq.map(function (r, i) {
+                const concl = r[6] === 'Dentro' ? '✓' : r[6] === 'Fuera' ? '✖' : (r[6] || '');
+                return `<tr>
+                  <td style="text-align:center">${i+1}</td>
+                  <td>${r[0]||''}</td><td>${r[1]||''}</td>
+                  <td style="text-align:center">${r[2]||''}</td>
+                  <td style="text-align:center">${r[3]||''}</td>
+                  <td style="text-align:center">${r[4]||''}</td>
+                  <td style="text-align:center">${r[5]||''}</td>
+                  <td style="text-align:center">${concl}</td>
+                </tr>`;
+              }).join('')}
+            </tbody>
+          </table>
+          <div class="doc-leyenda-bloque">Nomenclatura utilizada = Dentro | Fuera = ✓ | ✖<br>IREQ: Aislamiento Requerido de la Ropa · clo: unidad de aislamiento térmico de la vestimenta. Se considera dentro de norma cuando el aislamiento disponible es mayor o igual al IREQ requerido.</div>
+          <div class="doc-conteos">
+            <span class="doc-conteo-linea"><span class="doc-conteo-num">${tIreq.length}</span> …… puntos en total evaluados</span>
+            <span class="doc-conteo-linea"><span class="doc-conteo-num">${den015Ireq}</span> …… cuentan con el aislamiento de la ropa requerido</span>
+          </div>
+          <p class="doc-nota-anexo">*Para información detallada, consultar los anexos del informe de resultados.</p>
+          <div class="doc-graficas-fila">
+            ${dibujarGraficaDoble('Índice IREQ', den015Ireq, 'Dentro de norma', tIreq.length - den015Ireq, 'Fuera de norma', tIreq.length)}
+          </div>`;
+      }
+    } else {
+      // Tabla 1 (calor) — Índice de temperatura de globo de bulbo húmedo (TGBH)
+      const tTgbh = datos.tablas['015-tgbh'] || [];
+      if (tTgbh.length > 0) {
+        const den015Tgbh = tTgbh.filter(function (r) { return r[4] === 'Dentro'; }).length;
+        contenido += `
+          <p style="font-weight:700;color:var(--texto);margin-bottom:4px">Para el índice de temperatura de globo de bulbo húmedo (TGBH)</p>
+          <p class="doc-intro" style="margin-bottom:14px">En la siguiente tabla se presentan las conclusiones para cada uno de los puntos evaluados respecto al índice de temperatura de globo de bulbo húmedo comparado contra el límite máximo permisible de exposición.</p>
+          <div class="doc-nom-subtitulo">Tabla 1. Resultados del índice de temperatura de globo de bulbo húmedo</div>
+          <table class="doc-tabla-resumen">
+            <thead><tr>
+              <th style="width:48px;white-space:nowrap">N°</th><th>Área evaluada</th>
+              <th>Nombre del trabajador</th>
+              <th style="width:90px">TGBH promedio (°C)</th>
+              <th style="width:80px">LMPE (°C)</th>
+              <th style="width:90px">Conclusión</th>
+            </tr></thead>
+            <tbody>
+              ${tTgbh.map(function (r, i) {
+                const concl = r[4] === 'Dentro' ? '✓' : r[4] === 'Fuera' ? '✖' : (r[4] || '');
+                return `<tr>
+                  <td style="text-align:center">${i+1}</td>
+                  <td>${r[0]||''}</td><td>${r[1]||''}</td>
+                  <td style="text-align:center">${r[2]||''}</td>
+                  <td style="text-align:center">${r[3]||''}</td>
+                  <td style="text-align:center">${concl}</td>
+                </tr>`;
+              }).join('')}
+            </tbody>
+          </table>
+          <div class="doc-leyenda-bloque">Nomenclatura utilizada = Dentro | Fuera = ✓ | ✖<br>LMPE: Límite Máximo Permisible de Exposición · TGBH: Índice de Temperatura de Globo de Bulbo Húmedo</div>
+          <div class="doc-conteos">
+            <span class="doc-conteo-linea"><span class="doc-conteo-num">${tTgbh.length}</span> …… puntos en total evaluados</span>
+            <span class="doc-conteo-linea"><span class="doc-conteo-num">${den015Tgbh}</span> …… se encuentran dentro del límite máximo permisible</span>
+          </div>
+          <p class="doc-nota-anexo">*Para información detallada, consultar los anexos del informe de resultados.</p>
+          <div class="doc-graficas-fila">
+            ${dibujarGraficaDoble('Índice TGBH', den015Tgbh, 'Dentro de norma', tTgbh.length - den015Tgbh, 'Fuera de norma', tTgbh.length)}
+          </div>`;
+      }
     }
 
-    // Tabla 2 — Temperatura axilar de los trabajadores
-    if (t2.length > 0) {
-      const den015t2 = t2.filter(function (r) { return r[4] === 'Dentro'; }).length;
+    // Tabla 2 — Temperatura axilar de los trabajadores (común a ambos modos)
+    const tAxilar = datos.tablas['015-axilar'] || [];
+    if (tAxilar.length > 0) {
+      const den015Ax = tAxilar.filter(function (r) { return r[4] === 'Dentro'; }).length;
       contenido += `
         <div class="doc-nom-subtitulo">Tabla 2. Resultados de la temperatura axilar de los trabajadores</div>
         <table class="doc-tabla-resumen">
@@ -2380,7 +2521,7 @@ function renderizarTablaResumen(datos, nom) {
             <th style="width:90px">Conclusión</th>
           </tr></thead>
           <tbody>
-            ${t2.map(function (r, i) {
+            ${tAxilar.map(function (r, i) {
               const concl = r[4] === 'Dentro' ? '✓' : r[4] === 'Fuera' ? '✖' : (r[4] || '');
               return `<tr>
                 <td style="text-align:center">${i+1}</td>
@@ -2394,12 +2535,12 @@ function renderizarTablaResumen(datos, nom) {
         </table>
         <div class="doc-leyenda-bloque">Nomenclatura utilizada = Dentro | Fuera = ✓ | ✖</div>
         <div class="doc-conteos">
-          <span class="doc-conteo-linea"><span class="doc-conteo-num">${t2.length}</span> …… trabajadores en total evaluados</span>
-          <span class="doc-conteo-linea"><span class="doc-conteo-num">${den015t2}</span> …… se encuentran dentro del rango aceptado</span>
+          <span class="doc-conteo-linea"><span class="doc-conteo-num">${tAxilar.length}</span> …… trabajadores en total evaluados</span>
+          <span class="doc-conteo-linea"><span class="doc-conteo-num">${den015Ax}</span> …… se encuentran dentro del rango aceptado</span>
         </div>
         <p class="doc-nota-anexo">*Para información detallada, consultar los anexos del informe de resultados.</p>
         <div class="doc-graficas-fila">
-          ${dibujarGraficaDoble('Temperatura axilar', den015t2, 'Dentro de rango', t2.length - den015t2, 'Fuera de rango', t2.length)}
+          ${dibujarGraficaDoble('Temperatura axilar', den015Ax, 'Dentro de rango', tAxilar.length - den015Ax, 'Fuera de rango', tAxilar.length)}
         </div>`;
     }
   }
@@ -2412,8 +2553,20 @@ const TITULOS_NOM = {
   '022': 'NOM-022-STPS-2015 — Electricidad Estática',
   '025': 'NOM-025-STPS-2008 — Iluminación',
   '024': 'NOM-024-STPS-2001 — Vibraciones',
-  '015': 'NOM-015-STPS-2001 — Condiciones Térmicas Elevadas o Abatidas'
+  '015': 'NOM-015-STPS-2001 — Condiciones Térmicas Elevadas (Calor)',
+  '015-frio': 'NOM-015-STPS-2001 — Condiciones Térmicas Abatidas (Frío)'
 };
+
+/**
+ * Devuelve el título de la NOM. Para la NOM-015 varía según el modo
+ * (calor / frío) almacenado en datos.modo015.
+ * @param {Object} datos
+ * @param {string} nom
+ * @returns {string}
+ */
+function tituloNom(datos, nom) {
+  return TITULOS_NOM[claveParrafoNom(datos, nom)] || TITULOS_NOM[nom] || '';
+}
 
 /**
  * Genera el HTML de la página de resumen ejecutivo (con tablas) de una NOM.
@@ -2425,7 +2578,7 @@ function renderizarPaginaResumen(datos, nom) {
   return `
     <div class="doc-pagina">
       ${htmlHeaderDoc()}
-      <div class="doc-seccion-titulo">Resumen Ejecutivo — ${TITULOS_NOM[nom]}</div>
+      <div class="doc-seccion-titulo">Resumen Ejecutivo — ${tituloNom(datos, nom)}</div>
       <div class="doc-intro">
         A continuación se presentan los resultados obtenidos durante la evaluación
         realizada en las instalaciones de <strong>${datos.razonSocial}</strong>,
@@ -2870,10 +3023,18 @@ function restaurarFormulario(datos) {
       { tbodyId: 'tbody-024', claves: ['024'] }
     ],
     '015': [
-      { tbodyId: 'tbody-015-1', claves: ['015-1'] },
-      { tbodyId: 'tbody-015-2', claves: ['015-2'] }
+      { tbodyId: 'tbody-015-tgbh',   claves: ['015-tgbh'] },
+      { tbodyId: 'tbody-015-ireq',   claves: ['015-ireq'] },
+      { tbodyId: 'tbody-015-axilar', claves: ['015-axilar'] }
     ]
   };
+
+  // Restaurar el modo de la NOM-015 (calor / frío) antes de recrear filas
+  const selModo015 = document.getElementById('modo-015');
+  if (selModo015) {
+    selModo015.value = datos.modo015 || 'calor';
+    aplicarModo015(selModo015.value);
+  }
 
   (datos.noms || []).forEach(function (nom) {
     const chk = document.getElementById('check-' + nom);
