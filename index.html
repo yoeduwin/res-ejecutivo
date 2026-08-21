@@ -1364,6 +1364,8 @@ select:focus {
                   <th class="col-num">N°</th>
                   <th>Área evaluada</th>
                   <th>Nombre del trabajador</th>
+                  <th class="col-medicion">Régimen de trabajo</th>
+                  <th class="col-medicion">% de exposición</th>
                   <th class="col-medicion">TGBH promedio (°C)</th>
                   <th class="col-medicion">LMPE (°C)</th>
                   <th class="col-conclusion">Conclusión</th>
@@ -1375,6 +1377,21 @@ select:focus {
                   <td class="col-num num-fila">—</td>
                   <td><input type="text" class="campo-tabla" placeholder="Ej. Horno de alambre recocido 1 / Ciclo final"></td>
                   <td><input type="text" class="campo-tabla" placeholder="Nombre completo"></td>
+                  <td>
+                    <select class="campo-tabla campo-select">
+                      <option value="Ligero">Ligero</option>
+                      <option value="Moderado">Moderado</option>
+                      <option value="Pesado">Pesado</option>
+                    </select>
+                  </td>
+                  <td>
+                    <select class="campo-tabla campo-select">
+                      <option value="100%">100% (sin recuperación)</option>
+                      <option value="75%">75% (25% recup./h)</option>
+                      <option value="50%">50% (50% recup./h)</option>
+                      <option value="25%">25% (75% recup./h)</option>
+                    </select>
+                  </td>
                   <td><input type="text" class="campo-tabla" placeholder="Ej. 37.608"></td>
                   <td><input type="text" class="campo-tabla" placeholder="Ej. 32.2"></td>
                   <td>
@@ -1394,10 +1411,10 @@ select:focus {
           <button type="button" class="btn-agregar" onclick="agregarFila('tbody-015-tgbh')">+ Agregar fila</button>
         </div>
 
-        <!-- ═══ Bloque FRÍO (IREQ) ═══ -->
+        <!-- ═══ Bloque FRÍO (Índice de Viento Frío) ═══ -->
         <div id="bloque-015-frio" style="display:none">
-          <!-- Tabla 1 (frío): Índice de aislamiento requerido de la ropa (IREQ) -->
-          <h3 class="tabla-titulo">Tabla 1 — Resultados del índice de aislamiento requerido de la ropa (IREQ)</h3>
+          <!-- Tabla 1 (frío): Índice de viento frío (Ivf) — Cap. 10 + Tablas A.2 y 2 -->
+          <h3 class="tabla-titulo">Tabla 1 — Resultados del índice de viento frío (Ivf)</h3>
           <div class="tabla-contenedor">
             <table class="tabla-datos">
               <thead>
@@ -1405,23 +1422,30 @@ select:focus {
                   <th class="col-num">N°</th>
                   <th>Área evaluada</th>
                   <th>Nombre del trabajador</th>
-                  <th class="col-medicion">Temp. del aire (°C)</th>
-                  <th class="col-medicion">Vel. del viento (m/s)</th>
-                  <th class="col-medicion">IREQ requerido (clo)</th>
-                  <th class="col-medicion">Aislamiento disponible (clo)</th>
+                  <th class="col-medicion">Temp. bulbo seco (°C)</th>
+                  <th class="col-medicion">Vel. del viento (km/h)</th>
+                  <th class="col-medicion">Índice de viento frío (°C)</th>
+                  <th class="col-medicion">Tiempo máx. de exposición</th>
                   <th class="col-conclusion">Conclusión</th>
                   <th class="col-accion"></th>
                 </tr>
               </thead>
-              <tbody id="tbody-015-ireq">
+              <tbody id="tbody-015-ivf">
                 <tr class="fila-template" style="display:none">
                   <td class="col-num num-fila">—</td>
                   <td><input type="text" class="campo-tabla" placeholder="Ej. Cámara de congelación"></td>
                   <td><input type="text" class="campo-tabla" placeholder="Nombre completo"></td>
                   <td><input type="text" class="campo-tabla" placeholder="Ej. -18.0"></td>
-                  <td><input type="text" class="campo-tabla" placeholder="Ej. 0.4"></td>
-                  <td><input type="text" class="campo-tabla" placeholder="Ej. 2.85"></td>
-                  <td><input type="text" class="campo-tabla" placeholder="Ej. 3.10"></td>
+                  <td><input type="text" class="campo-tabla" placeholder="Ej. 16"></td>
+                  <td><input type="text" class="campo-tabla" placeholder="Ej. -21"></td>
+                  <td>
+                    <select class="campo-tabla campo-select">
+                      <option value="8 horas">8 horas (0 a −18 °C)</option>
+                      <option value="4 horas">4 horas (&lt;−18 a −34 °C)</option>
+                      <option value="1 hora">1 hora (&lt;−34 a −57 °C)</option>
+                      <option value="5 minutos">5 minutos (&lt;−57 °C)</option>
+                    </select>
+                  </td>
                   <td>
                     <select class="campo-tabla campo-select">
                       <option value="Dentro">✓ Dentro</option>
@@ -1436,7 +1460,7 @@ select:focus {
               </tbody>
             </table>
           </div>
-          <button type="button" class="btn-agregar" onclick="agregarFila('tbody-015-ireq')">+ Agregar fila</button>
+          <button type="button" class="btn-agregar" onclick="agregarFila('tbody-015-ivf')">+ Agregar fila</button>
         </div>
 
         <!-- Tabla 2: Temperatura axilar de los trabajadores (común a ambos modos) -->
@@ -1780,7 +1804,7 @@ function validarFormulario() {
     '022': ['tbody-022-1', 'tbody-022-2'],
     '025': ['tbody-025-1', 'tbody-025-2'],
     '024': ['tbody-024'],
-    '015': ['tbody-015-tgbh', 'tbody-015-ireq', 'tbody-015-axilar']
+    '015': ['tbody-015-tgbh', 'tbody-015-ivf', 'tbody-015-axilar']
   };
   nomsActivas.forEach(function (nom) {
     const tablas = tablasPorNom[nom] || [];
@@ -1864,7 +1888,7 @@ function recolectarDatos() {
     const modo015 = document.getElementById('modo-015');
     datos.modo015 = (modo015 && modo015.value) || 'calor';
     if (datos.modo015 === 'frio') {
-      datos.tablas['015-ireq'] = leerFilasTabla('tbody-015-ireq');
+      datos.tablas['015-ivf'] = leerFilasTabla('tbody-015-ivf');
     } else {
       datos.tablas['015-tgbh'] = leerFilasTabla('tbody-015-tgbh');
     }
@@ -2421,26 +2445,26 @@ function renderizarTablaResumen(datos, nom) {
     const esFrio = datos.modo015 === 'frio';
 
     if (esFrio) {
-      // Tabla 1 (frío) — Índice de aislamiento requerido de la ropa (IREQ)
-      const tIreq = datos.tablas['015-ireq'] || [];
-      if (tIreq.length > 0) {
-        const den015Ireq = tIreq.filter(function (r) { return r[6] === 'Dentro'; }).length;
+      // Tabla 1 (frío) — Índice de viento frío (Ivf), Cap. 10 NOM-015
+      const tIvf = datos.tablas['015-ivf'] || [];
+      if (tIvf.length > 0) {
+        const den015Ivf = tIvf.filter(function (r) { return r[6] === 'Dentro'; }).length;
         contenido += `
-          <p style="font-weight:700;color:var(--texto);margin-bottom:4px">Para el índice de aislamiento requerido de la ropa (IREQ)</p>
-          <p class="doc-intro" style="margin-bottom:14px">En la siguiente tabla se presentan las conclusiones para cada uno de los puntos evaluados en condiciones térmicas abatidas, comparando el aislamiento de la ropa disponible contra el aislamiento requerido (IREQ) según la temperatura del aire y la velocidad del viento.</p>
-          <div class="doc-nom-subtitulo">Tabla 1. Resultados del índice de aislamiento requerido de la ropa</div>
+          <p style="font-weight:700;color:var(--texto);margin-bottom:4px">Para el índice de viento frío (Ivf)</p>
+          <p class="doc-intro" style="margin-bottom:14px">En la siguiente tabla se presentan las conclusiones para cada uno de los puntos evaluados en condiciones térmicas abatidas, correlacionando la temperatura de bulbo seco y la velocidad del viento para determinar el índice de viento frío y el tiempo máximo permisible de exposición.</p>
+          <div class="doc-nom-subtitulo">Tabla 1. Resultados del índice de viento frío</div>
           <table class="doc-tabla-resumen">
             <thead><tr>
               <th style="width:48px;white-space:nowrap">N°</th><th>Área evaluada</th>
               <th>Nombre del trabajador</th>
-              <th style="width:78px">Temp. aire (°C)</th>
-              <th style="width:80px">Vel. viento (m/s)</th>
-              <th style="width:82px">IREQ requerido (clo)</th>
-              <th style="width:88px">Aislamiento disponible (clo)</th>
+              <th style="width:80px">Temp. bulbo seco (°C)</th>
+              <th style="width:80px">Vel. viento (km/h)</th>
+              <th style="width:82px">Índice de viento frío (°C)</th>
+              <th style="width:96px">Tiempo máx. de exposición</th>
               <th style="width:90px">Conclusión</th>
             </tr></thead>
             <tbody>
-              ${tIreq.map(function (r, i) {
+              ${tIvf.map(function (r, i) {
                 const concl = r[6] === 'Dentro' ? '✓' : r[6] === 'Fuera' ? '✖' : (r[6] || '');
                 return `<tr>
                   <td style="text-align:center">${i+1}</td>
@@ -2454,47 +2478,51 @@ function renderizarTablaResumen(datos, nom) {
               }).join('')}
             </tbody>
           </table>
-          <div class="doc-leyenda-bloque">Nomenclatura utilizada = Dentro | Fuera = ✓ | ✖<br>IREQ: Aislamiento Requerido de la Ropa · clo: unidad de aislamiento térmico de la vestimenta. Se considera dentro de norma cuando el aislamiento disponible es mayor o igual al IREQ requerido.</div>
+          <div class="doc-leyenda-bloque">Nomenclatura utilizada = Dentro | Fuera = ✓ | ✖<br>Ivf: Índice de Viento Frío (Tabla A.2 de la norma). El tiempo máximo de exposición se determina con la Tabla 2: de 0 a −18 °C → 8 h; &lt;−18 a −34 °C → 4 h; &lt;−34 a −57 °C → 1 h; &lt;−57 °C → 5 min.</div>
           <div class="doc-conteos">
-            <span class="doc-conteo-linea"><span class="doc-conteo-num">${tIreq.length}</span> …… puntos en total evaluados</span>
-            <span class="doc-conteo-linea"><span class="doc-conteo-num">${den015Ireq}</span> …… cuentan con el aislamiento de la ropa requerido</span>
+            <span class="doc-conteo-linea"><span class="doc-conteo-num">${tIvf.length}</span> …… puntos en total evaluados</span>
+            <span class="doc-conteo-linea"><span class="doc-conteo-num">${den015Ivf}</span> …… se encuentran dentro del tiempo máximo permisible de exposición</span>
           </div>
           <p class="doc-nota-anexo">*Para información detallada, consultar los anexos del informe de resultados.</p>
           <div class="doc-graficas-fila">
-            ${dibujarGraficaDoble('Índice IREQ', den015Ireq, 'Dentro de norma', tIreq.length - den015Ireq, 'Fuera de norma', tIreq.length)}
+            ${dibujarGraficaDoble('Índice de viento frío', den015Ivf, 'Dentro de norma', tIvf.length - den015Ivf, 'Fuera de norma', tIvf.length)}
           </div>`;
       }
     } else {
       // Tabla 1 (calor) — Índice de temperatura de globo de bulbo húmedo (TGBH)
       const tTgbh = datos.tablas['015-tgbh'] || [];
       if (tTgbh.length > 0) {
-        const den015Tgbh = tTgbh.filter(function (r) { return r[4] === 'Dentro'; }).length;
+        const den015Tgbh = tTgbh.filter(function (r) { return r[6] === 'Dentro'; }).length;
         contenido += `
           <p style="font-weight:700;color:var(--texto);margin-bottom:4px">Para el índice de temperatura de globo de bulbo húmedo (TGBH)</p>
-          <p class="doc-intro" style="margin-bottom:14px">En la siguiente tabla se presentan las conclusiones para cada uno de los puntos evaluados respecto al índice de temperatura de globo de bulbo húmedo comparado contra el límite máximo permisible de exposición.</p>
+          <p class="doc-intro" style="margin-bottom:14px">En la siguiente tabla se presentan las conclusiones para cada uno de los puntos evaluados respecto al índice de temperatura de globo de bulbo húmedo comparado contra el límite máximo permisible de exposición, según el régimen de trabajo y el porcentaje de exposición.</p>
           <div class="doc-nom-subtitulo">Tabla 1. Resultados del índice de temperatura de globo de bulbo húmedo</div>
           <table class="doc-tabla-resumen">
             <thead><tr>
-              <th style="width:48px;white-space:nowrap">N°</th><th>Área evaluada</th>
+              <th style="width:40px;white-space:nowrap">N°</th><th>Área evaluada</th>
               <th>Nombre del trabajador</th>
-              <th style="width:90px">TGBH promedio (°C)</th>
-              <th style="width:80px">LMPE (°C)</th>
-              <th style="width:90px">Conclusión</th>
+              <th style="width:78px">Régimen de trabajo</th>
+              <th style="width:70px">% de exposición</th>
+              <th style="width:78px">TGBH promedio (°C)</th>
+              <th style="width:70px">LMPE (°C)</th>
+              <th style="width:82px">Conclusión</th>
             </tr></thead>
             <tbody>
               ${tTgbh.map(function (r, i) {
-                const concl = r[4] === 'Dentro' ? '✓' : r[4] === 'Fuera' ? '✖' : (r[4] || '');
+                const concl = r[6] === 'Dentro' ? '✓' : r[6] === 'Fuera' ? '✖' : (r[6] || '');
                 return `<tr>
                   <td style="text-align:center">${i+1}</td>
                   <td>${r[0]||''}</td><td>${r[1]||''}</td>
                   <td style="text-align:center">${r[2]||''}</td>
                   <td style="text-align:center">${r[3]||''}</td>
+                  <td style="text-align:center">${r[4]||''}</td>
+                  <td style="text-align:center">${r[5]||''}</td>
                   <td style="text-align:center">${concl}</td>
                 </tr>`;
               }).join('')}
             </tbody>
           </table>
-          <div class="doc-leyenda-bloque">Nomenclatura utilizada = Dentro | Fuera = ✓ | ✖<br>LMPE: Límite Máximo Permisible de Exposición · TGBH: Índice de Temperatura de Globo de Bulbo Húmedo</div>
+          <div class="doc-leyenda-bloque">Nomenclatura utilizada = Dentro | Fuera = ✓ | ✖<br>LMPE: Límite Máximo Permisible de Exposición · TGBH: Índice de Temperatura de Globo de Bulbo Húmedo. El LMPE se toma de la Tabla 1 de la norma según el régimen de trabajo (ligero/moderado/pesado) y el % de exposición.</div>
           <div class="doc-conteos">
             <span class="doc-conteo-linea"><span class="doc-conteo-num">${tTgbh.length}</span> …… puntos en total evaluados</span>
             <span class="doc-conteo-linea"><span class="doc-conteo-num">${den015Tgbh}</span> …… se encuentran dentro del límite máximo permisible</span>
@@ -3024,7 +3052,7 @@ function restaurarFormulario(datos) {
     ],
     '015': [
       { tbodyId: 'tbody-015-tgbh',   claves: ['015-tgbh'] },
-      { tbodyId: 'tbody-015-ireq',   claves: ['015-ireq'] },
+      { tbodyId: 'tbody-015-ivf',    claves: ['015-ivf'] },
       { tbodyId: 'tbody-015-axilar', claves: ['015-axilar'] }
     ]
   };
