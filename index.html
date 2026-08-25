@@ -1,5 +1,3 @@
-[claude/add-sheet-integration-nrWY3 b58655a] fix: hide deployment metadata banner
- 1 file changed, 15 insertions(+)
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -908,21 +906,6 @@ select:focus {
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
-  <script>
-    // Algunos entornos de despliegue anteponen una línea técnica antes del HTML.
-    // Se elimina para que nunca sea visible para el usuario.
-    (function () {
-      const limpiarAvisoDespliegue = function () {
-        Array.from(document.body.childNodes).forEach(function (nodo) {
-          if (nodo.nodeType === Node.TEXT_NODE && /^\s*\[[^\]]+\].*file changed/i.test(nodo.nodeValue || '')) {
-            nodo.remove();
-          }
-        });
-      };
-      limpiarAvisoDespliegue();
-      new MutationObserver(limpiarAvisoDespliegue).observe(document.body, { childList: true });
-    })();
-  </script>
   <!-- ── Header corporativo ── -->
   <header>
     <div class="header-inner">
