@@ -1,3 +1,5 @@
+[claude/add-sheet-integration-nrWY3 c628f93] fix: clarify EMA accreditation reference
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -1586,7 +1588,9 @@ const EMPRESA = {
   correoVentas:  'ventas@ejecutivambiental.com',
   telCelular:    '279 111 35 33',
   telFijo:       '222 941 7295',
-  acreditacion:  'AL-1973-207/25'
+  // Referencia al estado de acreditación conforme a CEI-PR-GCI-001,
+  // apartado 5.1.4 b). No representa ni sustituye el símbolo de ema.
+  acreditacion:  'Laboratorio de Ensayo acreditado por ema, a.c. con acreditación No. AL-1973-207/25'
 };
 
 // Firma digital del representante legal.
@@ -2001,7 +2005,7 @@ function htmlHeaderDoc() {
         </div>
       </div>
       <div class="doc-acreditacion">
-        <strong>Acreditación EMA</strong>${EMPRESA.acreditacion}
+        ${EMPRESA.acreditacion}
       </div>
     </div>`;
 }
