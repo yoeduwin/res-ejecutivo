@@ -3628,25 +3628,34 @@ function cssPDFAltaCalidad() {
       page-break-inside: avoid !important;
       break-inside: avoid !important;
     }
+    /* Carta: interlineado y espaciados compactos para que incluso la carta
+       más extensa (p. ej. NOM-010, con párrafos largos) quepa en una sola
+       página sin que la firma invada la barra de pie de página. */
     .doc-titulo-carta {
-      margin-bottom: 8mm !important;
+      margin-bottom: 5mm !important;
+    }
+    .doc-carta .doc-fila-superior {
+      margin-bottom: 5mm !important;
+    }
+    .doc-carta .doc-fecha {
+      margin-bottom: 5mm !important;
     }
     .doc-cuerpo {
-      line-height: 1.62 !important;
+      line-height: 1.5 !important;
       margin-bottom: 0 !important;
     }
     .doc-cuerpo p {
-      margin-bottom: 4mm !important;
+      margin-bottom: 3mm !important;
     }
     .doc-firma {
-      min-height: 32mm !important;
+      min-height: 22mm !important;
     }
     .doc-firma-espacio {
-      height: 18mm !important;
+      height: 12mm !important;
     }
     .doc-firma-img {
       max-width: 70mm !important;
-      max-height: 18mm !important;
+      max-height: 12mm !important;
     }
     .doc-firma-linea {
       width: 70mm !important;
