@@ -1030,7 +1030,20 @@ select:focus {
               <em>Condiciones térmicas elevadas o abatidas</em>
             </span>
           </label>
+          <label class="nom-check-label">
+            <input type="checkbox" id="check-010" value="010"
+                   onchange="toggleSeccionNom('010', this.checked)">
+            <span class="nom-check-texto"><strong>NOM-010-STPS-2014</strong><em>Agentes químicos contaminantes del ambiente laboral</em></span>
+          </label>
         </div>
+      </section>
+
+      <section id="seccion-010" class="seccion-nom" style="display:none">
+        <h2 class="seccion-titulo nom-titulo">NOM-010-STPS-2014 — Agentes químicos contaminantes del ambiente laboral</h2>
+        <h3 class="tabla-titulo">Tabla 1 — Resultados del reconocimiento</h3>
+        <div class="tabla-contenedor"><table class="tabla-datos"><thead><tr><th class="col-num">Punto</th><th>Agente químico a evaluar</th><th>Grupo de exposición homogénea</th><th>Número de POE a considerar</th><th></th></tr></thead>
+        <tbody id="tbody-010-1"><tr class="fila-template" style="display:none"><td class="col-num num-fila">—</td><td><input class="campo-tabla" type="text" placeholder="Sustancia o agente químico"></td><td><input class="campo-tabla" type="text" placeholder="Área / puesto / GEE"></td><td><input class="campo-tabla" type="text" placeholder="Ej. 1"></td><td><button type="button" class="btn-eliminar" onclick="eliminarFila(this)">×</button></td></tr></tbody></table></div>
+        <button type="button" class="btn-agregar" onclick="agregarFila('tbody-010-1')">+ Agregar fila</button>
       </section>
 
       <!-- ── Sección NOM-011 ── -->
@@ -1631,6 +1644,14 @@ El presente informe de resultados únicamente presenta los resultados del centro
 Confiamos en que este documento cumplirá con sus expectativas y será una herramienta valiosa para fortalecer la seguridad y el bienestar en su empresa. Agradecemos la confianza depositada en nuestros servicios y quedamos a su disposición para aclarar cualquier duda o brindarle asistencia en la interpretación de los resultados.
 
 Finalmente, le recordamos que la vigencia del informe será de dos años, mientras se mantengan las condiciones de trabajo que sirvieron de referencia para su emisión, tal como lo establece el numeral 12.5 de la norma de referencia.`
+  ,
+  '010': `Es un placer para nosotros entregarle el informe de resultados correspondiente a la evaluación de los agentes químicos contaminantes del ambiente laboral, realizada conforme a lo establecido en la Norma Oficial Mexicana NOM-010-STPS-2014, Agentes químicos contaminantes del ambiente laboral — Reconocimiento, evaluación y control, específicamente en los capítulos 8 y 9, con el propósito de dar cumplimiento a los puntos 6.1, 6.2, 8.1 y 9.1 de la citada norma.
+
+Este informe detalla los resultados obtenidos durante el estudio y reconocimiento de los agentes químicos presentes en las áreas evaluadas de su centro de trabajo, reflejando las condiciones existentes al momento de la evaluación. Nuestro equipo técnico ha desarrollado este trabajo con el mayor rigor y apego a los lineamientos normativos, con el objetivo de brindarle información precisa y útil para la gestión de la seguridad e higiene en su organización.
+
+Confiamos en que este documento cumpla con sus expectativas y sirva como una herramienta valiosa para fortalecer la prevención de riesgos y el bienestar de su personal. Agradecemos la confianza depositada en nuestros servicios y quedamos a su disposición para aclarar cualquier duda o asistirle en la interpretación de los resultados.
+
+Finalmente, le recordamos que, conforme a lo dispuesto en el punto 8.3 de la NOM-010-STPS-2014, este estudio deberá actualizarse cuando se sustituyan o incorporen sustancias químicas, o cuando se modifiquen las instalaciones, procesos, maquinaria o equipos que manejen dichas sustancias.`
 };
 
 // ── Claves derivadas por modo (NOM-015: calor / frío) ──────
@@ -1805,6 +1826,7 @@ function validarFormulario() {
     '025': ['tbody-025-1', 'tbody-025-2'],
     '024': ['tbody-024'],
     '015': ['tbody-015-tgbh', 'tbody-015-ivf', 'tbody-015-axilar']
+    ,'010': ['tbody-010-1']
   };
   nomsActivas.forEach(function (nom) {
     const tablas = tablasPorNom[nom] || [];
@@ -1829,7 +1851,7 @@ function validarFormulario() {
  * @returns {string[]}
  */
 function obtenerNomsActivas() {
-  return ['011', '022', '025', '024', '015'].filter(function (nom) {
+  return ['011', '022', '025', '024', '015', '010'].filter(function (nom) {
     const chk = document.getElementById('check-' + nom);
     return chk && chk.checked;
   });
@@ -1894,6 +1916,7 @@ function recolectarDatos() {
     }
     datos.tablas['015-axilar'] = leerFilasTabla('tbody-015-axilar');
   }
+  if (nomsActivas.includes('010')) datos.tablas['010-1'] = leerFilasTabla('tbody-010-1');
 
   // Total de puntos evaluados (suma de todas las filas de todas las tablas)
   datos.totalPuntos = Object.values(datos.tablas).reduce(function (acc, t) {
@@ -2573,6 +2596,13 @@ function renderizarTablaResumen(datos, nom) {
     }
   }
 
+  if (nom === '010') {
+    const t = datos.tablas['010-1'] || [];
+    contenido += `<p style="font-weight:700;color:var(--texto);margin-bottom:4px">Resultados del reconocimiento de agentes químicos contaminantes</p>
+      <p class="doc-intro" style="margin-bottom:14px">En la siguiente tabla se presentan los agentes químicos identificados, el grupo de exposición homogénea y el número de trabajadores potencialmente expuestos a considerar para la evaluación.</p>
+      <div class="doc-nom-subtitulo">Tabla 1. Resultados del reconocimiento</div><table class="doc-tabla-resumen"><thead><tr><th style="width:48px">Punto</th><th>Agente químico a evaluar</th><th>Grupo de exposición homogénea</th><th style="width:130px">Número de POE a considerar</th></tr></thead><tbody>${t.map((r,i)=>`<tr><td style="text-align:center">${i+1}</td><td>${r[0]||''}</td><td>${r[1]||''}</td><td style="text-align:center">${r[2]||''}</td></tr>`).join('')}</tbody></table><div class="doc-conteos"><span class="doc-conteo-linea"><span class="doc-conteo-num">${t.length}</span> …… agentes químicos identificados</span></div><p class="doc-nota-anexo">*Para información detallada, consultar los anexos del informe de resultados.</p>`;
+  }
+
   return contenido;
 }
 
@@ -2583,6 +2613,7 @@ const TITULOS_NOM = {
   '024': 'NOM-024-STPS-2001 — Vibraciones',
   '015': 'NOM-015-STPS-2001 — Condiciones Térmicas Elevadas (Calor)',
   '015-frio': 'NOM-015-STPS-2001 — Condiciones Térmicas Abatidas (Frío)'
+  ,'010': 'NOM-010-STPS-2014 — Agentes Químicos Contaminantes del Ambiente Laboral'
 };
 
 /**
