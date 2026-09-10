@@ -1358,18 +1358,19 @@ select:focus {
         <h2 class="seccion-titulo nom-titulo">NOM-015-STPS-2001 — Condiciones térmicas elevadas o abatidas</h2>
 
         <!-- Selector de tipo de condición térmica -->
-        <div class="campo-grupo" style="max-width:420px">
+        <div class="campo-grupo" style="max-width:460px">
           <label for="modo-015">Tipo de condición térmica evaluada *</label>
           <select id="modo-015" class="campo-tabla campo-select" onchange="aplicarModo015(this.value)">
             <option value="calor">Condiciones elevadas — Calor (TGBH)</option>
-            <option value="frio">Condiciones abatidas — Frío (IREQ)</option>
+            <option value="frio">Condiciones abatidas — Frío (Ivf)</option>
+            <option value="ambas">Ambas — Elevadas y abatidas (TGBH e Ivf)</option>
           </select>
         </div>
 
         <!-- ═══ Bloque CALOR (TGBH) ═══ -->
         <div id="bloque-015-calor">
           <!-- Tabla 1 (calor): Índice de temperatura de globo de bulbo húmedo (TGBH) -->
-          <h3 class="tabla-titulo">Tabla 1 — Resultados del índice de temperatura de globo de bulbo húmedo (TGBH)</h3>
+          <h3 class="tabla-titulo" id="titulo-015-tgbh">Tabla 1 — Resultados del índice de temperatura de globo de bulbo húmedo (TGBH)</h3>
           <div class="tabla-contenedor">
             <table class="tabla-datos">
               <thead>
@@ -1424,10 +1425,10 @@ select:focus {
           <button type="button" class="btn-agregar" onclick="agregarFila('tbody-015-tgbh')">+ Agregar fila</button>
         </div>
 
-        <!-- ═══ Bloque FRÍO (Índice de Viento Frío) ═══ -->
+        <!-- ═══ Bloque FRÍO (Índice de Viento Frío, Ivf) ═══ -->
         <div id="bloque-015-frio" style="display:none">
           <!-- Tabla 1 (frío): Índice de viento frío (Ivf) — Cap. 10 + Tablas A.2 y 2 -->
-          <h3 class="tabla-titulo">Tabla 1 — Resultados del índice de viento frío (Ivf)</h3>
+          <h3 class="tabla-titulo" id="titulo-015-ivf" style="margin-top:24px">Tabla 1 — Resultados del índice de viento frío (Ivf)</h3>
           <div class="tabla-contenedor">
             <table class="tabla-datos">
               <thead>
@@ -1477,7 +1478,7 @@ select:focus {
         </div>
 
         <!-- Tabla 2: Temperatura axilar de los trabajadores (común a ambos modos) -->
-        <h3 class="tabla-titulo" style="margin-top:24px">Tabla 2 — Resultados de la temperatura axilar de los trabajadores</h3>
+        <h3 class="tabla-titulo" id="titulo-015-axilar" style="margin-top:24px">Tabla 2 — Resultados de la temperatura axilar de los trabajadores</h3>
         <div class="tabla-contenedor">
           <table class="tabla-datos">
             <thead>
@@ -1645,6 +1646,14 @@ El presente informe de resultados únicamente presenta los resultados del centro
 
 Confiamos en que este documento cumplirá con sus expectativas y será una herramienta valiosa para fortalecer la seguridad y el bienestar en su empresa. Agradecemos la confianza depositada en nuestros servicios y quedamos a su disposición para aclarar cualquier duda o brindarle asistencia en la interpretación de los resultados.
 
+Finalmente, le recordamos que la vigencia del informe será de dos años, mientras se mantengan las condiciones de trabajo que sirvieron de referencia para su emisión, tal como lo establece el numeral 12.5 de la norma de referencia.`,
+
+  '015-ambas': `Es un placer para nosotros entregarle el informe de resultados correspondiente a la evaluación de las condiciones térmicas elevadas (calor) y abatidas (frío) en su centro de trabajo, realizado conforme a lo establecido en la normativa vigente, específicamente la NOM-015-STPS-2001.
+
+El presente informe de resultados únicamente presenta los resultados del centro de trabajo evaluado, en las condiciones al momento de realizar las mediciones. Hemos trabajado con el mayor rigor para garantizar la precisión y utilidad de los datos recopilados, con el objetivo de apoyarle en la gestión y mejora de las condiciones laborales en su organización.
+
+Confiamos en que este documento cumplirá con sus expectativas y será una herramienta valiosa para fortalecer la seguridad y el bienestar en su empresa. Agradecemos la confianza depositada en nuestros servicios y quedamos a su disposición para aclarar cualquier duda o brindarle asistencia en la interpretación de los resultados.
+
 Finalmente, le recordamos que la vigencia del informe será de dos años, mientras se mantengan las condiciones de trabajo que sirvieron de referencia para su emisión, tal como lo establece el numeral 12.5 de la norma de referencia.`
   ,
   '010': `Es un placer para nosotros entregarle el informe de resultados correspondiente a la evaluación de los agentes químicos contaminantes del ambiente laboral, realizada conforme a lo establecido en la Norma Oficial Mexicana NOM-010-STPS-2014, Agentes químicos contaminantes del ambiente laboral — Reconocimiento, evaluación y control, específicamente en los capítulos 8 y 9, con el propósito de dar cumplimiento a los puntos 6.1, 6.2, 8.1 y 9.1 de la citada norma.
@@ -1656,11 +1665,27 @@ Confiamos en que este documento cumpla con sus expectativas y sirva como una her
 Finalmente, le recordamos que, conforme a lo dispuesto en el punto 8.3 de la NOM-010-STPS-2014, este estudio deberá actualizarse cuando se sustituyan o incorporen sustancias químicas, o cuando se modifiquen las instalaciones, procesos, maquinaria o equipos que manejen dichas sustancias.`
 };
 
-// ── Claves derivadas por modo (NOM-015: calor / frío) ──────
+// ── Modo de evaluación de la NOM-015 ───────────────────────
+// 'calor' = condiciones elevadas (TGBH) · 'frio' = condiciones abatidas (Ivf)
+// 'ambas' = el centro de trabajo tiene áreas de calor y de frío, y el informe
+// presenta los dos índices en un mismo documento.
+const MODOS_015 = ['calor', 'frio', 'ambas'];
+
+function modo015De(datos) {
+  const modo = datos && datos.modo015;
+  return MODOS_015.indexOf(modo) >= 0 ? modo : 'calor';
+}
+function hayCalor015(modo) { return modo === 'calor' || modo === 'ambas'; }
+function hayFrio015(modo)  { return modo === 'frio'  || modo === 'ambas'; }
+
+// ── Claves derivadas por modo (NOM-015: calor / frío / ambas) ──
 // Para la NOM-015, el modo de evaluación cambia el título y la carta.
 // Estas funciones devuelven la clave/título/párrafo correctos según el modo.
 function claveParrafoNom(datos, nom) {
-  if (nom === '015' && datos && datos.modo015 === 'frio') return '015-frio';
+  if (nom !== '015') return nom;
+  const modo = modo015De(datos);
+  if (modo === 'frio')  return '015-frio';
+  if (modo === 'ambas') return '015-ambas';
   return nom;
 }
 
@@ -1680,6 +1705,10 @@ document.addEventListener('DOMContentLoaded', function () {
   const mm   = String(hoy.getMonth() + 1).padStart(2, '0');
   const dd   = String(hoy.getDate()).padStart(2, '0');
   document.getElementById('fecha').value = `${yyyy}-${mm}-${dd}`;
+
+  // Dejar la NOM-015 coherente con el modo inicial del selector
+  const selModo015Inicial = document.getElementById('modo-015');
+  if (selModo015Inicial) aplicarModo015(selModo015Inicial.value);
 });
 
 // ============================================================
@@ -1697,18 +1726,32 @@ function toggleSeccionNom(nom, activa) {
 }
 
 /**
- * Muestra el bloque de captura de la NOM-015 correspondiente al modo
- * seleccionado (calor = TGBH, frío = IREQ). La tabla de temperatura axilar
- * (Tabla 2) es común a ambos modos y permanece visible.
- * @param {string} modo - 'calor' | 'frio'
+ * Muestra los bloques de captura de la NOM-015 según el modo seleccionado
+ * (calor = TGBH, frío = Ivf, ambas = los dos). La tabla de temperatura axilar
+ * es común a todos los modos y permanece visible; su número cambia porque en
+ * modo 'ambas' hay tres tablas en lugar de dos.
+ * @param {string} modo - 'calor' | 'frio' | 'ambas'
  */
 function aplicarModo015(modo) {
   const bloqueCalor = document.getElementById('bloque-015-calor');
   const bloqueFrio  = document.getElementById('bloque-015-frio');
   if (!bloqueCalor || !bloqueFrio) return;
-  const esFrio = modo === 'frio';
-  bloqueCalor.style.display = esFrio ? 'none' : 'block';
-  bloqueFrio.style.display  = esFrio ? 'block' : 'none';
+
+  const modoValido = modo015De({ modo015: modo });
+  const conCalor = hayCalor015(modoValido);
+  const conFrio  = hayFrio015(modoValido);
+  bloqueCalor.style.display = conCalor ? 'block' : 'none';
+  bloqueFrio.style.display  = conFrio  ? 'block' : 'none';
+
+  // Renumerar los títulos: la tabla axilar es la última en cualquier modo.
+  let n = 0;
+  const titular = function (id, texto) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = 'Tabla ' + (++n) + ' — ' + texto;
+  };
+  if (conCalor) titular('titulo-015-tgbh', 'Resultados del índice de temperatura de globo de bulbo húmedo (TGBH)');
+  if (conFrio)  titular('titulo-015-ivf',  'Resultados del índice de viento frío (Ivf)');
+  titular('titulo-015-axilar', 'Resultados de la temperatura axilar de los trabajadores');
 }
 
 // ============================================================
@@ -1826,11 +1869,15 @@ function validarFormulario() {
     '011': ['tbody-011-1', 'tbody-011-2'],
     '022': ['tbody-022-1', 'tbody-022-2'],
     '025': ['tbody-025-1', 'tbody-025-2'],
-    '024': ['tbody-024'],
-    '015': ['tbody-015-tgbh', 'tbody-015-ivf', 'tbody-015-axilar']
+    '024': ['tbody-024']
     ,'010': ['tbody-010-1']
   };
   nomsActivas.forEach(function (nom) {
+    // La NOM-015 depende del tipo de condición térmica evaluada.
+    if (nom === '015') {
+      errores.push.apply(errores, erroresNom015());
+      return;
+    }
     const tablas = tablasPorNom[nom] || [];
     const tieneFilas = tablas.some(function (tbodyId) {
       const tbody = document.getElementById(tbodyId);
@@ -1843,6 +1890,31 @@ function validarFormulario() {
   });
 
   return { valido: errores.length === 0, errores: errores };
+}
+
+/**
+ * Valida la captura de la NOM-015 según el tipo de condición térmica
+ * seleccionado: cada condición evaluada necesita al menos una fila en su
+ * tabla de índice (TGBH para elevadas, Ivf para abatidas).
+ * @returns {string[]}
+ */
+function erroresNom015() {
+  const errores = [];
+  const sel  = document.getElementById('modo-015');
+  const modo = modo015De({ modo015: sel && sel.value });
+
+  const tieneFilas = function (tbodyId) {
+    const tbody = document.getElementById(tbodyId);
+    return !!tbody && tbody.querySelectorAll('tr:not(.fila-template)').length > 0;
+  };
+
+  if (hayCalor015(modo) && !tieneFilas('tbody-015-tgbh')) {
+    errores.push('La NOM-015 requiere al menos una fila en la tabla del índice TGBH (condiciones elevadas).');
+  }
+  if (hayFrio015(modo) && !tieneFilas('tbody-015-ivf')) {
+    errores.push('La NOM-015 requiere al menos una fila en la tabla del índice de viento frío (condiciones abatidas).');
+  }
+  return errores;
 }
 
 // ============================================================
@@ -1909,13 +1981,10 @@ function recolectarDatos() {
     datos.tablas['024']   = leerFilasTabla('tbody-024');
   }
   if (nomsActivas.includes('015')) {
-    const modo015 = document.getElementById('modo-015');
-    datos.modo015 = (modo015 && modo015.value) || 'calor';
-    if (datos.modo015 === 'frio') {
-      datos.tablas['015-ivf'] = leerFilasTabla('tbody-015-ivf');
-    } else {
-      datos.tablas['015-tgbh'] = leerFilasTabla('tbody-015-tgbh');
-    }
+    const selModo = document.getElementById('modo-015');
+    datos.modo015 = modo015De({ modo015: selModo && selModo.value });
+    if (hayCalor015(datos.modo015)) datos.tablas['015-tgbh'] = leerFilasTabla('tbody-015-tgbh');
+    if (hayFrio015(datos.modo015))  datos.tablas['015-ivf']  = leerFilasTabla('tbody-015-ivf');
     datos.tablas['015-axilar'] = leerFilasTabla('tbody-015-axilar');
   }
   if (nomsActivas.includes('010')) datos.tablas['010-1'] = leerFilasTabla('tbody-010-1');
@@ -2467,104 +2536,109 @@ function renderizarTablaResumen(datos, nom) {
   }
 
   if (nom === '015') {
-    const esFrio = datos.modo015 === 'frio';
+    const modo = modo015De(datos);
+    // En modo 'ambas' el resumen presenta los dos índices en el mismo
+    // documento, así que las tablas se numeran de corrido: TGBH, Ivf y,
+    // al final, la temperatura axilar.
+    let numTabla = 0;
 
-    if (esFrio) {
-      // Tabla 1 (frío) — Índice de viento frío (Ivf), Cap. 10 NOM-015
-      const tIvf = datos.tablas['015-ivf'] || [];
-      if (tIvf.length > 0) {
-        const den015Ivf = tIvf.filter(function (r) { return r[6] === 'Dentro'; }).length;
-        contenido += `
-          <p style="font-weight:700;color:var(--texto);margin-bottom:4px">Para el índice de viento frío (Ivf)</p>
-          <p class="doc-intro" style="margin-bottom:14px">En la siguiente tabla se presentan las conclusiones para cada uno de los puntos evaluados en condiciones térmicas abatidas, correlacionando la temperatura de bulbo seco y la velocidad del viento para determinar el índice de viento frío y el tiempo máximo permisible de exposición.</p>
-          <div class="doc-nom-subtitulo">Tabla 1. Resultados del índice de viento frío</div>
-          <table class="doc-tabla-resumen">
-            <thead><tr>
-              <th style="width:48px;white-space:nowrap">N°</th><th>Área evaluada</th>
-              <th>Nombre del trabajador</th>
-              <th style="width:80px">Temp. bulbo seco (°C)</th>
-              <th style="width:80px">Vel. viento (km/h)</th>
-              <th style="width:82px">Índice de viento frío (°C)</th>
-              <th style="width:96px">Tiempo máx. de exposición</th>
-              <th style="width:90px">Conclusión</th>
-            </tr></thead>
-            <tbody>
-              ${tIvf.map(function (r, i) {
-                const concl = r[6] === 'Dentro' ? '✓' : r[6] === 'Fuera' ? '✖' : (r[6] || '');
-                return `<tr>
-                  <td style="text-align:center">${i+1}</td>
-                  <td>${r[0]||''}</td><td>${r[1]||''}</td>
-                  <td style="text-align:center">${r[2]||''}</td>
-                  <td style="text-align:center">${r[3]||''}</td>
-                  <td style="text-align:center">${r[4]||''}</td>
-                  <td style="text-align:center">${r[5]||''}</td>
-                  <td style="text-align:center">${concl}</td>
-                </tr>`;
-              }).join('')}
-            </tbody>
-          </table>
-          <div class="doc-leyenda-bloque">Nomenclatura utilizada = Dentro | Fuera = ✓ | ✖<br>Ivf: Índice de Viento Frío (Tabla A.2 de la norma). El tiempo máximo de exposición se determina con la Tabla 2: de 0 a −18 °C → 8 h; &lt;−18 a −34 °C → 4 h; &lt;−34 a −57 °C → 1 h; &lt;−57 °C → 5 min.</div>
-          <div class="doc-conteos">
-            <span class="doc-conteo-linea"><span class="doc-conteo-num">${tIvf.length}</span> …… puntos en total evaluados</span>
-            <span class="doc-conteo-linea"><span class="doc-conteo-num">${den015Ivf}</span> …… se encuentran dentro del tiempo máximo permisible de exposición</span>
-          </div>
-          <p class="doc-nota-anexo">*Para información detallada, consultar los anexos del informe de resultados.</p>
-          <div class="doc-graficas-fila">
-            ${dibujarGraficaDoble('Índice de viento frío', den015Ivf, 'Dentro de norma', tIvf.length - den015Ivf, 'Fuera de norma', tIvf.length)}
-          </div>`;
-      }
-    } else {
-      // Tabla 1 (calor) — Índice de temperatura de globo de bulbo húmedo (TGBH)
-      const tTgbh = datos.tablas['015-tgbh'] || [];
-      if (tTgbh.length > 0) {
-        const den015Tgbh = tTgbh.filter(function (r) { return r[6] === 'Dentro'; }).length;
-        contenido += `
-          <p style="font-weight:700;color:var(--texto);margin-bottom:4px">Para el índice de temperatura de globo de bulbo húmedo (TGBH)</p>
-          <p class="doc-intro" style="margin-bottom:14px">En la siguiente tabla se presentan las conclusiones para cada uno de los puntos evaluados respecto al índice de temperatura de globo de bulbo húmedo comparado contra el límite máximo permisible de exposición, según el régimen de trabajo y el porcentaje de exposición.</p>
-          <div class="doc-nom-subtitulo">Tabla 1. Resultados del índice de temperatura de globo de bulbo húmedo</div>
-          <table class="doc-tabla-resumen">
-            <thead><tr>
-              <th style="width:40px;white-space:nowrap">N°</th><th>Área evaluada</th>
-              <th>Nombre del trabajador</th>
-              <th style="width:78px">Régimen de trabajo</th>
-              <th style="width:70px">% de exposición</th>
-              <th style="width:78px">TGBH promedio (°C)</th>
-              <th style="width:70px">LMPE (°C)</th>
-              <th style="width:82px">Conclusión</th>
-            </tr></thead>
-            <tbody>
-              ${tTgbh.map(function (r, i) {
-                const concl = r[6] === 'Dentro' ? '✓' : r[6] === 'Fuera' ? '✖' : (r[6] || '');
-                return `<tr>
-                  <td style="text-align:center">${i+1}</td>
-                  <td>${r[0]||''}</td><td>${r[1]||''}</td>
-                  <td style="text-align:center">${r[2]||''}</td>
-                  <td style="text-align:center">${r[3]||''}</td>
-                  <td style="text-align:center">${r[4]||''}</td>
-                  <td style="text-align:center">${r[5]||''}</td>
-                  <td style="text-align:center">${concl}</td>
-                </tr>`;
-              }).join('')}
-            </tbody>
-          </table>
-          <div class="doc-leyenda-bloque">Nomenclatura utilizada = Dentro | Fuera = ✓ | ✖<br>LMPE: Límite Máximo Permisible de Exposición · TGBH: Índice de Temperatura de Globo de Bulbo Húmedo. El LMPE se toma de la Tabla 1 de la norma según el régimen de trabajo (ligero/moderado/pesado) y el % de exposición.</div>
-          <div class="doc-conteos">
-            <span class="doc-conteo-linea"><span class="doc-conteo-num">${tTgbh.length}</span> …… puntos en total evaluados</span>
-            <span class="doc-conteo-linea"><span class="doc-conteo-num">${den015Tgbh}</span> …… se encuentran dentro del límite máximo permisible</span>
-          </div>
-          <p class="doc-nota-anexo">*Para información detallada, consultar los anexos del informe de resultados.</p>
-          <div class="doc-graficas-fila">
-            ${dibujarGraficaDoble('Índice TGBH', den015Tgbh, 'Dentro de norma', tTgbh.length - den015Tgbh, 'Fuera de norma', tTgbh.length)}
-          </div>`;
-      }
+    // Índice de temperatura de globo de bulbo húmedo (TGBH) — condiciones elevadas
+    const tTgbh = hayCalor015(modo) ? (datos.tablas['015-tgbh'] || []) : [];
+    if (tTgbh.length > 0) {
+      numTabla++;
+      const den015Tgbh = tTgbh.filter(function (r) { return r[6] === 'Dentro'; }).length;
+      contenido += `
+        <p style="font-weight:700;color:var(--texto);margin-bottom:4px">Para el índice de temperatura de globo de bulbo húmedo (TGBH)</p>
+        <p class="doc-intro" style="margin-bottom:14px">En la siguiente tabla se presentan las conclusiones para cada uno de los puntos evaluados respecto al índice de temperatura de globo de bulbo húmedo comparado contra el límite máximo permisible de exposición, según el régimen de trabajo y el porcentaje de exposición.</p>
+        <div class="doc-nom-subtitulo">Tabla ${numTabla}. Resultados del índice de temperatura de globo de bulbo húmedo</div>
+        <table class="doc-tabla-resumen">
+          <thead><tr>
+            <th style="width:40px;white-space:nowrap">N°</th><th>Área evaluada</th>
+            <th>Nombre del trabajador</th>
+            <th style="width:78px">Régimen de trabajo</th>
+            <th style="width:70px">% de exposición</th>
+            <th style="width:78px">TGBH promedio (°C)</th>
+            <th style="width:70px">LMPE (°C)</th>
+            <th style="width:82px">Conclusión</th>
+          </tr></thead>
+          <tbody>
+            ${tTgbh.map(function (r, i) {
+              const concl = r[6] === 'Dentro' ? '✓' : r[6] === 'Fuera' ? '✖' : (r[6] || '');
+              return `<tr>
+                <td style="text-align:center">${i+1}</td>
+                <td>${r[0]||''}</td><td>${r[1]||''}</td>
+                <td style="text-align:center">${r[2]||''}</td>
+                <td style="text-align:center">${r[3]||''}</td>
+                <td style="text-align:center">${r[4]||''}</td>
+                <td style="text-align:center">${r[5]||''}</td>
+                <td style="text-align:center">${concl}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+        <div class="doc-leyenda-bloque">Nomenclatura utilizada = Dentro | Fuera = ✓ | ✖<br>LMPE: Límite Máximo Permisible de Exposición · TGBH: Índice de Temperatura de Globo de Bulbo Húmedo. El LMPE se toma de la Tabla 1 de la norma según el régimen de trabajo (ligero/moderado/pesado) y el % de exposición.</div>
+        <div class="doc-conteos">
+          <span class="doc-conteo-linea"><span class="doc-conteo-num">${tTgbh.length}</span> …… puntos en total evaluados</span>
+          <span class="doc-conteo-linea"><span class="doc-conteo-num">${den015Tgbh}</span> …… se encuentran dentro del límite máximo permisible</span>
+        </div>
+        <p class="doc-nota-anexo">*Para información detallada, consultar los anexos del informe de resultados.</p>
+        <div class="doc-graficas-fila">
+          ${dibujarGraficaDoble('Índice TGBH', den015Tgbh, 'Dentro de norma', tTgbh.length - den015Tgbh, 'Fuera de norma', tTgbh.length)}
+        </div>`;
     }
 
-    // Tabla 2 — Temperatura axilar de los trabajadores (común a ambos modos)
+    // Índice de viento frío (Ivf), Cap. 10 NOM-015 — condiciones abatidas
+    const tIvf = hayFrio015(modo) ? (datos.tablas['015-ivf'] || []) : [];
+    if (tIvf.length > 0) {
+      numTabla++;
+      const den015Ivf = tIvf.filter(function (r) { return r[6] === 'Dentro'; }).length;
+      contenido += `
+        <p style="font-weight:700;color:var(--texto);margin-bottom:4px">Para el índice de viento frío (Ivf)</p>
+        <p class="doc-intro" style="margin-bottom:14px">En la siguiente tabla se presentan las conclusiones para cada uno de los puntos evaluados en condiciones térmicas abatidas, correlacionando la temperatura de bulbo seco y la velocidad del viento para determinar el índice de viento frío y el tiempo máximo permisible de exposición.</p>
+        <div class="doc-nom-subtitulo">Tabla ${numTabla}. Resultados del índice de viento frío</div>
+        <table class="doc-tabla-resumen">
+          <thead><tr>
+            <th style="width:48px;white-space:nowrap">N°</th><th>Área evaluada</th>
+            <th>Nombre del trabajador</th>
+            <th style="width:80px">Temp. bulbo seco (°C)</th>
+            <th style="width:80px">Vel. viento (km/h)</th>
+            <th style="width:82px">Índice de viento frío (°C)</th>
+            <th style="width:96px">Tiempo máx. de exposición</th>
+            <th style="width:90px">Conclusión</th>
+          </tr></thead>
+          <tbody>
+            ${tIvf.map(function (r, i) {
+              const concl = r[6] === 'Dentro' ? '✓' : r[6] === 'Fuera' ? '✖' : (r[6] || '');
+              return `<tr>
+                <td style="text-align:center">${i+1}</td>
+                <td>${r[0]||''}</td><td>${r[1]||''}</td>
+                <td style="text-align:center">${r[2]||''}</td>
+                <td style="text-align:center">${r[3]||''}</td>
+                <td style="text-align:center">${r[4]||''}</td>
+                <td style="text-align:center">${r[5]||''}</td>
+                <td style="text-align:center">${concl}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+        <div class="doc-leyenda-bloque">Nomenclatura utilizada = Dentro | Fuera = ✓ | ✖<br>Ivf: Índice de Viento Frío (Tabla A.2 de la norma). El tiempo máximo de exposición se determina con la Tabla 2: de 0 a −18 °C → 8 h; &lt;−18 a −34 °C → 4 h; &lt;−34 a −57 °C → 1 h; &lt;−57 °C → 5 min.</div>
+        <div class="doc-conteos">
+          <span class="doc-conteo-linea"><span class="doc-conteo-num">${tIvf.length}</span> …… puntos en total evaluados</span>
+          <span class="doc-conteo-linea"><span class="doc-conteo-num">${den015Ivf}</span> …… se encuentran dentro del tiempo máximo permisible de exposición</span>
+        </div>
+        <p class="doc-nota-anexo">*Para información detallada, consultar los anexos del informe de resultados.</p>
+        <div class="doc-graficas-fila">
+          ${dibujarGraficaDoble('Índice de viento frío', den015Ivf, 'Dentro de norma', tIvf.length - den015Ivf, 'Fuera de norma', tIvf.length)}
+        </div>`;
+    }
+
+    // Temperatura axilar de los trabajadores (común a todos los modos)
     const tAxilar = datos.tablas['015-axilar'] || [];
     if (tAxilar.length > 0) {
+      numTabla++;
       const den015Ax = tAxilar.filter(function (r) { return r[4] === 'Dentro'; }).length;
       contenido += `
-        <div class="doc-nom-subtitulo">Tabla 2. Resultados de la temperatura axilar de los trabajadores</div>
+        <div class="doc-nom-subtitulo">Tabla ${numTabla}. Resultados de la temperatura axilar de los trabajadores</div>
         <table class="doc-tabla-resumen">
           <thead><tr>
             <th style="width:48px;white-space:nowrap">N°</th><th>Nombre del trabajador</th>
@@ -2614,13 +2688,14 @@ const TITULOS_NOM = {
   '025': 'NOM-025-STPS-2008 — Iluminación',
   '024': 'NOM-024-STPS-2001 — Vibraciones',
   '015': 'NOM-015-STPS-2001 — Condiciones Térmicas Elevadas (Calor)',
-  '015-frio': 'NOM-015-STPS-2001 — Condiciones Térmicas Abatidas (Frío)'
+  '015-frio': 'NOM-015-STPS-2001 — Condiciones Térmicas Abatidas (Frío)',
+  '015-ambas': 'NOM-015-STPS-2001 — Condiciones Térmicas Elevadas y Abatidas (Calor y Frío)'
   ,'010': 'NOM-010-STPS-2014 — Agentes Químicos Contaminantes del Ambiente Laboral'
 };
 
 /**
  * Devuelve el título de la NOM. Para la NOM-015 varía según el modo
- * (calor / frío) almacenado en datos.modo015.
+ * (calor / frío / ambas) almacenado en datos.modo015.
  * @param {Object} datos
  * @param {string} nom
  * @returns {string}
@@ -3090,10 +3165,10 @@ function restaurarFormulario(datos) {
     ]
   };
 
-  // Restaurar el modo de la NOM-015 (calor / frío) antes de recrear filas
+  // Restaurar el modo de la NOM-015 (calor / frío / ambas) antes de recrear filas
   const selModo015 = document.getElementById('modo-015');
   if (selModo015) {
-    selModo015.value = datos.modo015 || 'calor';
+    selModo015.value = modo015De(datos);
     aplicarModo015(selModo015.value);
   }
 
