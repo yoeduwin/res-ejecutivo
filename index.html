@@ -4601,6 +4601,10 @@ function imprimirPortada(nom) {
   // Se leen los datos actuales del formulario: una corrección se refleja sin volver a generar.
   const datosForm = recolectarDatos();
   const errores = erroresPortada(datosForm);
+  if (!errores.length && !datosForm.nomsPortada.includes(nom)) {
+    // Botón de una vista previa vieja: la NOM ya no está marcada y su N° de informe no se recolecta.
+    errores.push('La NOM-' + nom + ' ya no está seleccionada. Vuelva a generar las portadas.');
+  }
   if (errores.length) { mostrarError(errores.join('<br>')); return; }
   // La ventana se abre en el mismo clic para que el navegador no la bloquee.
   const ventana = window.open('', '_blank');
