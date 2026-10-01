@@ -2330,10 +2330,12 @@ function erroresNom015() {
 // ============================================================
 /**
  * Devuelve un array con los códigos de las NOMs marcadas ('011', '022', '025').
+ * @param {boolean} [ignorarModo] - true para incluirlas aunque el selector esté
+ *   en "Portadas" (lo usa el borrador para no perder lo capturado)
  * @returns {string[]}
  */
-function obtenerNomsActivas() {
-  if (modoDocumento() !== 'resumen') return [];
+function obtenerNomsActivas(ignorarModo) {
+  if (!ignorarModo && modoDocumento() !== 'resumen') return [];
   return NOMS_RESUMEN.filter(function (nom) {
     const chk = document.getElementById('check-' + nom);
     return chk && chk.checked;
@@ -2358,10 +2360,12 @@ function leerFilasTabla(tbodyId) {
 
 /**
  * Recolecta todos los datos del formulario en un único objeto.
+ * @param {boolean} [paraBorrador] - true para guardar las NOMs y portadas de
+ *   ambos modos; al generar sólo cuentan las del modo elegido
  * @returns {Object}
  */
-function recolectarDatos() {
-  const nomsActivas = obtenerNomsActivas();
+function recolectarDatos(paraBorrador) {
+  const nomsActivas = obtenerNomsActivas(paraBorrador);
 
   const datos = {
     razonSocial:    document.getElementById('razonSocial').value.trim(),
@@ -2379,7 +2383,7 @@ function recolectarDatos() {
     empresa:  document.getElementById('empresaPortada').value,
     informes: {}
   };
-  datos.nomsPortada = obtenerNomsPortada();
+  datos.nomsPortada = obtenerNomsPortada(paraBorrador);
   datos.nomsPortada.forEach(function (nom) {
     const input = document.getElementById('informe-' + nom);
     if (input) datos.portada.informes[nom] = input.value.trim();
@@ -3440,7 +3444,7 @@ function obtenerCortesProhibidos(contenedor, scale) {
  * Serializa el estado actual del formulario y lo descarga como .json.
  */
 function guardarBorrador() {
-  const datos = recolectarDatos();
+  const datos = recolectarDatos(true);
   const json  = JSON.stringify(datos, null, 2);
   const blob  = new Blob([json], { type: 'application/json' });
   const url   = URL.createObjectURL(blob);
@@ -4828,9 +4832,13 @@ function etiquetaPortada(nom) {
   return (PORTADAS_NOM[nom] && PORTADAS_NOM[nom].etiqueta) || 'NOM-' + nom;
 }
 
-/** NOMs marcadas que tienen portada, solo del modo elegido en el selector. */
-function obtenerNomsPortada() {
-  const delModo = modoDocumento() === 'resumen' ? NOMS_RESUMEN : NOMS_SOLO_PORTADA;
+/**
+ * NOMs marcadas que tienen portada, sólo del modo elegido en el selector.
+ * @param {boolean} [ignorarModo] - true para incluir las de ambos modos (borrador)
+ */
+function obtenerNomsPortada(ignorarModo) {
+  const delModo = ignorarModo ? NOMS_CON_PORTADA
+    : modoDocumento() === 'resumen' ? NOMS_RESUMEN : NOMS_SOLO_PORTADA;
   return delModo.filter(function (nom) {
     const chk = document.getElementById('check-' + nom);
     return chk && chk.checked;
