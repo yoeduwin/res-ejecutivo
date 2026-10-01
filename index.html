@@ -957,6 +957,17 @@ textarea.campo-textarea:focus {
 @media (max-width: 600px) { .noms-checks-solo { grid-template-columns: 1fr; } }
 .portadas-solo { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .portadas-solo .campo-ayuda { margin-top: 0; }
+/* Selector "¿Qué desea generar?": misma tarjeta que las casillas de NOM. */
+.modo-documento { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; }
+@media (max-width: 600px) { .modo-documento { grid-template-columns: 1fr; } }
+.modo-documento .nom-check-label input[type="radio"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--verde);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.modo-documento .nom-check-label:has(input:checked) { border-color: var(--verde); background: #F0F7F0; }
 /* Modo "solo portadas": la vista previa muestra únicamente las portadas. */
 #seccion-preview.solo-portadas > :not(#portadas-preview) { display: none; }
 </style>
@@ -999,6 +1010,29 @@ textarea.campo-textarea:focus {
          FORMULARIO
     ══════════════════════════════════ -->
     <form id="formulario" novalidate>
+
+      <!-- Selector de documento: resumen ejecutivo o solo portadas -->
+      <section class="seccion-form" id="guia-modo-documento">
+        <h2 class="seccion-titulo">¿Qué desea generar?</h2>
+        <div class="modo-documento" role="radiogroup" aria-label="Documento a generar">
+          <label class="nom-check-label">
+            <input type="radio" name="modo-documento" id="modo-resumen" value="resumen" checked
+                   onchange="aplicarModoDocumento(this.value)">
+            <span class="nom-check-texto">
+              <strong>Resumen ejecutivo</strong>
+              <em>Ruido, electricidad estática, iluminación, vibraciones, condiciones térmicas y agentes químicos (incluye su portada)</em>
+            </span>
+          </label>
+          <label class="nom-check-label">
+            <input type="radio" name="modo-documento" id="modo-portada" value="portada"
+                   onchange="aplicarModoDocumento(this.value)">
+            <span class="nom-check-texto">
+              <strong>Portadas</strong>
+              <em>Normas y documentos sin resumen ejecutivo: generan únicamente su portada</em>
+            </span>
+          </label>
+        </div>
+      </section>
 
       <!-- Sección 1: Datos del cliente -->
       <section class="seccion-form">
@@ -1049,6 +1083,8 @@ textarea.campo-textarea:focus {
       <!-- Sección 2: Selección de NOMs -->
       <section class="seccion-form">
         <h2 class="seccion-titulo">NOMs aplicables</h2>
+
+        <div id="bloque-noms-resumen">
         <p class="seccion-desc">Seleccione las normas que aplican a este informe.</p>
 
         <div class="noms-checks" id="guia-noms-checks">
@@ -1102,8 +1138,10 @@ textarea.campo-textarea:focus {
             <span class="nom-check-texto"><strong>NOM-010-STPS-2014</strong><em>Agentes químicos contaminantes del ambiente laboral</em></span>
           </label>
         </div>
-        <h3 class="portadas-solo-titulo">Solo portada</h3>
-        <p class="seccion-desc" style="margin-top:0">Normas y documentos sin resumen ejecutivo: generan únicamente su portada.</p>
+        </div>
+
+        <div id="bloque-noms-portada" style="display:none">
+        <p class="seccion-desc">Normas y documentos sin resumen ejecutivo: generan únicamente su portada.</p>
         <div class="noms-checks noms-checks-solo">
           <label class="nom-check-label">
             <input type="checkbox" id="check-001" value="001" onchange="toggleSeccionNom('001', this.checked)">
@@ -1205,6 +1243,7 @@ textarea.campo-textarea:focus {
             <input type="checkbox" id="check-curso-montacargas" value="curso-montacargas" onchange="toggleSeccionNom('curso-montacargas', this.checked)">
             <span class="nom-check-texto"><strong>Expediente del curso</strong><em>Manejo y operación de montacargas</em></span>
           </label>
+        </div>
         </div>
       </section>
 
@@ -1834,6 +1873,10 @@ textarea.campo-textarea:focus {
                 onclick="generarResumen()">
           Generar Resumen Ejecutivo
         </button>
+        <button type="button" id="btn-generar-portadas" class="btn-primario"
+                onclick="generarSoloPortadas()" style="display:none">
+          Generar portadas
+        </button>
 
         <div class="acciones-secundarias">
           <button type="button" id="btn-guardar-borrador" class="btn-secundario" onclick="guardarBorrador()">
@@ -2022,6 +2065,9 @@ document.addEventListener('DOMContentLoaded', function () {
   // Dejar la NOM-015 coherente con el modo inicial del selector
   const selModo015Inicial = document.getElementById('modo-015');
   if (selModo015Inicial) aplicarModo015(selModo015Inicial.value);
+
+  // El navegador puede recordar el selector de documento al recargar
+  aplicarModoDocumento(modoDocumento());
 });
 
 // ============================================================
@@ -2036,7 +2082,55 @@ function toggleSeccionNom(nom, activa) {
   actualizarFilasPortada();
   const seccion = document.getElementById('seccion-' + nom);
   if (!seccion) return;
-  seccion.style.display = activa ? 'block' : 'none';
+  seccion.style.display = activa && modoDocumento() === 'resumen' ? 'block' : 'none';
+}
+
+// ============================================================
+// SELECTOR DE DOCUMENTO — Resumen ejecutivo o solo portadas
+// ============================================================
+// NOMs con módulo de resumen ejecutivo (tienen tablas de captura).
+const NOMS_RESUMEN = ['011', '022', '025', '024', '015', '010'];
+
+// Último modo aplicado; permite saber si el usuario realmente cambió de modo.
+let modoDocumentoAplicado = 'resumen';
+
+/** 'resumen' o 'portada', según el selector "¿Qué desea generar?". */
+function modoDocumento() {
+  const radio = document.querySelector('input[name="modo-documento"]:checked');
+  return radio ? radio.value : 'resumen';
+}
+
+/**
+ * Muestra solo las normas del modo elegido: en "resumen" las NOMs con resumen
+ * ejecutivo y sus tablas; en "portada" las normas y documentos sin resumen.
+ * Las casillas del otro modo conservan su estado, pero no se usan.
+ * @param {string} modo - 'resumen' | 'portada'
+ */
+function aplicarModoDocumento(modo) {
+  const esResumen = modo !== 'portada';
+  const radio = document.getElementById(esResumen ? 'modo-resumen' : 'modo-portada');
+  if (radio) radio.checked = true;
+
+  document.getElementById('bloque-noms-resumen').style.display = esResumen ? '' : 'none';
+  document.getElementById('bloque-noms-portada').style.display = esResumen ? 'none' : '';
+  NOMS_RESUMEN.forEach(function (nom) {
+    const chk = document.getElementById('check-' + nom);
+    toggleSeccionNom(nom, !!(chk && chk.checked));
+  });
+
+  document.getElementById('btn-generar').style.display = esResumen ? '' : 'none';
+  document.getElementById('btn-generar-portadas').style.display = esResumen ? 'none' : '';
+  // En modo portada el botón principal ya genera solo portadas.
+  document.querySelector('.portadas-solo').style.display = esResumen ? '' : 'none';
+  actualizarFilasPortada();
+
+  // Al cambiar de modo, la vista previa generada deja de corresponder.
+  const nuevoModo = esResumen ? 'resumen' : 'portada';
+  if (nuevoModo !== modoDocumentoAplicado) {
+    ocultarError();
+    document.getElementById('seccion-preview').style.display = 'none';
+  }
+  modoDocumentoAplicado = nuevoModo;
 }
 
 /**
@@ -2239,7 +2333,8 @@ function erroresNom015() {
  * @returns {string[]}
  */
 function obtenerNomsActivas() {
-  return ['011', '022', '025', '024', '015', '010'].filter(function (nom) {
+  if (modoDocumento() !== 'resumen') return [];
+  return NOMS_RESUMEN.filter(function (nom) {
     const chk = document.getElementById('check-' + nom);
     return chk && chk.checked;
   });
@@ -2274,6 +2369,7 @@ function recolectarDatos() {
     fecha:          document.getElementById('fecha').value,
     dirigidoA:      document.getElementById('dirigidoA').value.trim(),
     puesto:         document.getElementById('puesto').value.trim(),
+    modo:           modoDocumento(),
     noms:           nomsActivas,
     tablas:         {}
   };
@@ -3462,6 +3558,11 @@ function restaurarFormulario(datos) {
       if (el && datos[id] !== undefined) el.value = datos[id];
     });
 
+  // Modo del borrador; los borradores anteriores sin "modo" se deducen de sus NOMs
+  const modoBorrador = datos.modo ||
+    ((datos.noms || []).length || !(datos.nomsPortada || []).length ? 'resumen' : 'portada');
+  aplicarModoDocumento(modoBorrador);
+
   // Datos de portada
   const portada = datos.portada || {};
   document.getElementById('empresaPortada').value = portada.empresa || '';
@@ -4181,6 +4282,11 @@ function actualizarBotonesPDFAltaCalidad(datos) {
  */
 const PASOS_GUIA = [
   {
+    selector: '#guia-modo-documento',
+    titulo:   '¿Qué desea generar?',
+    texto:    'Elige "Resumen ejecutivo" para las NOMs con tablas de resultados (incluye su portada) o "Portadas" para las normas y documentos que solo llevan portada. Abajo aparecen únicamente las normas del modo elegido.'
+  },
+  {
     selector: '#guia-cargar-perfil',
     titulo:   'Cargar perfil de datos',
     texto:    'Si ya tienes el Excel de "Perfil de datos" del cliente, cárgalo aquí: completa automáticamente Razón Social, Dirección, Dirigido a y Puesto. Si no lo tienes, llena estos campos a mano.'
@@ -4234,7 +4340,12 @@ const PASOS_GUIA = [
 
 let pasoGuiaActual = -1;
 
+// Modo del selector antes de abrir la guía; la guía recorre el modo "resumen".
+let modoPreviaGuia = null;
+
 function activarGuia() {
+  modoPreviaGuia = modoDocumento();
+  if (modoPreviaGuia !== 'resumen') aplicarModoDocumento('resumen');
   pasoGuiaActual = 0;
   construirOverlayGuia();
   mostrarPasoGuia(0);
@@ -4363,6 +4474,8 @@ function cerrarGuia() {
   }
   destruirOverlayGuia();
   pasoGuiaActual = -1;
+  if (modoPreviaGuia && modoPreviaGuia !== modoDocumento()) aplicarModoDocumento(modoPreviaGuia);
+  modoPreviaGuia = null;
 }
 
 
@@ -4705,16 +4818,17 @@ function construirPortadaSVG(nom, datos, fondoUrl, medir) {
 // NOMs con diseño de portada, en el orden del formulario. La NOM-081 sólo tiene portada.
 // Portadas sin módulo de resumen ("solo portada"): su casilla se guarda sólo en las NOMs de portada.
 const NOMS_SOLO_PORTADA = ['001', '002', '004', '005', '006', '009', '017', '018', '019', '020', '027', '029', '030', '033', '034', '035', '036', '081', 'silla', 'pipc', 'matriz', 'curso-amb', 'curso-comision', 'curso-brigadas', 'curso-montacargas'];
-const NOMS_CON_PORTADA = ['011', '022', '025', '024', '015', '010'].concat(NOMS_SOLO_PORTADA);
+const NOMS_CON_PORTADA = NOMS_RESUMEN.concat(NOMS_SOLO_PORTADA);
 
 /** Nombre corto de una portada: "NOM-011", "Protección Civil"… */
 function etiquetaPortada(nom) {
   return (PORTADAS_NOM[nom] && PORTADAS_NOM[nom].etiqueta) || 'NOM-' + nom;
 }
 
-/** NOMs marcadas que tienen portada. */
+/** NOMs marcadas que tienen portada, solo del modo elegido en el selector. */
 function obtenerNomsPortada() {
-  return NOMS_CON_PORTADA.filter(function (nom) {
+  const delModo = modoDocumento() === 'resumen' ? NOMS_RESUMEN : NOMS_SOLO_PORTADA;
+  return delModo.filter(function (nom) {
     const chk = document.getElementById('check-' + nom);
     return chk && chk.checked;
   });
