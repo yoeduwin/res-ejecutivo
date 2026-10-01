@@ -3577,7 +3577,7 @@ function restaurarFormulario(datos) {
   actualizarFilasPortada();
 
   // Desactivar todas las NOMs primero
-  ['011','022','025','024','015'].forEach(function (nom) {
+  NOMS_RESUMEN.forEach(function (nom) {
     const chk = document.getElementById('check-' + nom);
     if (chk) { chk.checked = false; toggleSeccionNom(nom, false); }
   });
@@ -3603,6 +3603,9 @@ function restaurarFormulario(datos) {
       { tbodyId: 'tbody-015-tgbh',   claves: ['015-tgbh'] },
       { tbodyId: 'tbody-015-ivf',    claves: ['015-ivf'] },
       { tbodyId: 'tbody-015-axilar', claves: ['015-axilar'] }
+    ],
+    '010': [
+      { tbodyId: 'tbody-010-1', claves: ['010-1'] }
     ]
   };
 
