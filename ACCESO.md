@@ -26,7 +26,10 @@ contra la lista de acceso del equipo:
    audience) y comprueba el correo en la hoja **USUARIOS_AUTORIZADOS**
    (columna Activo; sin restricción de módulo, porque este generador no
    tiene columna propia).
-3. Solo entonces arranca la app.
+3. Solo entonces arranca la app. Un token guardado en el navegador no
+   basta: en cada carga se vuelve a verificar con el servidor antes de
+   aceptarlo, y los puntos de generación exigen sesión verificada
+   (`SEAAuth.isVerified()`), no solo un token sin expirar.
 
 ## Configuración (un solo valor)
 

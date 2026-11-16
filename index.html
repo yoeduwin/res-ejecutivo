@@ -1,4 +1,3 @@
-successfully downloaded text file (SHA: 07a047d7a5881131aeb172381481b4177a63b7af)
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -2455,7 +2454,7 @@ let datosActuales = null;
 function generarResumen() {
   // Candado de acceso (PR seguridad/acceso-real): sin sesión verificada no
   // se genera nada; se pide login y se reintenta tras verificar.
-  if (typeof SEAAuth === 'undefined' || SEAAuth.isExpired(SEAAuth.getToken())) {
+  if (typeof SEAAuth === 'undefined' || !SEAAuth.isVerified()) {
     if (typeof SEAAuth !== 'undefined') SEAAuth.requireAuth(function() { generarResumen(); }, { gasUrl: EA_GAS_URL });
     else alert('No se pudo cargar el módulo de acceso. Recarga la página.');
     return;
@@ -3729,7 +3728,7 @@ function logError(error) {
 function descargarPDF() {
   // Candado de acceso (PR seguridad/acceso-real): sin sesión verificada no
   // se genera nada; se pide login y se reintenta tras verificar.
-  if (typeof SEAAuth === 'undefined' || SEAAuth.isExpired(SEAAuth.getToken())) {
+  if (typeof SEAAuth === 'undefined' || !SEAAuth.isVerified()) {
     if (typeof SEAAuth !== 'undefined') SEAAuth.requireAuth(function() { descargarPDF(); }, { gasUrl: EA_GAS_URL });
     else alert('No se pudo cargar el módulo de acceso. Recarga la página.');
     return;
@@ -3750,7 +3749,7 @@ function descargarPDF() {
 function imprimirPDFAltaCalidad(nomUnica) {
   // Candado de acceso (PR seguridad/acceso-real): sin sesión verificada no
   // se genera nada; se pide login y se reintenta tras verificar.
-  if (typeof SEAAuth === 'undefined' || SEAAuth.isExpired(SEAAuth.getToken())) {
+  if (typeof SEAAuth === 'undefined' || !SEAAuth.isVerified()) {
     if (typeof SEAAuth !== 'undefined') SEAAuth.requireAuth(function() { imprimirPDFAltaCalidad(nomUnica); }, { gasUrl: EA_GAS_URL });
     else alert('No se pudo cargar el módulo de acceso. Recarga la página.');
     return;
@@ -4919,7 +4918,7 @@ function erroresPortada(datos) {
 function generarSoloPortadas() {
   // Candado de acceso (PR seguridad/acceso-real): sin sesión verificada no
   // se genera nada; se pide login y se reintenta tras verificar.
-  if (typeof SEAAuth === 'undefined' || SEAAuth.isExpired(SEAAuth.getToken())) {
+  if (typeof SEAAuth === 'undefined' || !SEAAuth.isVerified()) {
     if (typeof SEAAuth !== 'undefined') SEAAuth.requireAuth(function() { generarSoloPortadas(); }, { gasUrl: EA_GAS_URL });
     else alert('No se pudo cargar el módulo de acceso. Recarga la página.');
     return;
@@ -5071,7 +5070,7 @@ function actualizarPortadas(datos) {
 function imprimirPortada(nom) {
   // Candado de acceso (PR seguridad/acceso-real): sin sesión verificada no
   // se genera nada; se pide login y se reintenta tras verificar.
-  if (typeof SEAAuth === 'undefined' || SEAAuth.isExpired(SEAAuth.getToken())) {
+  if (typeof SEAAuth === 'undefined' || !SEAAuth.isVerified()) {
     if (typeof SEAAuth !== 'undefined') SEAAuth.requireAuth(function() { imprimirPortada(nom); }, { gasUrl: EA_GAS_URL });
     else alert('No se pudo cargar el módulo de acceso. Recarga la página.');
     return;
