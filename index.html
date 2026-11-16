@@ -1,3 +1,4 @@
+successfully downloaded text file (SHA: 07a047d7a5881131aeb172381481b4177a63b7af)
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -981,6 +982,16 @@ textarea.campo-textarea:focus {
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <!-- SheetJS — lee el Excel "Perfil de datos" para autocompletar Datos del cliente -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+  <!-- ── Autenticación Google (candado de acceso; PR seguridad/acceso-real) ── -->
+  <!-- auth.js ANTES que GIS: define onGISLoaded() que GIS llama al cargar. -->
+  <script src="auth.js"></script>
+  <script src="https://accounts.google.com/gsi/client" onload="onGISLoaded()" async defer></script>
+  <script>
+    // Endpoint de verificación (el mismo backend SEA; acción verificarAcceso).
+    // La lista de acceso es la hoja USUARIOS_AUTORIZADOS de ese backend.
+    const EA_GAS_URL = 'https://script.google.com/macros/s/AKfycby8t7Py-cilePxLiGa-Lq7Df73XaRlmkRYV_kXbTs79HFydaJyub8muA0PBLRkPevUuXg/exec';
+  </script>
 </head>
 <body>
   <!-- ── Header corporativo ── -->
@@ -996,6 +1007,7 @@ textarea.campo-textarea:focus {
       <div class="header-derecha">
         <div class="app-titulo">Generador de Resúmenes Ejecutivos</div>
         <button type="button" class="btn-guia-activar" onclick="activarGuia()"><svg class="icono-btn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polygon points="14.5 9.5 13 13 9.5 14.5 11 11 14.5 9.5"></polygon></svg>Activar guía</button>
+        <div id="sea-user-info" style="display:flex;align-items:center;gap:6px;"></div>
       </div>
     </div>
   </header>
@@ -2055,6 +2067,14 @@ const MESES = [
 // INICIALIZACIÓN
 // ============================================================
 document.addEventListener('DOMContentLoaded', function () {
+  // Candado de acceso (PR seguridad/acceso-real): la app no arranca hasta
+  // verificar la cuenta Google contra la lista de acceso del equipo.
+  SEAAuth.init(function () {
+    bootResEjecutivo();
+  }, { gasUrl: EA_GAS_URL });
+});
+
+function bootResEjecutivo() {
   // Establecer fecha de hoy en el campo de fecha
   const hoy = new Date();
   const yyyy = hoy.getFullYear();
@@ -2068,7 +2088,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // El navegador puede recordar el selector de documento al recargar
   aplicarModoDocumento(modoDocumento());
-});
+}
 
 // ============================================================
 // TOGGLE DE SECCIONES NOM
@@ -2433,6 +2453,13 @@ let datosActuales = null;
  * Punto de entrada principal: valida, genera el documento y registra el log.
  */
 function generarResumen() {
+  // Candado de acceso (PR seguridad/acceso-real): sin sesión verificada no
+  // se genera nada; se pide login y se reintenta tras verificar.
+  if (typeof SEAAuth === 'undefined' || SEAAuth.isExpired(SEAAuth.getToken())) {
+    if (typeof SEAAuth !== 'undefined') SEAAuth.requireAuth(function() { generarResumen(); }, { gasUrl: EA_GAS_URL });
+    else alert('No se pudo cargar el módulo de acceso. Recarga la página.');
+    return;
+  }
   ocultarError();
 
   const validacion = validarFormulario();
@@ -3700,6 +3727,13 @@ function logError(error) {
  * permanecen vectoriales y seleccionables al elegir “Guardar como PDF”.
  */
 function descargarPDF() {
+  // Candado de acceso (PR seguridad/acceso-real): sin sesión verificada no
+  // se genera nada; se pide login y se reintenta tras verificar.
+  if (typeof SEAAuth === 'undefined' || SEAAuth.isExpired(SEAAuth.getToken())) {
+    if (typeof SEAAuth !== 'undefined') SEAAuth.requireAuth(function() { descargarPDF(); }, { gasUrl: EA_GAS_URL });
+    else alert('No se pudo cargar el módulo de acceso. Recarga la página.');
+    return;
+  }
   imprimirPDFAltaCalidad();
 }
 
@@ -3714,6 +3748,13 @@ function descargarPDF() {
  * @param {string=} nomUnica - Código NOM opcional para imprimir una sola norma.
  */
 function imprimirPDFAltaCalidad(nomUnica) {
+  // Candado de acceso (PR seguridad/acceso-real): sin sesión verificada no
+  // se genera nada; se pide login y se reintenta tras verificar.
+  if (typeof SEAAuth === 'undefined' || SEAAuth.isExpired(SEAAuth.getToken())) {
+    if (typeof SEAAuth !== 'undefined') SEAAuth.requireAuth(function() { imprimirPDFAltaCalidad(nomUnica); }, { gasUrl: EA_GAS_URL });
+    else alert('No se pudo cargar el módulo de acceso. Recarga la página.');
+    return;
+  }
   if (!datosActuales || !datosActuales.noms || datosActuales.noms.length === 0) {
     mostrarError('Primero genere el Resumen Ejecutivo antes de exportar el PDF.');
     return;
@@ -4876,6 +4917,13 @@ function erroresPortada(datos) {
  * Genera sólo las portadas, sin resumen ejecutivo ni validación de tablas.
  */
 function generarSoloPortadas() {
+  // Candado de acceso (PR seguridad/acceso-real): sin sesión verificada no
+  // se genera nada; se pide login y se reintenta tras verificar.
+  if (typeof SEAAuth === 'undefined' || SEAAuth.isExpired(SEAAuth.getToken())) {
+    if (typeof SEAAuth !== 'undefined') SEAAuth.requireAuth(function() { generarSoloPortadas(); }, { gasUrl: EA_GAS_URL });
+    else alert('No se pudo cargar el módulo de acceso. Recarga la página.');
+    return;
+  }
   ocultarError();
   const datos = recolectarDatos();
   const errores = erroresPortada(datos);
@@ -5021,6 +5069,13 @@ function actualizarPortadas(datos) {
  * @param {string} nom
  */
 function imprimirPortada(nom) {
+  // Candado de acceso (PR seguridad/acceso-real): sin sesión verificada no
+  // se genera nada; se pide login y se reintenta tras verificar.
+  if (typeof SEAAuth === 'undefined' || SEAAuth.isExpired(SEAAuth.getToken())) {
+    if (typeof SEAAuth !== 'undefined') SEAAuth.requireAuth(function() { imprimirPortada(nom); }, { gasUrl: EA_GAS_URL });
+    else alert('No se pudo cargar el módulo de acceso. Recarga la página.');
+    return;
+  }
   // Se leen los datos actuales del formulario: una corrección se refleja sin volver a generar.
   const datosForm = recolectarDatos();
   const errores = erroresPortada(datosForm);
